@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkingTech - Métricas e Ingresos</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --sidebar: #0f172a;
+            --primary: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #1e293b;
+            --text-dim: #64748b;
+            --border: #e2e8f0;
+            --card: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* SIDEBAR NAV */
+        .sidebar {
+            background: var(--sidebar);
+            color: white;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: var(--primary); color: white; }
+
+        /* MAIN CONTENT */
+        .main-content { padding: 40px; overflow-y: auto; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .stat-value { font-size: 1.8rem; font-weight: 800; margin: 8px 0; color: var(--primary); }
+        .stat-label { font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-trend { font-size: 0.75rem; font-weight: 600; }
+        .trend-up { color: var(--success); }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .chart-box {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            min-height: 300px;
+        }
+
+        .fake-chart {
+            width: 100%;
+            height: 200px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .bar { background: var(--primary); width: 100%; border-radius: 4px 4px 0 0; }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2 style="font-size: 1.2rem; margin-bottom: 40px">🚗 ParkingTech</h2>
+    <a href="#" class="nav-item">📊 Dashboard General</a>
+    <a href="#" class="nav-item active">📈 Métricas de Uso</a>
+    <a href="#" class="nav-item">📅 Reservas</a>
+    <a href="#" class="nav-item">👥 Usuarios</a>
+    <a href="#" class="nav-item">⚙️ Configuración</a>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <div>
+            <h1 style="margin:0">Analítica de Negocio</h1>
+            <p style="color: var(--text-dim); margin: 5px 0 0">Reporte correspondiente a Abril 2026</p>
+        </div>
+        <button style="padding: 12px 24px; background: white; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; font-weight: 600">
+            📥 Descargar Reporte (PDF)
+        </button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Ingresos Totales</div>
+            <div class="stat-value">$142.500</div>
+            <div class="stat-trend trend-up">▲ 12.5% vs mes anterior</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Ocupación Media</div>
+            <div class="stat-value">78%</div>
+            <div class="stat-trend trend-up">▲ 5% vs mes anterior</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Usuarios Nuevos</div>
+            <div class="stat-value">342</div>
+            <div class="stat-trend trend-up">▲ 24 este mes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Tiempo Promedio</div>
+            <div class="stat-value">02h 15m</div>
+            <div class="stat-trend" style="color: var(--text-dim)">- Sin cambios significativos</div>
+        </div>
+    </div>
+
+    <div class="charts-container">
+        <div class="chart-box">
+            <h3 style="margin:0">Ingresos Semanales</h3>
+            <div class="fake-chart">
+                <div class="bar" style="height: 40%"></div>
+                <div class="bar" style="height: 60%"></div>
+                <div class="bar" style="height: 55%"></div>
+                <div class="bar" style="height: 80%"></div>
+                <div class="bar" style="height: 95%"></div>
+                <div class="bar" style="height: 70%"></div>
+                <div class="bar" style="height: 30%"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.75rem; color: var(--text-dim)">
+                <span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span><span>Dom</span>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <h3 style="margin:0">Distribución de Usuarios</h3>
+            <div style="margin-top: 30px">
+                <div style="margin-bottom: 20px">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem">
+                        <span>Con Reserva</span>
+                        <strong>65%</strong>
+                    </div>
+                    <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden">
+                        <div style="width: 65%; height: 100%; background: var(--primary)"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem">
+                        <span>Al Paso</span>
+                        <strong>35%</strong>
+                    </div>
+                    <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden">
+                        <div style="width: 35%; height: 100%; background: var(--warning)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
