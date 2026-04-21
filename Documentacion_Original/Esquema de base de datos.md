@@ -9,8 +9,9 @@ erDiagram
     USERS ||--o{ VEHICLES : "posee"
     USERS ||--o{ RESERVATIONS : "realiza"
     USERS ||--o{ POINTS_LOG : "acumula"
-    RESERVATIONS ||--o| ACCESS_LOGS : "genera"
+    RESERVATIONS ||--o{ ACCESS_LOGS : "genera"
     COUPONS ||--o{ RESERVATIONS : "aplica_a"
+    SETTINGS ||--o| SETTINGS : "configuración global"
 
     USERS {
         int id PK
@@ -33,6 +34,7 @@ erDiagram
         string patente
         string fecha_inicio
         string fecha_fin
+        string dias_semana
         float monto_total
         string mp_preference_id
         string estado_pago
@@ -69,6 +71,14 @@ erDiagram
         int reserva_id FK
         string fecha_hora
         string imagen_path
+        boolean pago_confirmado
+        float costo_estadia
+    }
+
+    SETTINGS {
+        int id PK
+        string clave
+        float valor
     }
 ```
 
@@ -78,8 +88,9 @@ erDiagram
 2.  **Usuarios y Reservas (1:N)**: Un usuario realiza múltiples reservas a lo largo del tiempo. Cada reserva guarda el `user_id` para gestionar el historial y los pagos de Mercado Pago.
 3.  **Usuarios e Historial de Puntos (1:N)**: Cada transacción de puntos (ganancia o canje) genera un registro vinculado al usuario. El saldo en `users.puntos_acumulados` es la suma de este historial.
 4.  **Cupones y Reservas (1:N)**: Un mismo código de cupón (ej: 'PROMO10') puede aplicarse a muchas reservas distintas, siempre que esté activo y dentro de su fecha de vigencia.
-5.  **Reservas y Registros de Acceso (1:1/0)**: Un registro de acceso ALPR puede estar vinculado a una reserva (si el usuario reservó previamente) o ser nulo (si el usuario entró "al paso"). Esta unión permite auditar el cumplimiento de las reservas.
+5.  **Reservas y Registros de Acceso (1:N)**: Un registro de acceso ALPR puede estar vinculado a una reserva (si el usuario reservó previamente) o ser nulo (si el usuario entró "al paso"). Un reserva puede tener múltiples accesos (entradas/salidas).
 6.  **Aforo Global (Independiente)**: La tabla `parking_aforo` funciona como un contador maestro. Es actualizada por el Backend tras cada evento de entrada o salida exitosa detectado por las barreras.
+7.  **Configuraciones (Independiente)**: La tabla `settings` almacena valores dinámicos como el precio por hora o multas.
 
 ---
 
@@ -133,6 +144,7 @@ graph TD
 | `patente` | TEXT | Patente autorizada para esta reserva |
 | `fecha_inicio` | TEXT | ISO8601 |
 | `fecha_fin` | TEXT | ISO8601 |
+| `dias_semana` | TEXT (Null) | Días permitidos (ej: "0,1,2") |
 | `monto_total` | REAL | Valor de la reserva |
 | `mp_preference_id` | TEXT | ID de pago de Mercado Pago |
 | `estado_pago` | TEXT | 'Pendiente', 'Aprobado', 'Rechazado' |
@@ -173,3 +185,12 @@ graph TD
 | `reserva_id` | INTEGER (FK, Null)| Vinculado si existe reserva previa |
 | `fecha_hora` | TEXT | ISO8601 |
 | `imagen_path` | TEXT | Ruta temporal de la captura (si aplica) |
+| `pago_confirmado` | BOOLEAN | Indica si el pago fue procesado al salir |
+| `costo_estadia` | REAL | Costo calculado para esta estancia específica |
+
+### 8. Configuraciones Globales (`settings`)
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | INTEGER (PK) | ID único |
+| `clave` | TEXT (Unique) | Ej: 'precio_hora', 'multa_reserva' |
+| `valor` | REAL | Valor numérico de la configuración |
