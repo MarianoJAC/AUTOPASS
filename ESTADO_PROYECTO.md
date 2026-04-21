@@ -16,8 +16,12 @@
 - **Modo Contingencia**: Formulario de ingreso manual de patentes para operar sin cámaras.
 - **Gestión de Precios**: Panel lateral para actualizar la tarifa por hora instantáneamente.
 
-### 👁️ Visión Artificial
-- **ALPR con Captura**: El servicio `alpr_service.py` envía patente y evidencia fotográfica al servidor.
+### 👁️ Visión Artificial (ALPR)
+- **Motor Multihilo (Multithreading)**: Procesamiento de OCR en segundo plano para mantener el video fluido a 30 FPS.
+- **Estrategia de Detección Dual**: Soporte optimizado para patentes Mercosur (fondo blanco) y patentes antiguas (fondo negro) mediante inversión de colores dinámica.
+- **Filtros de Precisión (Regex)**: Validación estricta de formatos oficiales Argentinos (`AAA123` y `AA000AA`) para evitar ruido.
+- **Optimización de Evidencia**: Envío asíncrono y compresión de capturas (640px JPG) para carga instantánea en el Dashboard.
+- **Filtros de Imagen**: Implementación de Sharpening y Binarización Otsu para mejorar la distinción entre caracteres conflictivos (V, Y, N, etc.).
 
 ---
 
@@ -31,3 +35,7 @@
 - Implementar tokens JWT para proteger los endpoints de la API y el acceso al Dashboard.
 - Cifrado de contraseñas de usuarios en la base de datos.
 - Registro de facturación (historial de pagos realizados).
+
+### 3. Historial & Reportes
+- Panel para consultar logs históricos con filtros por fecha y patente.
+- Exportación de reportes de recaudación en PDF/Excel.

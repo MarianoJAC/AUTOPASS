@@ -5,7 +5,9 @@ Este documento describe la arquitectura de comunicación y el flujo de datos del
 ## 📐 Arquitectura de 4 Capas
 
 1.  **Capa de Captura (Edge)**: 
-    - **ALPR Service**: OpenCV detecta el auto, captura una **fotografía de evidencia** y EasyOCR lee la patente.
+    - **ALPR Pro (Multithreaded)**: OpenCV captura video fluido a 30 FPS. Un hilo secundario procesa cada frame con EasyOCR.
+    - **Dual Scan**: Analiza cada bloque de texto dos veces (Normal e Invertido) para detectar patentes de fondo blanco (Mercosur) y fondo negro (Antiguas) con igual eficacia.
+    - **Evidencia Asíncrona**: Una vez validada la patente, el sistema dispara un envío de la captura comprimida (JPG 640px) al Backend sin detener el escaneo activo.
 2.  **Capa de Lógica (Backend)**:
     - **FastAPI**: Gestiona la lógica de negocios, el aforo, el **almacenamiento de imágenes** y la **configuración de tarifas dinámicas**.
     - **Base de Datos (SQLite)**: Registra logs de acceso, reservas, estados de pago y configuración de precios.
