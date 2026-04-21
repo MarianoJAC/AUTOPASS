@@ -169,7 +169,52 @@
             font-size: 0.75rem;
             font-weight: 700;
         }
+
+        /* ESTILOS ACORDEÓN */
+        .collapsible-section {
+            margin-bottom: 12px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .collapsible-header {
+            background: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            user-select: none;
+        }
+        .collapsible-header:hover { background: #f8fafc; }
+        .collapsible-header::after {
+            content: '▼';
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            transition: transform 0.3s;
+        }
+        .collapsible-header.active { border-bottom: 1px solid var(--border); }
+        .collapsible-header.active::after { transform: rotate(180deg); }
+        
+        .collapsible-content {
+            display: none;
+            background: white;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .collapsible-content.show { display: block; }
     </style>
+    <script>
+        function toggleSection(header, contentId) {
+            header.classList.toggle('active');
+            const content = document.getElementById(contentId);
+            content.classList.toggle('show');
+        }
+    </script>
 </head>
 <body>
 
@@ -192,11 +237,54 @@
     </div>
 
     <div style="margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px">
-        <h3 style="font-size: 0.75rem; text-transform: uppercase; color: #64748b; margin-bottom: 12px">Simulador ALPR</h3>
+        <h3 style="font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; margin-bottom: 12px">Contingencia (Sin Cámara)</h3>
         <div style="display: grid; gap: 8px">
             <input type="text" id="sim-plate" placeholder="Ej: ABC1234" style="padding: 10px; border-radius: 8px; border: none; background: #334155; color: white; margin-bottom: 5px">
-            <button class="btn" style="background: #3f3f46; color: white; font-size: 0.75rem; padding: 10px" onclick="simulateAccess('ENTRADA')">Simular Entrada</button>
-            <button class="btn" style="background: #3f3f46; color: white; font-size: 0.75rem; padding: 10px" onclick="simulateAccess('SALIDA')">Simular Salida</button>
+            <button class="btn" style="background: var(--primary); color: white; font-size: 0.75rem; padding: 10px" onclick="simulateAccess('ENTRADA')">Registrar Ingreso Manual</button>
+            <button class="btn" style="background: var(--at-step); color: white; font-size: 0.75rem; padding: 10px" onclick="simulateAccess('SALIDA')">Registrar Salida Manual</button>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px">
+        <h3 style="font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; margin-bottom: 12px">Nueva Reserva</h3>
+        <div style="display: grid; gap: 8px">
+            <input type="text" id="res-plate" placeholder="Patente (Ej: ABC123)" style="padding: 8px; border-radius: 6px; border: none; background: #334155; color: white;">
+            
+            <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 5px">VALIDEZ DEL CONTRATO (Fechas):</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px">
+                <input type="date" id="res-date-start" style="padding: 8px; border-radius: 6px; border: none; background: #334155; color: white; font-size: 0.8rem">
+                <input type="date" id="res-date-end" style="padding: 8px; border-radius: 6px; border: none; background: #334155; color: white; font-size: 0.8rem">
+            </div>
+
+            <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 5px">HORARIO PERMITIDO (Diario):</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px">
+                <input type="time" id="res-time-start" style="padding: 8px; border-radius: 6px; border: none; background: #334155; color: white; font-size: 0.8rem">
+                <input type="time" id="res-time-end" style="padding: 8px; border-radius: 6px; border: none; background: #334155; color: white; font-size: 0.8rem">
+            </div>
+            
+            <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 5px">DÍAS RECURRENTES:</div>
+            <div id="res-days" style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 5px">
+                <label style="font-size: 0.65rem; background: #334155; padding: 2px 4px; border-radius: 3px; cursor: pointer"><input type="checkbox" value="0"> Lu</label>
+                <label style="font-size: 0.65rem; background: #334155; padding: 2px 4px; border-radius: 3px; cursor: pointer"><input type="checkbox" value="1"> Ma</label>
+                <label style="font-size: 0.65rem; background: #334155; padding: 2px 4px; border-radius: 3px; cursor: pointer"><input type="checkbox" value="2"> Mi</label>
+                <label style="font-size: 0.65rem; background: #334155; padding: 2px 4px; border-radius: 3px; cursor: pointer"><input type="checkbox" value="3"> Ju</label>
+                <label style="font-size: 0.65rem; background: #334155; padding: 2px 4px; border-radius: 3px; cursor: pointer"><input type="checkbox" value="4"> Vi</label>
+                <label style="font-size: 0.65rem; background: #334155; padding: 2px 4px; border-radius: 3px; cursor: pointer"><input type="checkbox" value="5"> Sa</label>
+                <label style="font-size: 0.65rem; background: #334155; padding: 2px 4px; border-radius: 3px; cursor: pointer"><input type="checkbox" value="6"> Do</label>
+            </div>
+
+            <button class="btn" style="background: #10b981; color: white; font-size: 0.75rem; padding: 10px" onclick="createReservation()">Crear Reserva</button>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px">
+        <h3 style="font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; margin-bottom: 12px">Configuración de Tarifas</h3>
+        <div style="display: grid; gap: 8px">
+            <div style="display: flex; align-items: center; justify-content: space-between">
+                <span style="font-size: 0.8rem">Precio por Hora ($):</span>
+                <input type="number" id="price-hour" value="100" style="width: 80px; padding: 5px; border-radius: 4px; border: none; background: #334155; color: white; text-align: center">
+            </div>
+            <button class="btn" style="background: #6366f1; color: white; font-size: 0.75rem; padding: 10px; margin-top: 5px" onclick="updatePrice()">Guardar Tarifa</button>
         </div>
     </div>
 
@@ -230,22 +318,77 @@
         </div>
     </div>
 
-    <div class="activity-log">
-        <h3 style="margin:0">Registro de Actividad (Tiempo Real)</h3>
-        <div class="log-table-container">
-            <table class="log-table">
-                <thead>
-                    <tr>
-                        <th>Hora</th>
-                        <th>Patente</th>
-                        <th>Evento</th>
-                        <th>Detalle</th>
-                    </tr>
-                </thead>
-                <tbody id="log-body">
-                    <!-- Logs will be loaded here -->
-                </tbody>
-            </table>
+    <!-- SECCIÓN 1: REGISTRO DE ACTIVIDAD -->
+    <div class="collapsible-section">
+        <div class="collapsible-header active" onclick="toggleSection(this, 'content-logs')">
+            📜 Registro de Actividad (Reciente)
+        </div>
+        <div id="content-logs" class="collapsible-content show">
+            <div class="activity-log" style="border:none; border-radius:0; padding: 15px">
+                <div class="log-table-container">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Patente</th>
+                                <th>Evento</th>
+                                <th>Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: VEHÍCULOS EN EL PREDIO -->
+    <div class="collapsible-section">
+        <div class="collapsible-header active" onclick="toggleSection(this, 'content-occupancy')">
+            🚘 Vehículos en el Predio (Deuda en Vivo)
+        </div>
+        <div id="content-occupancy" class="collapsible-content show">
+            <div class="activity-log" style="border:none; border-radius:0; padding: 15px">
+                <div class="log-table-container">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th>Patente</th>
+                                <th>Ingreso</th>
+                                <th>Tipo</th>
+                                <th>Deuda</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="occupancy-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 3: RESERVAS -->
+    <div class="collapsible-section">
+        <div class="collapsible-header" onclick="toggleSection(this, 'content-reservations')">
+            📅 Reservas Programadas
+        </div>
+        <div id="content-reservations" class="collapsible-content">
+            <div class="activity-log" style="border:none; border-radius:0; padding: 15px">
+                <div class="log-table-container">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th>Patente</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Días</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="res-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -253,13 +396,22 @@
 <!-- PANEL DE ÚLTIMA CAPTURA -->
 <div class="management-panel">
     <div class="last-detection-box">
-        <h3 style="margin:0; font-size: 0.9rem">Acciones de Control</h3>
-        <div class="captured-image" id="capture-placeholder">
-            [ VISTA DE CÁMARA ]<br>Sin detección reciente
+        <h3 style="margin:0; font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim)">📸 Última Entrada</h3>
+        <div class="captured-image" id="capture-entry" style="border-color: var(--free)">
+            [ ENTRADA ]<br>Sin detección
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px">
+            <strong id="last-plate-entry">---</strong>
+            <span id="last-time-entry" style="font-size: 0.7rem; color: var(--text-dim)">--:--</span>
+        </div>
+
+        <h3 style="margin:0; font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim)">📸 Última Salida</h3>
+        <div class="captured-image" id="capture-exit" style="border-color: var(--at-step)">
+            [ SALIDA ]<br>Sin detección
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center">
-            <strong id="last-plate">---</strong>
-            <span id="last-status" class="badge" style="background: var(--bg)">En espera</span>
+            <strong id="last-plate-exit">---</strong>
+            <span id="last-time-exit" style="font-size: 0.7rem; color: var(--text-dim)">--:--</span>
         </div>
     </div>
 
@@ -324,18 +476,23 @@
                 body.innerHTML += row;
             });
             
-            if (data.length > 0) {
-                document.getElementById('last-plate').innerText = data[0].patente_detectada;
-                document.getElementById('last-status').innerText = data[0].tipo_evento + " OK";
-                document.getElementById('last-status').style.background = data[0].tipo_evento === 'ENTRADA' ? "var(--free)" : "var(--at-step)";
-                document.getElementById('last-status').style.color = "white";
-                
-                // Mostrar la imagen en el placeholder si existe
-                const captureBox = document.getElementById('capture-placeholder');
-                if (data[0].imagen_path) {
-                    captureBox.innerHTML = `<img src="${API_BASE}/images/${data[0].imagen_path}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">`;
-                } else {
-                    captureBox.innerHTML = '[ VISTA DE CÁMARA ]<br>Sin detección reciente';
+            // Actualizar visores de capturas (Derecha)
+            const lastEntry = data.find(log => log.tipo_evento === 'ENTRADA');
+            const lastExit = data.find(log => log.tipo_evento === 'SALIDA');
+
+            if (lastEntry) {
+                document.getElementById('last-plate-entry').innerText = lastEntry.patente_detectada;
+                document.getElementById('last-time-entry').innerText = lastEntry.fecha_hora.split('T')[1].substring(0, 5);
+                if (lastEntry.imagen_path) {
+                    document.getElementById('capture-entry').innerHTML = `<img src="${API_BASE}/images/${lastEntry.imagen_path}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">`;
+                }
+            }
+
+            if (lastExit) {
+                document.getElementById('last-plate-exit').innerText = lastExit.patente_detectada;
+                document.getElementById('last-time-exit').innerText = lastExit.fecha_hora.split('T')[1].substring(0, 5);
+                if (lastExit.imagen_path) {
+                    document.getElementById('capture-exit').innerHTML = `<img src="${API_BASE}/images/${lastExit.imagen_path}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">`;
                 }
             }
         } catch (e) {
@@ -394,13 +551,152 @@
         }
     }
 
+    async function createReservation() {
+        const plate = document.getElementById('res-plate').value;
+        const dStart = document.getElementById('res-date-start').value;
+        const dEnd = document.getElementById('res-date-end').value;
+        const tStart = document.getElementById('res-time-start').value;
+        const tEnd = document.getElementById('res-time-end').value;
+        
+        // Unir fecha y hora en formato ISO esperado por el backend (YYYY-MM-DDTHH:MM)
+        const start = `${dStart}T${tStart}`;
+        const end = `${dEnd}T${tEnd}`;
+
+        const selectedDays = Array.from(document.querySelectorAll('#res-days input:checked'))
+                                  .map(cb => cb.value)
+                                  .join(',');
+
+        if (!plate || !dStart || !dEnd || !tStart || !tEnd) {
+            alert("Por favor completa todos los campos (Patente, Fechas y Horas).");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/reservations/admin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    patente: plate,
+                    fecha_inicio: start,
+                    fecha_fin: end,
+                    dias_semana: selectedDays || null,
+                    monto_total: 0
+                })
+            });
+            const data = await res.json();
+            alert(data.message);
+            
+            // Limpiar campos
+            document.getElementById('res-plate').value = '';
+            document.getElementById('res-date-start').value = '';
+            document.getElementById('res-date-end').value = '';
+            document.getElementById('res-time-start').value = '';
+            document.getElementById('res-time-end').value = '';
+            document.querySelectorAll('#res-days input:checked').forEach(cb => cb.checked = false);
+            updateReservations();
+        } catch (e) {
+            alert("Error al crear reserva");
+        }
+    }
+
+    async function updateReservations() {
+        try {
+            const res = await fetch(`${API_BASE}/reservations/list`);
+            const data = await res.json();
+            
+            const body = document.getElementById('res-body');
+            body.innerHTML = '';
+            
+            const dayNames = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
+
+            data.forEach(r => {
+                let diasStr = "Todos";
+                if (r.dias_semana) {
+                    diasStr = r.dias_semana.split(',').map(d => dayNames[parseInt(d)]).join(', ');
+                }
+
+                let badgeColor = "#94a3b8"; // Programada
+                let textColor = "#ffffff";
+                if (r.estado_reserva === "Vigente") { badgeColor = "#10b981"; }
+                if (r.estado_reserva === "En Uso") { badgeColor = "#3b82f6"; }
+                if (r.estado_reserva === "Vencida") { badgeColor = "#ef4444"; }
+
+                const row = `<tr>
+                    <td><span class="plate-badge">${r.patente}</span></td>
+                    <td style="font-size: 0.75rem">${r.fecha_inicio.replace('T', ' ')}</td>
+                    <td style="font-size: 0.75rem">${r.fecha_fin.replace('T', ' ')}</td>
+                    <td style="font-size: 0.75rem; color: var(--primary)">${diasStr}</td>
+                    <td><span class="badge" style="background: ${badgeColor}; color: white">${r.estado_reserva}</span></td>
+                </tr>`;
+                body.innerHTML += row;
+            });
+        } catch (e) {
+            console.error("Error cargando reservas", e);
+        }
+    }
+
+    async function updatePrice() {
+        const val = document.getElementById('price-hour').value;
+        try {
+            const res = await fetch(`${API_BASE}/settings/prices?clave=precio_hora&valor=${val}`, { method: 'POST' });
+            const data = await res.json();
+            alert(data.message);
+        } catch (e) {
+            alert("Error al guardar tarifa");
+        }
+    }
+
+    async function loadPrices() {
+        try {
+            const res = await fetch(`${API_BASE}/settings/prices`);
+            const data = await res.json();
+            if (data.precio_hora) {
+                document.getElementById('price-hour').value = data.precio_hora;
+            }
+        } catch (e) {}
+    }
+
+    async function updateOccupancy() {
+        try {
+            const res = await fetch(`${API_BASE}/parking/current-occupancy`);
+            const data = await res.json();
+            
+            const body = document.getElementById('occupancy-body');
+            body.innerHTML = '';
+            
+            data.forEach(occ => {
+                const time = occ.ingreso.split('T')[1].substring(0, 5);
+                const debtStyle = occ.ya_pago ? 'color: var(--free); font-weight: bold' : 'color: var(--occupied); font-weight: bold';
+                const typeLabel = occ.es_reserva ? '<span class="badge" style="background: #e0f2fe; color: #0369a1">RESERVA</span>' : '<span class="badge" style="background: #f1f5f9; color: #475569">AL PASO</span>';
+                
+                const row = `<tr>
+                    <td><span class="plate-badge">${occ.patente}</span></td>
+                    <td style="font-size: 0.8rem">${time}</td>
+                    <td>${typeLabel}</td>
+                    <td style="${debtStyle}">$${occ.deuda}</td>
+                    <td>
+                        ${!occ.ya_pago ? `<button onclick="confirmPayment('${occ.patente}')" style="padding: 4px 10px; font-size: 0.7rem; cursor: pointer; background: var(--at-step); color: white; border: none; border-radius: 4px;">PAGAR</button>` : '✅ LISTO'}
+                    </td>
+                </tr>`;
+                body.innerHTML += row;
+            });
+        } catch (e) {
+            console.error("Error cargando ocupación", e);
+        }
+    }
+
     // Actualización periódica
     setInterval(updateStatus, 3000);
     setInterval(updateLogs, 5000);
+    setInterval(updateReservations, 5000);
+    setInterval(updateOccupancy, 5000);
     
     // Carga inicial
     updateStatus();
     updateLogs();
+    updateReservations();
+    updateOccupancy();
+    loadPrices();
 </script>
 
 </body>

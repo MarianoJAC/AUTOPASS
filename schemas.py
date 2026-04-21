@@ -29,3 +29,10 @@ class ReservationCreate(BaseModel):
     start_time: str
     duration_hours: int
     coupon_code: Optional[str] = None
+
+class AdminReservationCreate(BaseModel):
+    patente: str
+    fecha_inicio: str
+    fecha_fin: str
+    dias_semana: Optional[str] = None # Ej: "0,2,4"
+    monto_total: float = 0.0

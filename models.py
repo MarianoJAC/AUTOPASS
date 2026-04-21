@@ -31,6 +31,7 @@ class Reservation(Base):
     patente = Column(String)
     fecha_inicio = Column(String)
     fecha_fin = Column(String)
+    dias_semana = Column(String, nullable=True) # Almacena "0,1,2" (0=Lunes, etc.)
     monto_total = Column(Float)
     mp_preference_id = Column(String, nullable=True)
     estado_pago = Column(String, default="Pendiente")
@@ -63,6 +64,12 @@ class Coupon(Base):
     descuento_porcentaje = Column(Integer)
     fecha_expiracion = Column(String)
     activo = Column(Boolean, default=True)
+
+class Settings(Base):
+    __tablename__ = "settings"
+    id = Column(Integer, primary_key=True, index=True)
+    clave = Column(String, unique=True)
+    valor = Column(Float)
 
 class AccessLog(Base):
     __tablename__ = "access_logs"

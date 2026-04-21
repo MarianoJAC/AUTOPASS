@@ -43,8 +43,7 @@ app = FastAPI(title="ParkingTech API", version="1.0.0")
 # Servir imágenes estáticas
 app.mount("/images", StaticFiles(directory=IMAGE_DIR), name="images")
 
-# Configuración CORS
- más permisiva
+# Configuración CORS más permisiva
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -62,6 +61,7 @@ def startup_event():
 
     db = next(get_db())
     try:
+        # Inicializar aforo
         aforo = db.query(models.ParkingAforo).first()
         if not aforo:
             nuevo_aforo = models.ParkingAforo(
@@ -70,11 +70,35 @@ def startup_event():
                 ultima_actualizacion=datetime.datetime.now().isoformat()
             )
             db.add(nuevo_aforo)
-            db.commit()
+        
+        # Inicializar tarifas por defecto si no existen
+        precio_hora = db.query(models.Settings).filter(models.Settings.clave == "precio_hora").first()
+        if not precio_hora:
+            db.add(models.Settings(clave="precio_hora", valor=100.0))
+            
+        db.commit()
     except Exception as e:
-        print(f"Error inicializando aforo: {e}")
+        print(f"Error inicializando datos: {e}")
     finally:
         db.close()
+
+# --- GESTIÓN DE TARIFAS ---
+
+@app.get("/settings/prices")
+def get_prices(db: Session = Depends(get_db)):
+    prices = db.query(models.Settings).all()
+    return {p.clave: p.valor for p in prices}
+
+@app.post("/settings/prices")
+def update_price(clave: str, valor: float, db: Session = Depends(get_db)):
+    setting = db.query(models.Settings).filter(models.Settings.clave == clave).first()
+    if setting:
+        setting.valor = valor
+    else:
+        setting = models.Settings(clave=clave, valor=valor)
+        db.add(setting)
+    db.commit()
+    return {"status": "ok", "message": f"Tarifa {clave} actualizada a ${valor}"}
 
 from fastapi.responses import HTMLResponse
 
@@ -111,36 +135,67 @@ def publish_open_gate(plate: str, topic: str = MQTT_TOPIC_ENTRADA):
 @app.post("/access/validate-plate", response_model=schemas.AccessResponse)
 def validate_plate(data: schemas.PlateValidation, db: Session = Depends(get_db)):
     normalized_plate = normalize_plate(data.plate)
-    now = datetime.datetime.now().isoformat()
+    now_dt = datetime.datetime.now()
+    now_iso = now_dt.isoformat()
+    current_time_str = now_dt.strftime("%H:%M:%S")
+    current_day = str(now_dt.weekday()) # 0=Lunes, 6=Domingo
     
     # Procesar imagen si viene
     image_filename = None
     if data.image_base64:
         try:
-            image_filename = f"{normalized_plate}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+            image_filename = f"{normalized_plate}_{now_dt.strftime('%Y%m%d_%H%M%S')}.jpg"
             image_path = os.path.join(IMAGE_DIR, image_filename)
             with open(image_path, "wb") as f:
                 f.write(base64.b64decode(data.image_base64))
         except Exception as e:
             print(f"Error guardando imagen: {e}")
 
-    reserva = db.query(models.Reservation).filter(
+    # Buscar reservas para esta patente que estén ACTIVAS hoy
+    # Usamos una comparación de strings que funciona bien con el formato ISO de datetime-local
+    reservas = db.query(models.Reservation).filter(
         models.Reservation.patente == normalized_plate,
         models.Reservation.estado_reserva == "Pendiente",
-        models.Reservation.fecha_inicio <= now,
-        models.Reservation.fecha_fin >= now
-    ).first()
+        models.Reservation.fecha_inicio <= now_iso
+    ).all()
+
+    reserva_valida = None
+    for res in reservas:
+        # Verificar fin de reserva
+        if res.fecha_fin < now_iso and not res.dias_semana:
+            continue
+
+        # Si tiene días específicos, verificar si hoy es uno de esos días
+        if res.dias_semana:
+            dias_permitidos = res.dias_semana.split(",")
+            if current_day not in dias_permitidos:
+                continue
+        
+        # Verificar rango horario
+        try:
+            # Extraer solo la parte de la hora HH:MM de la fecha guardada
+            # El formato de datetime-local es 2023-10-27T10:30
+            hora_inicio_res = res.fecha_inicio.split("T")[1] if "T" in res.fecha_inicio else "00:00"
+            hora_fin_res = res.fecha_fin.split("T")[1] if "T" in res.fecha_fin else "23:59"
+            
+            if hora_inicio_res <= current_time_str <= hora_fin_res:
+                reserva_valida = res
+                break
+        except Exception as e:
+            print(f"Error comparando horas: {e}")
+            reserva_valida = res
+            break
 
     aforo = db.query(models.ParkingAforo).first()
 
-    if reserva:
+    if reserva_valida:
         aforo.ocupacion_actual += 1
-        aforo.ultima_actualizacion = now
+        aforo.ultima_actualizacion = now_iso
         nuevo_log = models.AccessLog(
             patente_detectada=normalized_plate,
             tipo_evento="ENTRADA",
-            reserva_id=reserva.id,
-            fecha_hora=now,
+            reserva_id=reserva_valida.id,
+            fecha_hora=now_iso,
             imagen_path=image_filename
         )
         db.add(nuevo_log)
@@ -149,16 +204,16 @@ def validate_plate(data: schemas.PlateValidation, db: Session = Depends(get_db))
         return {
             "status": "allowed",
             "action": "OPEN_GATE",
-            "message": f"Bienvenido. Acceso por reserva habilitado para {normalized_plate}"
+            "message": f"Bienvenido. Reserva activa detectada para {normalized_plate}"
         }
 
     if aforo.ocupacion_actual < aforo.capacidad_total:
         aforo.ocupacion_actual += 1
-        aforo.ultima_actualizacion = now
+        aforo.ultima_actualizacion = now_iso
         nuevo_log = models.AccessLog(
             patente_detectada=normalized_plate,
             tipo_evento="ENTRADA",
-            fecha_hora=now,
+            fecha_hora=now_iso,
             imagen_path=image_filename
         )
         db.add(nuevo_log)
@@ -217,7 +272,12 @@ def exit_plate(data: schemas.PlateValidation, db: Session = Depends(get_db)):
         entrada_dt = datetime.datetime.fromisoformat(ultimo_ingreso.fecha_hora)
         duracion = now_dt - entrada_dt
         horas = max(1, duracion.total_seconds() / 3600)
-        costo = round(horas * 100, 2)
+        
+        # Obtener precio dinámico
+        precio_hora_setting = db.query(models.Settings).filter(models.Settings.clave == "precio_hora").first()
+        precio_val = precio_hora_setting.valor if precio_hora_setting else 100.0
+        
+        costo = round(horas * precio_val, 2)
         return {
             "status": "denied",
             "action": "KEEP_CLOSED",
@@ -280,3 +340,112 @@ def get_access_logs(db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Error en get_access_logs: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- GESTIÓN DE RESERVAS MANUALES ---
+
+@app.post("/reservations/admin")
+def create_admin_reservation(res: schemas.AdminReservationCreate, db: Session = Depends(get_db)):
+    try:
+        nueva_reserva = models.Reservation(
+            patente=normalize_plate(res.patente),
+            fecha_inicio=res.fecha_inicio,
+            fecha_fin=res.fecha_fin,
+            dias_semana=res.dias_semana,
+            monto_total=res.monto_total,
+            estado_pago="Pagado", # Reservas admin se consideran pagas o a arreglar luego
+            estado_reserva="Pendiente"
+        )
+        db.add(nueva_reserva)
+        db.commit()
+        return {"status": "ok", "message": f"Reserva creada para {res.patente}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/reservations/list")
+def list_reservations(db: Session = Depends(get_db)):
+    reservas = db.query(models.Reservation).order_by(models.Reservation.fecha_inicio.desc()).limit(20).all()
+    now_iso = datetime.datetime.now().isoformat()
+    
+    resultado = []
+    for r in reservas:
+        estado_real = "Vigente"
+        if r.fecha_fin < now_iso:
+            estado_real = "Vencida"
+        elif r.fecha_inicio > now_iso:
+            estado_real = "Programada"
+        
+        # Verificar si el auto está adentro actualmente
+        ultimo_log = db.query(models.AccessLog).filter(
+            models.AccessLog.patente_detectada == r.patente
+        ).order_by(models.AccessLog.id.desc()).first()
+        
+        if ultimo_log and ultimo_log.tipo_evento == "ENTRADA":
+            # Si el último evento fue entrada, está adentro
+            # Verificamos si no hay una salida posterior a esa entrada
+            tiene_salida = db.query(models.AccessLog).filter(
+                models.AccessLog.patente_detectada == r.patente,
+                models.AccessLog.tipo_evento == "SALIDA",
+                models.AccessLog.id > ultimo_log.id
+            ).first()
+            
+            if not tiene_salida:
+                estado_real = "En Uso"
+
+        # Convertir objeto a dict y añadir el estado calculado
+        r_dict = {
+            "id": r.id,
+            "patente": r.patente,
+            "fecha_inicio": r.fecha_inicio,
+            "fecha_fin": r.fecha_fin,
+            "dias_semana": r.dias_semana,
+            "estado_pago": r.estado_pago,
+            "estado_reserva": estado_real # Sobrescribimos con el estado dinámico
+        }
+        resultado.append(r_dict)
+        
+    return resultado
+
+@app.get("/parking/current-occupancy")
+def get_current_occupancy(db: Session = Depends(get_db)):
+    # 1. Obtener precio actual
+    precio_hora_setting = db.query(models.Settings).filter(models.Settings.clave == "precio_hora").first()
+    precio_val = precio_hora_setting.valor if precio_hora_setting else 100.0
+    
+    now_dt = datetime.datetime.now()
+    
+    # 2. Buscar todos los ingresos
+    # Una forma simple: buscar todas las ENTRADAS y ver si tienen SALIDA posterior
+    todas_entradas = db.query(models.AccessLog).filter(models.AccessLog.tipo_evento == "ENTRADA").all()
+    
+    ocupantes = []
+    for entrada in todas_entradas:
+        # Verificar si ya salió
+        tiene_salida = db.query(models.AccessLog).filter(
+            models.AccessLog.patente_detectada == entrada.patente_detectada,
+            models.AccessLog.tipo_evento == "SALIDA",
+            models.AccessLog.fecha_hora > entrada.fecha_hora
+        ).first()
+        
+        if not tiene_salida:
+            # Está adentro. Calcular deuda
+            entrada_dt = datetime.datetime.fromisoformat(entrada.fecha_hora)
+            duracion = now_dt - entrada_dt
+            horas = max(1, duracion.total_seconds() / 3600)
+            
+            # Ver si es reserva pagada
+            ya_pago = entrada.pago_confirmado
+            if entrada.reserva_id and entrada.reservation:
+                if entrada.reservation.estado_pago == "Pagado":
+                    ya_pago = True
+            
+            deuda = round(horas * precio_val, 2) if not ya_pago else 0.0
+            
+            ocupantes.append({
+                "patente": entrada.patente_detectada,
+                "ingreso": entrada.fecha_hora,
+                "deuda": deuda,
+                "ya_pago": ya_pago,
+                "es_reserva": entrada.reserva_id is not None
+            })
+            
+    return ocupantes

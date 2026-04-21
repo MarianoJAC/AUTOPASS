@@ -32,7 +32,8 @@ Sigue estos pasos para poner en marcha el sistema con soporte de auditoría visu
 3. En la tabla de logs, puedes hacer clic en el icono 📷 para ver la foto de cualquier ingreso anterior.
 
 ## 🧪 Prueba de Pago y Salida
-1. Simula o captura una entrada.
-2. En el Dashboard, verás el log con el botón **"💰 Pagar"**.
-3. Haz clic en **Pagar** y confirma.
-4. Procede a simular la salida con la misma patente. La barrera solo abrirá si completaste el paso 3.
+1. Simula o captura una entrada (Manual o vía Cámara).
+2. Verás al vehículo aparecer en la sección **"🚘 Vehículos en el Predio"**.
+3. Verás cómo su deuda aumenta en tiempo real según la tarifa configurada.
+4. Haz clic en el botón **PAGAR** dentro de esa misma tabla.
+5. Procede a simular la salida con la misma patente. La barrera solo abrirá si el estado cambió a **"✅ LISTO"**.

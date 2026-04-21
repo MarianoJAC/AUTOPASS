@@ -3,18 +3,21 @@
 ## ✅ Implementado Correctamente
 
 ### 🧠 Backend (FastAPI)
-- **Servicio de Auditoría**: Almacenamiento local de fotos capturadas por el ALPR vinculadas a cada ingreso.
-- **Gestión de Archivos**: Servidor de archivos estáticos para visualizar evidencia fotográfica.
-- **Restricción de Seguridad**: Bloqueo de barrera de salida si el pago no está confirmado.
-- **Flujo de Cobro**: Cálculo de tiempo/costo y endpoint de confirmación de pago.
+- **Gestión de Reservas Recurrentes**: Lógica avanzada para abonados por mes, días de la semana y franjas horarias.
+- **Tarifas Dinámicas**: Sistema de configuración de precios desde el Dashboard con persistencia en DB.
+- **Cálculo de Deuda en Vivo**: Endpoint que calcula el monto acumulado de cada vehículo estacionado en tiempo real.
+- **Servicio de Auditoría**: Almacenamiento y vinculación de fotos para Entrada y Salida por separado.
+- **Restricción de Seguridad**: Control de barreras condicionado al estado de pago y validez de reserva.
 
-### 🖥️ Frontend Administrativo
-- **Dashboard Integrado**: Ahora servido directamente por FastAPI en `/dashboard`.
-- **Visor de Evidencia**: Sección de "Última Captura" con imagen en tiempo real y links a fotos en el historial.
-- **Control Unificado**: Gestión de aforo, pagos y barreras desde una sola interfaz.
+### 🖥️ Frontend Administrativo (Dashboard)
+- **Diseño de Acordeón**: Organización de tablas (Logs, Ocupación, Reservas) en secciones colapsables.
+- **Monitor Financiero**: Tabla de "Vehículos en el Predio" con visualización de deuda y botón de pago rápido.
+- **Vista Dual de Evidencia**: Dos visores independientes para monitorear la última Entrada y la última Salida.
+- **Modo Contingencia**: Formulario de ingreso manual de patentes para operar sin cámaras.
+- **Gestión de Precios**: Panel lateral para actualizar la tarifa por hora instantáneamente.
 
 ### 👁️ Visión Artificial
-- **ALPR con Captura**: El servicio `alpr_service.py` envía la patente junto con el frame capturado al servidor.
+- **ALPR con Captura**: El servicio `alpr_service.py` envía patente y evidencia fotográfica al servidor.
 
 ---
 
@@ -27,3 +30,4 @@
 ### 2. Seguridad & Producción
 - Implementar tokens JWT para proteger los endpoints de la API y el acceso al Dashboard.
 - Cifrado de contraseñas de usuarios en la base de datos.
+- Registro de facturación (historial de pagos realizados).
