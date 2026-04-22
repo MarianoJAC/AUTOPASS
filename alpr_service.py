@@ -104,13 +104,16 @@ def ocr_worker():
                 plate = normalize_plate(clean)
                 
                 if plate:
+                    # Mensaje de progreso
+                    print(f"[*] Escaneando... Analizando coincidencia para: {plate}", end="\r")
+                    
                     plate_buffer.append(plate)
-                    if len(plate_buffer) > 5: plate_buffer.pop(0) # Mantener ventana de 5 lecturas
+                    if len(plate_buffer) > 5: plate_buffer.pop(0)
                     
                     # Consenso: ¿aparece la misma patente al menos 3 veces?
                     if plate_buffer.count(plate) >= 3:
                         if plate != last_detected_plate or (now - last_detection_time > COOLDOWN_SECONDS):
-                            print(f"\n[!] >>> PATENTE VALIDADA POR CONSENSO: {plate} <<<")
+                            print(f"\n[OK] >>> PATENTE DETECTADA CORRECTAMENTE: {plate} <<<")
                             send_to_backend_async(plate, img_orig)
                             last_detected_plate = plate
                             last_detection_time = now
