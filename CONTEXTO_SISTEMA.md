@@ -2,19 +2,19 @@
 
 Este documento describe la arquitectura de comunicación y el flujo de datos del ecosistema de estacionamiento inteligente.
 
-## 📐 Arquitectura de 4 Capas
+## 📐 Arquitectura de 4 Capas (Actualizada)
 
-1.  **Capa de Captura (Edge)**: 
-    - **ALPR Pro (Multithreaded)**: OpenCV captura video fluido a 30 FPS. Un hilo secundario procesa cada frame con EasyOCR.
-    - **Dual Scan**: Analiza cada bloque de texto dos veces (Normal e Invertido) para detectar patentes de fondo blanco (Mercosur) y fondo negro (Antiguas) con igual eficacia.
-    - **Evidencia Asíncrona**: Una vez validada la patente, el sistema dispara un envío de la captura comprimida (JPG 640px) al Backend sin detener el escaneo activo.
-2.  **Capa de Lógica (Backend)**:
-    - **FastAPI**: Gestiona la lógica de negocios, el aforo, el **almacenamiento de imágenes** y la **configuración de tarifas dinámicas**.
-    - **Base de Datos (SQLite)**: Registra logs de acceso, reservas, estados de pago y configuración de precios.
-3.  **Capa de Transporte (MQTT)**:
-    - **Broker (HiveMQ)**: Distribuye comandos `OPEN` a los tópicos de **Entrada** o **Salida**.
+1.  **Capa de Captura (IP Edge)**: 
+    - **Cámaras Móviles**: Uso de smartphones con "IP Webcam" como fuentes de video inalámbricas (IPv4).
+    - **Procesamiento de Imagen**: Aplicación de CLAHE (contraste adaptativo) y Sharpening (nitidez) antes del OCR.
+    - **Filtro de Consenso**: Validación de 3 lecturas idénticas en una ventana de 5 cuadros para eliminar errores por reflejos o movimiento.
+2.  **Capa de Lógica (Backend - FastAPI)**:
+    - **Validación de Estado**: Prevención de ingresos duplicados (no permite entrar si el vehículo ya está adentro).
+    - **Gestión de Tarifas**: Cálculo de deuda en tiempo real basado en el último ingreso registrado.
+3.  **Capa de Transporte (MQTT - HiveMQ)**:
+    - **Comandos Físicos**: Publicación de comandos `OPEN` directamente a actuadores físicos (Arduino/ESP32).
 4.  **Capa de Usuario (Administración)**:
-    - **Dashboard Integrado**: Panel centralizado para monitoreo visual (Entrada/Salida), gestión de reservas recurrentes, control de barreras y caja en tiempo real.
+    - **Dashboard de Evidencia**: Monitoreo de última entrada/salida con visualización de patentes validadas y fotos de auditoría.
 
 ## 🔄 Flujos de Operación
 

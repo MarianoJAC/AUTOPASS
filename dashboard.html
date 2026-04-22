@@ -288,6 +288,12 @@
         </div>
     </div>
 
+    <div style="margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px">
+        <h3 style="font-size: 0.75rem; text-transform: uppercase; color: #f87171; margin-bottom: 12px">Mantenimiento</h3>
+        <button class="btn" style="background: #991b1b; color: white; font-size: 0.75rem; padding: 10px" onclick="resetSystem()">Limpiar Base de Datos y Fotos</button>
+        <div style="font-size: 0.6rem; color: #94a3b8; margin-top: 5px; text-align: center">⚠️ Borra todos los logs, fotos y reservas.</div>
+    </div>
+
     <div class="live-feed" style="margin-top: auto">
         <h3 style="font-size: 0.8rem; text-transform: uppercase; color: #64748b; margin-bottom: 15px">Estado del Sistema</h3>
         <div style="font-size: 0.8rem; display: flex; justify-content: space-between; margin-bottom: 8px">
@@ -682,6 +688,31 @@
             });
         } catch (e) {
             console.error("Error cargando ocupación", e);
+        }
+    }
+
+    async function resetSystem() {
+        if (!confirm("⚠️ ¿ESTÁS SEGURO? Esta acción borrará permanentemente TODOS los registros, fotos, usuarios y reservas para dejar el sistema totalmente limpio.")) return;
+        
+        try {
+            const res = await fetch(`${API_BASE}/system/reset`, { method: 'POST' });
+            const data = await res.json();
+            alert(data.message);
+            
+            // Forzar actualización inmediata de todas las tablas
+            updateStatus();
+            updateLogs();
+            updateReservations();
+            updateOccupancy();
+            
+            // Limpiar visores de fotos manualmente
+            document.getElementById('capture-entry').innerHTML = '[ ENTRADA ]<br>Sin detección';
+            document.getElementById('capture-exit').innerHTML = '[ SALIDA ]<br>Sin detección';
+            document.getElementById('last-plate-entry').innerText = '---';
+            document.getElementById('last-plate-exit').innerText = '---';
+            
+        } catch (e) {
+            alert("Error al resetear el sistema");
         }
     }
 

@@ -11,25 +11,39 @@ Sigue estos pasos para poner en marcha el sistema con soporte de auditoría visu
 ## 2. Ejecución (En orden)
 
 ### Paso A: Servidor API y Dashboard
-```bash
-.\venv\Scripts\python.exe -m uvicorn main:app --reload
+```powershell
+.\venv\Scripts\activate
+uvicorn main:app --reload
 ```
 *Acceso al Dashboard:* **http://localhost:8000/dashboard**
 
-### Paso B: Simulador de Hardware
-```bash
-.\venv\Scripts\python.exe simulate_esp32.py
+### Paso B: Hardware o Simulador (Elegir uno)
+- **Físico (Recomendado):** Conectar tu Arduino/ESP32 (Ver `Guia_Hardware/Conexion_Arduino.md`).
+- **Simulador:** `python simulate_esp32.py` (Solo si no tienes hardware).
+
+### Paso C: Cámaras ALPR (Doble Celular)
+Abre dos terminales y usa el IP proporcionado por la App "IP Webcam":
+
+**Terminal 1 (ENTRADA):**
+```powershell
+$env:VIDEO_SOURCE="http://192.168.0.88:8080/video"; $env:GATE_ID="ENTRADA_SUR"; $env:GATE_TYPE="entrada"; python alpr_service.py
 ```
 
-### Paso C: Servicio de Cámara (ALPR)
-```bash
-.\venv\Scripts\python.exe alpr_service.py
+**Terminal 2 (SALIDA):**
+```powershell
+$env:VIDEO_SOURCE="http://192.168.0.90:8080/video"; $env:GATE_ID="SALIDA_SUR"; $env:GATE_TYPE="salida"; python alpr_service.py
 ```
 
-## 📸 Funcionamiento de la Auditoría Visual
-1. Cuando la cámara detecta una patente, el Dashboard mostrará automáticamente la **foto del vehículo**.
-2. Las imágenes se guardan en la carpeta `/captured_images`.
-3. En la tabla de logs, puedes hacer clic en el icono 📷 para ver la foto de cualquier ingreso anterior.
+## 🧹 Limpieza del Sistema
+Para resetear el Dashboard, borrar fotos y poner el aforo en cero antes de una demostración:
+```powershell
+python reset_db.py
+```
+
+## 📸 Funcionamiento ALPR Pro
+1. **Consenso 3x**: La cámara debe ver la misma patente 3 veces para validarla (evita errores).
+2. **Filtros Nitidez**: Se aplica Sharpening y CLAHE automáticamente para distinguir letras difíciles (D vs O).
+3. **Control de Duplicados**: Si intentas ingresar un auto que ya está "ADENTRO", el sistema denegará el acceso.
 
 ## 🧪 Prueba de Pago y Salida
 1. Simula o captura una entrada (Manual o vía Cámara).

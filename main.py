@@ -82,6 +82,38 @@ def startup_event():
     finally:
         db.close()
 
+import shutil
+
+@app.post("/system/reset")
+def reset_system(db: Session = Depends(get_db)):
+    try:
+        # 1. Borrar logs de acceso
+        db.query(models.AccessLog).delete()
+        
+        # 2. Resetear aforo
+        aforo = db.query(models.ParkingAforo).first()
+        if aforo:
+            aforo.ocupacion_actual = 0
+        
+        # 3. Borrar reservas, vehículos y usuarios
+        db.query(models.Reservation).delete()
+        db.query(models.Vehicle).delete()
+        db.query(models.User).delete()
+        
+        db.commit()
+
+        # 4. Limpiar carpeta de imágenes
+        if os.path.exists(IMAGE_DIR):
+            for filename in os.listdir(IMAGE_DIR):
+                file_path = os.path.join(IMAGE_DIR, filename)
+                try:
+                    if os.path.isfile(file_path): os.unlink(file_path)
+                except: pass
+        
+        return {"status": "ok", "message": "Sistema reseteado correctamente."}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 # --- GESTIÓN DE TARIFAS ---
 
 @app.get("/settings/prices")
@@ -135,6 +167,19 @@ def publish_open_gate(plate: str, topic: str = MQTT_TOPIC_ENTRADA):
 @app.post("/access/validate-plate", response_model=schemas.AccessResponse)
 def validate_plate(data: schemas.PlateValidation, db: Session = Depends(get_db)):
     normalized_plate = normalize_plate(data.plate)
+    
+    # --- VERIFICACIÓN DE DUPLICADOS (YA ESTÁ ADENTRO?) ---
+    ultimo_log = db.query(models.AccessLog).filter(
+        models.AccessLog.patente_detectada == normalized_plate
+    ).order_by(models.AccessLog.id.desc()).first()
+    
+    if ultimo_log and ultimo_log.tipo_evento == "ENTRADA":
+        return {
+            "status": "denied",
+            "action": "KEEP_CLOSED",
+            "message": f"Acceso denegado: El vehículo {normalized_plate} ya se encuentra dentro del predio."
+        }
+    
     now_dt = datetime.datetime.now()
     now_iso = now_dt.isoformat()
     current_time_str = now_dt.strftime("%H:%M:%S")

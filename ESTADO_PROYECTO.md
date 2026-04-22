@@ -16,12 +16,12 @@
 - **Modo Contingencia**: Formulario de ingreso manual de patentes para operar sin cámaras.
 - **Gestión de Precios**: Panel lateral para actualizar la tarifa por hora instantáneamente.
 
-### 👁️ Visión Artificial (ALPR)
-- **Motor Multihilo (Multithreading)**: Procesamiento de OCR en segundo plano para mantener el video fluido a 30 FPS.
-- **Estrategia de Detección Dual**: Soporte optimizado para patentes Mercosur (fondo blanco) y patentes antiguas (fondo negro) mediante inversión de colores dinámica.
-- **Filtros de Precisión (Regex)**: Validación estricta de formatos oficiales Argentinos (`AAA123` y `AA000AA`) para evitar ruido.
-- **Optimización de Evidencia**: Envío asíncrono y compresión de capturas (640px JPG) para carga instantánea en el Dashboard.
-- **Filtros de Imagen**: Implementación de Sharpening y Binarización Otsu para mejorar la distinción entre caracteres conflictivos (V, Y, N, etc.).
+### 👁️ Visión Artificial (ALPR Pro)
+- **Filtro de Consenso (3x Check)**: Validación de patentes mediante comparación de 3 lecturas consecutivas idénticas en el búfer para eliminar falsos positivos.
+- **Pre-procesamiento Adaptativo**: Implementación de CLAHE (contraste) y Sharpening (nitidez) para distinguir caracteres conflictivos como 'D' vs 'O'.
+- **Soporte de Cámaras IP**: Adaptación del servicio ALPR para procesar flujos de video inalámbricos desde smartphones (IP Webcam).
+- **Prevención de Duplicados en Backend**: Lógica que prohíbe una nueva 'ENTRADA' si el vehículo ya figura dentro del predio.
+- **Motor Multihilo sin Lag**: Procesamiento asíncrono que garantiza la visualización en tiempo real capturando siempre el cuadro más reciente.
 
 ---
 
