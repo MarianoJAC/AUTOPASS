@@ -33,26 +33,81 @@ last_detected_plate = ""
 last_detection_time = 0
 plate_buffer = [] # Buffer para consenso de 3 lecturas
 
+def fix_common_errors(text, expected_type):
+    # expected_type: 'L' para letra, 'N' para numero
+    mapping_to_letters = {'0': 'O', '1': 'I', '2': 'Z', '5': 'S', '8': 'B'}
+    mapping_to_numbers = {'O': '0', 'I': '1', 'J': '1', 'Z': '2', 'S': '5', 'B': '8', 'G': '6'}
+    
+    fixed = ""
+    for char in text:
+        if expected_type == 'L':
+            fixed += mapping_to_letters.get(char, char)
+        else:
+            fixed += mapping_to_numbers.get(char, char)
+    return fixed
+
 def normalize_plate(plate_text):
-    # 1. Limpieza total
+    # 1. Limpieza total: solo dejamos letras y numeros
     clean = re.sub(r'[^A-Z0-9]', '', plate_text.upper())
     
-    # 2. Prioridad 1: Formato Mercosur (7 caracteres: AB 123 CD)
-    p_nuevo = re.search(r'([A-Z]{2}\d{3}[A-Z]{2})', clean)
-    if p_nuevo: return p_nuevo.group(1)
+    # Si la cadena es muy corta, no es una patente
+    if len(clean) < 5: return None
 
-    # 3. Prioridad 2: Formato Viejo (6 caracteres: ABC 123)
-    p_viejo = re.search(r'([A-Z]{3})(\d{3})', clean)
-    if p_viejo:
-        return f"{p_viejo.group(1)}{p_viejo.group(2)}"
-    
-    # 4. Prioridad 3: Formato Corto (5 caracteres: AB 123)
-    # Solo si el string total es corto para evitar falsos positivos con las de 6 o 7
-    if len(clean) <= 6:
-        p_corto = re.search(r'([A-Z]{2})(\d{3})', clean)
-        if p_corto: return f"{p_corto.group(1)}{p_corto.group(2)}"
+    # --- INTENTO 1: BUSCAR FORMATO MERCOSUR (7 CARACTERES: LL NNN LL) ---
+    # Buscamos cualquier secuencia de 7 caracteres dentro de la cadena que cumpla el patron difuso
+    for i in range(len(clean) - 6):
+        window = clean[i:i+7]
+        # Formato: 2 letras, 3 numeros, 2 letras
+        l1 = fix_common_errors(window[:2], 'L')
+        n  = fix_common_errors(window[2:5], 'N')
+        l2 = fix_common_errors(window[5:], 'L')
+        
+        # Verificamos si logramos reconstruir una patente valida de 7
+        if re.match(r'^[A-Z]{2}\d{3}[A-Z]{2}$', l1 + n + l2):
+            return l1 + n + l2
+
+    # --- INTENTO 2: BUSCAR FORMATO VIEJO (6 CARACTERES: LLL NNN) ---
+    for i in range(len(clean) - 5):
+        window = clean[i:i+6]
+        # Formato: 3 letras, 3 numeros
+        l = fix_common_errors(window[:3], 'L')
+        n = fix_common_errors(window[3:], 'N')
+        
+        if re.match(r'^[A-Z]{3}\d{3}$', l + n):
+            return l + n
+
+    # --- INTENTO 3: CASOS DESESPERADOS (5 O MAS CARACTERES QUE PARECEN PATENTE) ---
+    # Si la cadena completa tiene entre 5 y 8 caracteres y no matcheo antes, 
+    # intentamos forzar una lectura si tiene una estructura clara.
+    if 5 <= len(clean) <= 8:
+        # Si parece vieja pero le falta un numero o letra
+        posible_l = fix_common_errors(clean[:3], 'L')
+        posible_n = fix_common_errors(clean[3:], 'N')
+        if len(posible_l) >= 2 and len(posible_n) >= 2:
+             # Si logramos al menos 2 letras y 2 numeros, podriamos tener algo, 
+             # pero para evitar falsos positivos pedimos al menos una longitud de 6 despues de fix
+             final = posible_l[:3] + posible_n[:3]
+             if len(final) == 6 and re.match(r'^[A-Z]{3}\d{3}$', final):
+                 return final
 
     return None
+
+def deskew_image(image):
+    # Intentamos detectar la inclinacion del texto para enderezarlo
+    coords = np.column_stack(np.where(image > 0))
+    angle = cv2.minAreaRect(coords)[-1]
+    
+    # El angulo devuelto por minAreaRect puede ser engañoso segun la version de OpenCV
+    if angle < -45:
+        angle = -(90 + angle)
+    else:
+        angle = -angle
+        
+    (h, w) = image.shape[:2]
+    center = (w // 2, h // 2)
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+    return rotated
 
 def ocr_worker():
     global frame_to_process, last_detected_plate, last_detection_time, plate_buffer
@@ -63,28 +118,33 @@ def ocr_worker():
             img_orig = frame_to_process
             frame_to_process = None 
             
-            # Pre-procesamiento base
+            # 1. Pre-procesamiento base (Escala de grises y Filtro Bilateral)
             gray = cv2.cvtColor(img_orig, cv2.COLOR_BGR2GRAY)
-            h, w = gray.shape
-            gray = cv2.resize(gray, (800, int(h * (800/w))))
+            gray = cv2.bilateralFilter(gray, 11, 17, 17)
             
-            # Aplicar contraste
-            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+            # 2. Redimensionar para estandarizar el proceso
+            h, w = gray.shape
+            gray = cv2.resize(gray, (1000, int(h * (1000/w))))
+            
+            # 3. Mejora de contraste adaptativo (CLAHE)
+            clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(10,10))
             gray = clahe.apply(gray)
 
-            # --- INTENTO 1: Imagen Normal (Para patentes nuevas) ---
+            # --- INTENTO 1: Imagen Normal ---
             res = reader.readtext(gray, detail=0)
             
-            # --- INTENTO 2: Imagen Invertida (Para patentes viejas blanco/negro) ---
-            # Solo lo hacemos si el primero no devolvió algo que parezca patente
+            # --- INTENTO 2: Enderezado y Umbralizado (Para angulos extraños) ---
+            # Aplicamos un umbral para resaltar texto y luego intentamos enderezar
+            _, thresh_basic = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            skewed_corrected = deskew_image(thresh_basic)
+            res_skew = reader.readtext(skewed_corrected, detail=0)
+
+            # --- INTENTO 3: Imagen Invertida (Para patentes negras) ---
             inverted = 255 - gray
-            res_inv = reader.readtext(inverted, detail=0)
+            thresh_inv = cv2.adaptiveThreshold(inverted, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+            res_inv = reader.readtext(thresh_inv, detail=0)
             
-            # Combinamos todos los resultados encontrados
-            all_detected = res + res_inv
-            
-            # Intentamos normalizar CADA palabra y también la UNIÓN de todas
-            # (por si leyó letras y números por separado)
+            all_detected = res + res_skew + res_inv
             candidates = all_detected + ["".join(all_detected)]
             
             now = time.time()

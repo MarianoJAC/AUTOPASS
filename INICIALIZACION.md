@@ -26,11 +26,13 @@ Abre dos terminales y usa el IP proporcionado por la App "IP Webcam":
 
 **Terminal 1 (ENTRADA):**
 ```powershell
+.\venv\Scripts\activate
 $env:VIDEO_SOURCE="http://192.168.0.88:8080/video"; $env:GATE_ID="ENTRADA_SUR"; $env:GATE_TYPE="entrada"; python alpr_service.py
 ```
 
 **Terminal 2 (SALIDA):**
 ```powershell
+.\venv\Scripts\activate
 $env:VIDEO_SOURCE="http://192.168.0.90:8080/video"; $env:GATE_ID="SALIDA_SUR"; $env:GATE_TYPE="salida"; python alpr_service.py
 ```
 
