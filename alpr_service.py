@@ -23,7 +23,7 @@ GATE_TYPE = os.getenv("GATE_TYPE", "entrada") # 'entrada' o 'salida'
 COOLDOWN_SECONDS = 15 
 
 # Inicializar EasyOCR
-print(f"[*] Iniciando Servicio ALPR para: {GATE_ID} ({GATE_TYPE.upper()})")
+print(f"[*] Iniciando Servicio ALPR para: {GATE_ID} ({GATE_TYPE.upper()}) - AUTOPASS")
 print("[*] Cargando motor OCR (EasyOCR)...")
 reader = easyocr.Reader(['es', 'en'], gpu=False)
 
@@ -109,6 +109,25 @@ def deskew_image(image):
     rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
     return rotated
 
+def send_to_backend_async(plate, frame):
+    def _send():
+        try:
+            _, buffer = cv2.imencode(".jpg", frame)
+            img_base64 = base64.b64encode(buffer).decode('utf-8')
+            endpoint = "/v1/access/validate-plate" if GATE_TYPE == "entrada" else "/v1/access/exit-plate"
+            payload = {"plate": plate, "gate_id": GATE_ID, "image_base64": img_base64}
+            requests.post(f"{BACKEND_URL}{endpoint}", json=payload, timeout=10)
+        except: pass
+    threading.Thread(target=_send, daemon=True).start()
+
+def heartbeat_worker():
+    print(f"[SYSTEM] Iniciando monitor de salud para {GATE_ID}...")
+    while True:
+        try:
+            requests.post(f"{BACKEND_URL}/v1/system/heartbeat?gate_id={GATE_ID}", timeout=5)
+        except: pass
+        time.sleep(30)
+
 def ocr_worker():
     global frame_to_process, last_detected_plate, last_detection_time, plate_buffer
     print(f"[*] Hilo OCR activo ({GATE_TYPE.upper()}) - Escaneando...")
@@ -180,6 +199,7 @@ def main():
         return
 
     threading.Thread(target=ocr_worker, daemon=True).start()
+    threading.Thread(target=heartbeat_worker, daemon=True).start()
     print("[*] Buscando patentes... (q para salir)")
 
     while True:
@@ -193,7 +213,7 @@ def main():
         frame_to_process = frame.copy()
 
         # Opcional: Redimensionar ventana para que no ocupe toda la pantalla
-        cv2.imshow("ParkingTech - LIVE", cv2.resize(frame, (800, 450)))
+        cv2.imshow("AUTOPASS - LIVE", cv2.resize(frame, (800, 450)))
         if cv2.waitKey(1) & 0xFF == ord('q'): break
 
     cap.release()

@@ -20,8 +20,8 @@ Este documento describe la arquitectura de comunicación y el flujo de datos del
 
 ### El "Camino de la Patente" (Ingreso)
 1. El auto se detiene; `alpr_service.py` lee la patente y toma una foto.
-2. Se envía un `POST` al Backend con la patente y la imagen.
-3. El Backend guarda la foto, valida aforo/reserva y abre la barrera.
+2. Se envía un `POST` a `/v1/access/validate-plate` con la patente y la imagen.
+3. El Backend guarda la foto, valida aforo/reserva y abre la barrera via MQTT.
 4. El log aparece en el Dashboard con la foto en el visor de **Última Entrada**.
 
 ### Gestión de Contingencia y Reservas
