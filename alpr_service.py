@@ -109,6 +109,38 @@ def deskew_image(image):
     rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
     return rotated
 
+def send_to_backend_async(plate, frame):
+    def _send():
+        try:
+            # 1. Preparar imagen
+            _, buffer = cv2.imencode(".jpg", frame)
+            img_base64 = base64.b64encode(buffer).decode('utf-8')
+            
+            # 2. Determinar endpoint según el tipo de puerta
+            endpoint = "/access/validate-plate" if GATE_TYPE == "entrada" else "/access/exit-plate"
+            url = f"{BACKEND_URL}{endpoint}"
+            
+            # 3. Preparar payload según schemas.PlateValidation
+            payload = {
+                "plate": plate,
+                "gate_id": GATE_ID,
+                "image_base64": img_base64
+            }
+            
+            # 4. Enviar petición POST
+            response = requests.post(url, json=payload, timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                print(f"\n[BACKEND] {result.get('message', 'OK')}")
+            else:
+                print(f"\n[ERROR] Backend respondió {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            print(f"\n[ERROR] Falla en comunicación con backend: {e}")
+
+    # Ejecutar en hilo separado para no bloquear el OCR
+    threading.Thread(target=_send, daemon=True).start()
+
 def ocr_worker():
     global frame_to_process, last_detected_plate, last_detection_time, plate_buffer
     print(f"[*] Hilo OCR activo ({GATE_TYPE.upper()}) - Escaneando...")

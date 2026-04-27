@@ -1,19 +1,3 @@
-<?php
-/* PROCESAMIENTO BASICO DE LOGIN (SIMULADO) */
-$error = "";
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $usuario = $_POST['usuario'] ?? '';
-    $contrasena = $_POST['contrasena'] ?? '';
-    
-    /* POR AHORA SOLO REDIRECCIONA SI NO ESTA VACIO */
-    if (!empty($usuario) && !empty($contrasena)) {
-        header("Location: mapa.php");
-        exit();
-    } else {
-        $error = "POR FAVOR COMPLETE TODOS LOS CAMPOS";
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -222,6 +206,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
             margin-bottom: 15px;
             font-weight: bold;
+            display: none;
         }
 
         .BotonEntrar {
@@ -278,25 +263,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div id="PantallaLogin">
         <img src="LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoLogin">
 
-        <?php if ($error): ?>
-            <div class="Error"><?php echo $error; ?></div>
-        <?php endif; ?>
+        <div id="errorMsg" class="Error">POR FAVOR COMPLETE TODOS LOS CAMPOS</div>
 
-        <form class="FormularioLogin" method="POST" action="">
+        <form id="formLogin" class="FormularioLogin">
             <div class="GrupoInput">
-                <span class="EtiquetaInput">USUARIO</span>
-                <input type="text" name="usuario" placeholder="INGRESE SU USUARIO" required>
+                <span class="EtiquetaInput">USUARIO (EMAIL)</span>
+                <input type="email" id="email" placeholder="INGRESE SU EMAIL" required style="text-transform: none;">
             </div>
 
             <div class="GrupoInput">
                 <span class="EtiquetaInput">CONTRASENA</span>
-                <input type="password" name="contrasena" placeholder="********" required>
+                <input type="password" id="password" placeholder="********" required>
             </div>
 
             <button type="submit" class="BotonEntrar">ENTRAR</button>
         </form>
 
-        <a href="registro.php" class="LinkRegistro">¿NO TIENES CUENTA? REGISTRATE AQUI</a>
+        <a href="/registro" class="LinkRegistro">¿NO TIENES CUENTA? REGISTRATE AQUI</a>
     </div>
 
     <script>
@@ -313,11 +296,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }, 800);
         }
 
-        /* SI HAY UN ERROR, MOSTRAR DIRECTAMENTE EL LOGIN */
-        <?php if ($error): ?>
-            document.getElementById('PantallaInicial').style.display = 'none';
-            document.getElementById('PantallaLogin').classList.add('Visible');
-        <?php endif; ?>
+        document.getElementById('formLogin').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Guardar token y datos del usuario
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = '/mapa';
+                } else {
+                    errorMsg.innerText = data.detail || 'Credenciales inválidas';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.innerText = 'Error de conexión';
+                errorMsg.style.display = 'block';
+            }
+        });
     </script>
 
 </body>

@@ -7,7 +7,12 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String)
+    apellido = Column(String, nullable=True)
+    dni = Column(String, nullable=True)
+    telefono = Column(String, nullable=True)
     email = Column(String, unique=True, index=True)
+    patente = Column(String, nullable=True) # Patente principal
+    direccion = Column(String, nullable=True)
     password_hash = Column(String)
     puntos_acumulados = Column(Integer, default=0)
 
