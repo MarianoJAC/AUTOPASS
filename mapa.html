@@ -49,14 +49,14 @@
         .ContenedorMapa {
             flex-grow: 1;
             position: relative;
-            background-color: #000; /* FONDO NEGRO PARA EVITAR DESTELLO BLANCO */
+            background-color: #000;
         }
 
         iframe {
             width: 100%;
             height: 100%;
             border: none;
-            filter: grayscale(100%) invert(92%) contrast(83%); /* FILTRO PARA MODO OSCURO */
+            filter: grayscale(100%) invert(92%) contrast(83%);
         }
 
         .BotonReserva {
@@ -82,18 +82,41 @@
             box-shadow: 0 8px 20px rgba(224, 150, 79, 0.4);
         }
 
+        .BtnSalir {
+            color: var(--dorado-noble);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            text-transform: uppercase;
+        }
+
     </style>
 </head>
 <body>
 
+    <script>
+        // Seguridad: Verificar si hay token
+        if (!localStorage.getItem('token')) {
+            window.location.href = '/login';
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+    </script>
+
     <header class="HeaderMapa">
         <img src="LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoHeader">
-        <div class="TituloHeader">ESTACIONAMIENTOS CERCANOS</div>
-        <a href="login.php" style="color: var(--dorado-noble); text-decoration: none; font-size: 0.8rem; font-weight: bold;">SALIR</a>
+        <div id="welcomeMsg" class="TituloHeader">CARGANDO...</div>
+        <button onclick="logout()" class="BtnSalir">SALIR</button>
     </header>
 
     <div class="ContenedorMapa">
-        <!-- MAPA INTERACTIVO DE GOOGLE CENTRADO EN MORON PARK -->
         <iframe 
             src="https://maps.google.com/maps?q=-34.6510007,-58.6252822&z=17&output=embed" 
             allowfullscreen="" 
@@ -101,8 +124,18 @@
             referrerpolicy="no-referrer-when-downgrade">
         </iframe>
 
-        <a href="reservas.php" class="BotonReserva">HACER UNA RESERVA</a>
+        <a href="/reservas" class="BotonReserva">HACER UNA RESERVA</a>
     </div>
+
+    <script>
+        // Personalizar saludo
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.nombre) {
+            document.getElementById('welcomeMsg').innerText = `HOLA, ${user.nombre.toUpperCase()}`;
+        } else {
+            document.getElementById('welcomeMsg').innerText = `MAPA INTERACTIVO`;
+        }
+    </script>
 
 </body>
 </html>

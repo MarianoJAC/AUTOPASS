@@ -119,26 +119,83 @@
 </head>
 <body>
 
+    <script>
+        // Seguridad: Verificar si hay token
+        if (!localStorage.getItem('token')) {
+            window.location.href = '/login';
+        }
+    </script>
+
     <div class="ContenedorReservas">
         <img src="LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoReservas">
         <h2 class="TituloReservas">NUEVA RESERVA</h2>
 
-        <form style="display: flex; flex-direction: column; gap: 20px;" onsubmit="event.preventDefault(); alert('RESERVA CONFIRMADA'); window.location.href='mapa.php';">
+        <form id="formReserva" style="display: flex; flex-direction: column; gap: 20px;">
             <div class="GrupoInput">
                 <span class="EtiquetaInput">FECHA</span>
-                <input type="date" required>
+                <input type="date" id="fecha" required>
             </div>
 
             <div class="GrupoInput">
                 <span class="EtiquetaInput">HORA</span>
-                <input type="time" required>
+                <input type="time" id="hora" required>
             </div>
 
             <button type="submit" class="BotonConfirmar">CONFIRMAR RESERVA</button>
         </form>
 
-        <a href="mapa.php" class="LinkVolver">VOLVER AL MAPA</a>
+        <a href="/mapa" class="LinkVolver">VOLVER AL MAPA</a>
     </div>
+
+    <script>
+        document.getElementById('formReserva').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fecha = document.getElementById('fecha').value;
+            const hora = document.getElementById('hora').value;
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            if (!user || !user.patente) {
+                alert('Error: No se encontró información del usuario. Reingrese.');
+                window.location.href = '/login';
+                return;
+            }
+
+            // Para el prototipo, la reserva dura 2 horas
+            const startISO = `${fecha}T${hora}`;
+            const endDt = new Date(`${fecha}T${hora}`);
+            endDt.setHours(endDt.getHours() + 2);
+            const endISO = endDt.toISOString().substring(0, 16);
+
+            const reservationData = {
+                patente: user.patente,
+                fecha_inicio: startISO,
+                fecha_fin: endISO,
+                dias_semana: null,
+                monto_total: 0
+            };
+
+            try {
+                const response = await fetch('/reservations/admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reservationData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Reserva confirmada con éxito.');
+                    window.location.href = '/mapa';
+                } else {
+                    alert('Error: ' + (data.detail || 'No se pudo crear la reserva'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión con el servidor');
+            }
+        });
+    </script>
 
 </body>
 </html>

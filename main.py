@@ -134,6 +134,67 @@ def update_price(clave: str, valor: float, db: Session = Depends(get_db)):
 
 from fastapi.responses import HTMLResponse
 
+@app.get("/login", response_class=HTMLResponse)
+def get_login_page():
+    with open("login.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/registro", response_class=HTMLResponse)
+def get_register_page():
+    with open("registro.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/mapa", response_class=HTMLResponse)
+def get_map_page():
+    with open("mapa.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/reservas", response_class=HTMLResponse)
+def get_reservation_page():
+    with open("reservas.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+# --- AUTENTICACIÓN ---
+
+@app.post("/auth/register", response_model=schemas.UserResponse)
+def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="El email ya está registrado.")
+    
+    # En un sistema real, usaríamos bcrypt o argon2 para el hash
+    nuevo_usuario = models.User(
+        nombre=user.nombre,
+        apellido=user.apellido,
+        dni=user.dni,
+        telefono=user.telefono,
+        email=user.email,
+        patente=normalize_plate(user.patente),
+        direccion=user.direccion,
+        password_hash=user.password # Simplificado para el prototipo
+    )
+    db.add(nuevo_usuario)
+    db.commit()
+    db.refresh(nuevo_usuario)
+    return nuevo_usuario
+
+@app.post("/auth/login")
+def login(data: schemas.LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == data.email).first()
+    if not user or user.password_hash != data.password:
+        raise HTTPException(status_code=401, detail="Credenciales inválidas.")
+    
+    # Para el prototipo, devolvemos un token simulado o los datos del usuario
+    return {
+        "access_token": f"fake-jwt-token-{user.id}",
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "nombre": user.nombre,
+            "patente": user.patente
+        }
+    }
+
 @app.get("/dashboard", response_class=HTMLResponse)
 def get_dashboard_page():
     with open("dashboard.html", "r", encoding="utf-8") as f:
