@@ -5,6 +5,7 @@
 ### 🧠 Backend (FastAPI)
 - **Sincronización de API v1**: Implementación de `APIRouter` con prefijo `/v1` para cumplir con la especificación técnica.
 - **Gestión de Reservas Recurrentes**: Lógica avanzada para abonados por mes, días de la semana y franjas horarias.
+- **Autenticación y Usuarios**: Endpoints de login y registro (`/auth/login`, `/auth/register`) integrados con la base de datos.
 - **Tarifas Dinámicas**: Sistema de configuración de precios desde el Dashboard con persistencia en DB.
 - **Cálculo de Deuda en Vivo**: Endpoint que calcula el monto acumulado de cada vehículo estacionado en tiempo real.
 - **Servicio de Auditoría**: Almacenamiento y vinculación de fotos para Entrada y Salida por separado.

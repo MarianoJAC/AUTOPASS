@@ -10,8 +10,8 @@ const char* password = "TU_WIFI_PASSWORD";
 const char* mqtt_server = "broker.hivemq.com"; // Mismo que en el .env
 
 // --- TÓPICOS ---
-const char* topic_control = "parking_tech_unq/barrera/entrada/control";
-const char* topic_status  = "parking_tech_unq/barrera/entrada/status";
+const char* topic_control = "parking/barrera/entrada/control";
+const char* topic_status  = "parking/barrera/entrada/status";
 
 // --- PINES ---
 const int PIN_SERVO = 13;
