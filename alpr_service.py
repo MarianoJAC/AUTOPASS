@@ -23,7 +23,7 @@ GATE_TYPE = os.getenv("GATE_TYPE", "entrada") # 'entrada' o 'salida'
 COOLDOWN_SECONDS = 15 
 
 # Inicializar EasyOCR
-print(f"[*] Iniciando Servicio ALPR para: {GATE_ID} ({GATE_TYPE.upper()})")
+print(f"[*] Iniciando Servicio ALPR para: {GATE_ID} ({GATE_TYPE.upper()}) - AUTOPASS")
 print("[*] Cargando motor OCR (EasyOCR)...")
 reader = easyocr.Reader(['es', 'en'], gpu=False)
 
@@ -112,34 +112,21 @@ def deskew_image(image):
 def send_to_backend_async(plate, frame):
     def _send():
         try:
-            # 1. Preparar imagen
             _, buffer = cv2.imencode(".jpg", frame)
             img_base64 = base64.b64encode(buffer).decode('utf-8')
-            
-            # 2. Determinar endpoint según el tipo de puerta
-            endpoint = "/access/validate-plate" if GATE_TYPE == "entrada" else "/access/exit-plate"
-            url = f"{BACKEND_URL}{endpoint}"
-            
-            # 3. Preparar payload según schemas.PlateValidation
-            payload = {
-                "plate": plate,
-                "gate_id": GATE_ID,
-                "image_base64": img_base64
-            }
-            
-            # 4. Enviar petición POST
-            response = requests.post(url, json=payload, timeout=10)
-            if response.status_code == 200:
-                result = response.json()
-                print(f"\n[BACKEND] {result.get('message', 'OK')}")
-            else:
-                print(f"\n[ERROR] Backend respondió {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            print(f"\n[ERROR] Falla en comunicación con backend: {e}")
-
-    # Ejecutar en hilo separado para no bloquear el OCR
+            endpoint = "/v1/access/validate-plate" if GATE_TYPE == "entrada" else "/v1/access/exit-plate"
+            payload = {"plate": plate, "gate_id": GATE_ID, "image_base64": img_base64}
+            requests.post(f"{BACKEND_URL}{endpoint}", json=payload, timeout=10)
+        except: pass
     threading.Thread(target=_send, daemon=True).start()
+
+def heartbeat_worker():
+    print(f"[SYSTEM] Iniciando monitor de salud para {GATE_ID}...")
+    while True:
+        try:
+            requests.post(f"{BACKEND_URL}/v1/system/heartbeat?gate_id={GATE_ID}", timeout=5)
+        except: pass
+        time.sleep(30)
 
 def ocr_worker():
     global frame_to_process, last_detected_plate, last_detection_time, plate_buffer
@@ -212,6 +199,7 @@ def main():
         return
 
     threading.Thread(target=ocr_worker, daemon=True).start()
+    threading.Thread(target=heartbeat_worker, daemon=True).start()
     print("[*] Buscando patentes... (q para salir)")
 
     while True:
@@ -225,7 +213,7 @@ def main():
         frame_to_process = frame.copy()
 
         # Opcional: Redimensionar ventana para que no ocupe toda la pantalla
-        cv2.imshow("ParkingTech - LIVE", cv2.resize(frame, (800, 450)))
+        cv2.imshow("AUTOPASS - LIVE", cv2.resize(frame, (800, 450)))
         if cv2.waitKey(1) & 0xFF == ord('q'): break
 
     cap.release()
