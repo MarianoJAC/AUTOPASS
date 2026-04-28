@@ -8,7 +8,7 @@ class PlateValidation(BaseModel):
 
 class AccessResponse(BaseModel):
     status: str
-    action: str
+    action: Optional[str] = None
     message: str
 
 class ParkingStatus(BaseModel):

@@ -2,43 +2,52 @@
 
 Este documento describe la arquitectura de comunicación y el flujo de datos del ecosistema de estacionamiento inteligente.
 
-## 📐 Arquitectura de 4 Capas (Actualizada)
+## 📐 Arquitectura de Puertas (Unificada)
 
-1.  **Capa de Captura (IP Edge)**: 
-    - **Cámaras Móviles**: Uso de smartphones con "IP Webcam" como fuentes de video inalámbricas (IPv4).
-    - **Procesamiento de Imagen**: Aplicación de CLAHE (contraste adaptativo) y Sharpening (nitidez) antes del OCR.
-    - **Filtro de Consenso**: Validación de 3 lecturas idénticas en una ventana de 5 cuadros para eliminar errores por reflejos o movimiento.
-2.  **Capa de Lógica (Backend - FastAPI)**:
-    - **Validación de Estado**: Prevención de ingresos duplicados (no permite entrar si el vehículo ya está adentro).
-    - **Gestión de Tarifas**: Cálculo de deuda en tiempo real basado en el último ingreso registrado.
-3.  **Capa de Transporte (MQTT - HiveMQ)**:
-    - **Comandos Físicos**: Publicación de comandos `OPEN` directamente a actuadores físicos (Arduino/ESP32).
-4.  **Capa de Usuario (Administración)**:
-    - **Dashboard de Evidencia**: Monitoreo de última entrada/salida con visualización de patentes validadas y fotos de auditoría.
+Para garantizar la sincronización entre el ALPR, el Backend y el Dashboard, se han estandarizado los IDs de las puertas:
 
-## 🔄 Flujos de Operación
+1.  **Entrada (`ENTRADA_PRINCIPAL`)**:
+    - **Cámara**: Webcam local o IP Cam vinculada a este ID.
+    - **Lógica**: Valida aforo y registra ingresos.
+    - **MQTT**: Publica en `parking/barrera/entrada/control`.
+2.  **Salida (`SALIDA_PRINCIPAL`)**:
+    - **Cámara**: IP Cam inalámbrica o secundaria.
+    - **Lógica**: Valida estado de pago antes de autorizar egreso.
+    - **MQTT**: Publica en `parking/barrera/salida/control`.
 
-### El "Camino de la Patente" (Ingreso)
-1. El auto se detiene; `alpr_service.py` lee la patente y toma una foto.
-2. Se envía un `POST` a `/v1/access/validate-plate` con la patente y la imagen.
-3. El Backend guarda la foto, valida aforo/reserva y abre la barrera via MQTT.
-4. El log aparece en el Dashboard con la foto en el visor de **Última Entrada**.
+## 🔄 Flujos de Operación (Actualizados)
 
-### Gestión de Contingencia y Reservas
-- **Ingreso Manual**: Permite registrar vehículos cuando la cámara no está operativa.
-- **Reservas Recurrentes**: Soporte para abonados mensuales con selección de días (Lu-Do) y franjas horarias específicas.
+### Tarifas y Pagos
+- **Cálculo Dinámico**: La deuda se calcula como `(Tiempo en minutos / 60) * TarifaConfigurada`. 
+- **Mínimo Cobrable**: El sistema aplica el costo de 1 hora completa para cualquier estadía inferior a 60 minutos.
+- **Validación de Egreso**: El Backend deniega la salida si el último registro de entrada no tiene `pago_confirmado = True`.
 
-### Flujo de Pago y Salida (Egreso)
-1. El sistema calcula la deuda en vivo de los vehículos en el predio.
-2. El administrador confirma el pago mediante el botón **"PAGAR"** en el Dashboard.
-3. Al llegar a la salida, el ALPR reconoce la patente.
-4. El Backend verifica el estado de pago:
-    - **SÍ** → Envía `OPEN` y muestra evidencia en el visor de **Última Salida**.
-    - **NO** → Informa deuda pendiente y mantiene la barrera cerrada.
+### Optimización OCR
+- **Consenso 2X**: El sistema valida la patente tras 2 cuadros idénticos (antes 3X), permitiendo una respuesta mucho más rápida en entornos con ruido visual o pantallas.
+- **Soporte Híbrido**: Reconocimiento mejorado para patentes Mercosur (7 chars) y Formato Viejo (6 chars).
 
-## 🛠️ Comandos de Inicio Rápido
+## 🛠️ Comandos de Inicio Rápido (Consola)
 
-- **Activar Entorno**: `venv\Scripts\activate`
-- **Servidor + Dashboard**: `uvicorn main:app --reload` (Acceso: `http://localhost:8000/dashboard`)
-- **Cámara (ALPR)**: `python alpr_service.py`
-- **Simulador Hardware**: `python simulate_esp32.py`
+### 1. Servidor y Dashboard
+```powershell
+uvicorn main:app --reload
+```
+*(Acceso: http://localhost:8000/dashboard)*
+
+### 2. Cámara de Entrada
+```powershell
+$env:GATE_TYPE="entrada"; python alpr_service.py
+```
+
+### 3. Cámara de Salida
+```powershell
+$env:VIDEO_SOURCE="URL_DE_TU_IPCAM"; $env:GATE_TYPE="salida"; python alpr_service.py
+```
+
+### 4. Simulador de Barreras (Hardware)
+```powershell
+python simulate_esp32.py
+```
+
+---
+*Nota: Asegúrese de que el Backend esté corriendo antes de iniciar los servicios ALPR para que el Heartbeat se registre correctamente.*
