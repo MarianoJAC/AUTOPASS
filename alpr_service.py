@@ -18,8 +18,10 @@ if isinstance(VIDEO_SOURCE, str) and VIDEO_SOURCE.isdigit():
     VIDEO_SOURCE = int(VIDEO_SOURCE)
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
-GATE_ID = os.getenv("GATE_ID", "ENTRADA_PRINCIPAL")
 GATE_TYPE = os.getenv("GATE_TYPE", "entrada") # 'entrada' o 'salida'
+# Si no hay GATE_ID, asignamos según el tipo
+DEFAULT_GATE_ID = "ENTRADA_PRINCIPAL" if GATE_TYPE == "entrada" else "SALIDA_PRINCIPAL"
+GATE_ID = os.getenv("GATE_ID", DEFAULT_GATE_ID)
 COOLDOWN_SECONDS = 15 
 
 # Inicializar EasyOCR
@@ -29,9 +31,35 @@ reader = easyocr.Reader(['es', 'en'], gpu=False)
 
 # Variables globales
 frame_to_process = None
+frame_to_stream = None
 last_detected_plate = ""
 last_detection_time = 0
 plate_buffer = [] # Buffer para consenso de 3 lecturas
+
+def video_stream_worker():
+    global frame_to_stream
+    print(f"[*] Iniciando transmisión de video asíncrona...")
+    while True:
+        if frame_to_stream is not None:
+            try:
+                # Tomamos una copia y limpiamos para que el hilo principal siga
+                frame = frame_to_stream.copy()
+                frame_to_stream = None
+                
+                # Redimensionar y comprimir agresivamente para latencia cero
+                view_frame = cv2.resize(frame, (480, 360))
+                _, buffer = cv2.imencode('.jpg', view_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 35])
+                img_base64 = base64.b64encode(buffer).decode('utf-8')
+                
+                resp = requests.post(f"{BACKEND_URL}/v1/system/update-frame/{GATE_ID}", 
+                             json={"image": img_base64}, 
+                             timeout=1.0) # Aumentado a 1.0s
+                if resp.status_code != 200:
+                    print(f"[!] Error enviando frame: {resp.status_code}")
+            except Exception as e:
+                # print(f"[-] Salto de frame de video: {e}")
+                pass
+        time.sleep(0.05) # Envía aprox 20 fps max
 
 def fix_common_errors(text, expected_type):
     # expected_type: 'L' para letra, 'N' para numero
@@ -47,48 +75,30 @@ def fix_common_errors(text, expected_type):
     return fixed
 
 def normalize_plate(plate_text):
-    # 1. Limpieza total: solo dejamos letras y numeros
+    # 1. Limpieza total: solo dejamos letras y números
     clean = re.sub(r'[^A-Z0-9]', '', plate_text.upper())
     
-    # Si la cadena es muy corta, no es una patente
-    if len(clean) < 5: return None
+    if len(clean) < 6: return None
 
-    # --- INTENTO 1: BUSCAR FORMATO MERCOSUR (7 CARACTERES: LL NNN LL) ---
-    # Buscamos cualquier secuencia de 7 caracteres dentro de la cadena que cumpla el patron difuso
+    # Mapeos de corrección inteligente
+    to_l = {'0': 'O', '1': 'I', '2': 'Z', '5': 'S', '8': 'B'}
+    to_n = {'O': '0', 'I': '1', 'J': '1', 'Z': '2', 'S': '5', 'B': '8', 'G': '6'}
+
+    def fix(txt, m): return "".join([m.get(c, c) for c in txt])
+
+    # --- FORMATO NUEVO (MERCOSUR): AA 123 BB (7 chars) ---
     for i in range(len(clean) - 6):
-        window = clean[i:i+7]
-        # Formato: 2 letras, 3 numeros, 2 letras
-        l1 = fix_common_errors(window[:2], 'L')
-        n  = fix_common_errors(window[2:5], 'N')
-        l2 = fix_common_errors(window[5:], 'L')
-        
-        # Verificamos si logramos reconstruir una patente valida de 7
-        if re.match(r'^[A-Z]{2}\d{3}[A-Z]{2}$', l1 + n + l2):
-            return l1 + n + l2
+        w = clean[i:i+7]
+        # Estructura: Letra-Letra | Número-Número-Número | Letra-Letra
+        res = fix(w[:2], to_l) + fix(w[2:5], to_n) + fix(w[5:], to_l)
+        if re.match(r'^[A-Z]{2}\d{3}[A-Z]{2}$', res): return res
 
-    # --- INTENTO 2: BUSCAR FORMATO VIEJO (6 CARACTERES: LLL NNN) ---
+    # --- FORMATO VIEJO: AAA 123 (6 chars) ---
     for i in range(len(clean) - 5):
-        window = clean[i:i+6]
-        # Formato: 3 letras, 3 numeros
-        l = fix_common_errors(window[:3], 'L')
-        n = fix_common_errors(window[3:], 'N')
-        
-        if re.match(r'^[A-Z]{3}\d{3}$', l + n):
-            return l + n
-
-    # --- INTENTO 3: CASOS DESESPERADOS (5 O MAS CARACTERES QUE PARECEN PATENTE) ---
-    # Si la cadena completa tiene entre 5 y 8 caracteres y no matcheo antes, 
-    # intentamos forzar una lectura si tiene una estructura clara.
-    if 5 <= len(clean) <= 8:
-        # Si parece vieja pero le falta un numero o letra
-        posible_l = fix_common_errors(clean[:3], 'L')
-        posible_n = fix_common_errors(clean[3:], 'N')
-        if len(posible_l) >= 2 and len(posible_n) >= 2:
-             # Si logramos al menos 2 letras y 2 numeros, podriamos tener algo, 
-             # pero para evitar falsos positivos pedimos al menos una longitud de 6 despues de fix
-             final = posible_l[:3] + posible_n[:3]
-             if len(final) == 6 and re.match(r'^[A-Z]{3}\d{3}$', final):
-                 return final
+        w = clean[i:i+6]
+        # Estructura: Letra-Letra-Letra | Número-Número-Número
+        res = fix(w[:3], to_l) + fix(w[3:], to_n)
+        if re.match(r'^[A-Z]{3}\d{3}$', res): return res
 
     return None
 
@@ -116,17 +126,45 @@ def send_to_backend_async(plate, frame):
             img_base64 = base64.b64encode(buffer).decode('utf-8')
             endpoint = "/v1/access/validate-plate" if GATE_TYPE == "entrada" else "/v1/access/exit-plate"
             payload = {"plate": plate, "gate_id": GATE_ID, "image_base64": img_base64}
-            requests.post(f"{BACKEND_URL}{endpoint}", json=payload, timeout=10)
-        except: pass
+            
+            print(f"[*] Enviando {plate} a {endpoint}...")
+            resp = requests.post(f"{BACKEND_URL}{endpoint}", json=payload, timeout=10)
+            
+            if resp.status_code == 200:
+                result = resp.json()
+                status = result.get("status", "unknown")
+                msg = result.get("message", "Sin respuesta")
+                
+                if status == "allowed":
+                    print(f"✅ [AUTORIZADO] {msg}")
+                elif status == "denied":
+                    print(f"❌ [DENEGADO] {msg}")
+                else:
+                    print(f"ℹ️ [INFO] {msg}")
+            else:
+                print(f"⚠️ [ERROR] Backend respondió con status {resp.status_code}")
+                
+        except Exception as e:
+            print(f"❌ [ERROR DE RED] No se pudo conectar con el backend: {e}")
+
     threading.Thread(target=_send, daemon=True).start()
 
 def heartbeat_worker():
     print(f"[SYSTEM] Iniciando monitor de salud para {GATE_ID}...")
+    print(f"[SYSTEM] URL del Backend: {BACKEND_URL}")
     while True:
         try:
-            requests.post(f"{BACKEND_URL}/v1/system/heartbeat?gate_id={GATE_ID}", timeout=5)
-        except: pass
-        time.sleep(30)
+            url = f"{BACKEND_URL}/v1/system/heartbeat?gate_id={GATE_ID}"
+            resp = requests.post(url, timeout=5)
+            if resp.status_code == 200:
+                # print(f"[OK] Latido enviado correctamente ({GATE_ID})") # Muy ruidoso
+                pass
+            else:
+                print(f"[!] Heartbeat falló: HTTP {resp.status_code} - {resp.text}")
+        except Exception as e:
+            print(f"❌ [!] Error de red en heartbeat: {e}")
+            print(f"    Verifique que el Backend esté corriendo en {BACKEND_URL}")
+        time.sleep(15) # Más frecuente para debugeo inicial
 
 def ocr_worker():
     global frame_to_process, last_detected_plate, last_detection_time, plate_buffer
@@ -158,37 +196,46 @@ def ocr_worker():
             skewed_corrected = deskew_image(thresh_basic)
             res_skew = reader.readtext(skewed_corrected, detail=0)
 
-            # --- INTENTO 3: Imagen Invertida (Para patentes negras) ---
+            # --- INTENTO 3: Imagen Invertida (Para patentes negras de formato viejo) ---
+            # Invertimos y aplicamos un umbral adaptativo para que las letras blancas se vuelvan negras definidas
             inverted = 255 - gray
             thresh_inv = cv2.adaptiveThreshold(inverted, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
             res_inv = reader.readtext(thresh_inv, detail=0)
             
+            # Combinamos todos los resultados para validación
             all_detected = res + res_skew + res_inv
-            candidates = all_detected + ["".join(all_detected)]
+            candidates = list(set(all_detected)) # Eliminar duplicados obvios
+            
+            # También probamos concatenar fragmentos si el OCR los separó
+            if len(all_detected) > 1:
+                candidates.append("".join(all_detected))
             
             now = time.time()
             for text in candidates:
                 plate = normalize_plate(text)
                 
-                if plate:
+                if plate and 6 <= len(plate) <= 7:
                     plate_buffer.append(plate)
-                    if len(plate_buffer) > 5: plate_buffer.pop(0)
+                    if len(plate_buffer) > 10: plate_buffer.pop(0) # Buffer un poco más grande
                     
-                    if plate_buffer.count(plate) >= 2:
+                    if plate_buffer.count(plate) >= 2: # CONSENSO 2X (Más rápido para pantallas)
                         if plate != last_detected_plate or (now - last_detection_time > COOLDOWN_SECONDS):
-                            print(f"\n[OK] >>> {plate} <<<")
+                            print(f"\n[VALIDADO 2X] >>> {plate} <<<")
                             send_to_backend_async(plate, img_orig)
                             last_detected_plate = plate
                             last_detection_time = now
-                            plate_buffer = []
-                            break # Encontrada, no seguir con este frame
+                            plate_buffer = [] 
+                            break 
+                elif not plate and len(plate_buffer) > 0:
+                    # Si en este cuadro no hubo nada, empezamos a limpiar el buffer lentamente
+                    if now % 2 == 0: plate_buffer.pop(0)
         
         time.sleep(0.01)
         
         time.sleep(0.01)
 
 def main():
-    global frame_to_process
+    global frame_to_process, frame_to_stream
     
     # Intentar optimizar apertura de stream
     cap = cv2.VideoCapture(VIDEO_SOURCE, cv2.CAP_FFMPEG)
@@ -200,6 +247,7 @@ def main():
 
     threading.Thread(target=ocr_worker, daemon=True).start()
     threading.Thread(target=heartbeat_worker, daemon=True).start()
+    threading.Thread(target=video_stream_worker, daemon=True).start()
     print("[*] Buscando patentes... (q para salir)")
 
     while True:
@@ -211,9 +259,8 @@ def main():
             continue
         
         frame_to_process = frame.copy()
+        frame_to_stream = frame.copy() # Alimentamos el hilo de streaming
 
-        # Opcional: Redimensionar ventana para que no ocupe toda la pantalla
-        cv2.imshow("AUTOPASS - LIVE", cv2.resize(frame, (800, 450)))
         if cv2.waitKey(1) & 0xFF == ord('q'): break
 
     cap.release()

@@ -1,39 +1,28 @@
-# 📝 Estado del Proyecto: ParkingTech
+# Estado del Proyecto: ParkingTech (Actualizado 2026-04-28)
 
-## ✅ Implementado Correctamente
+## 🚀 Hitos Recientes
 
-### 🧠 Backend (FastAPI)
-- **Sincronización de API v1**: Implementación de `APIRouter` con prefijo `/v1` para cumplir con la especificación técnica.
-- **Gestión de Reservas Recurrentes**: Lógica avanzada para abonados por mes, días de la semana y franjas horarias.
-- **Autenticación y Usuarios**: Endpoints de login y registro (`/auth/login`, `/auth/register`) integrados con la base de datos.
-- **Tarifas Dinámicas**: Sistema de configuración de precios desde el Dashboard con persistencia en DB.
-- **Cálculo de Deuda en Vivo**: Endpoint que calcula el monto acumulado de cada vehículo estacionado en tiempo real.
-- **Servicio de Auditoría**: Almacenamiento y vinculación de fotos para Entrada y Salida por separado.
-- **Restricción de Seguridad**: Control de barreras condicionado al estado de pago y validez de reserva.
+### OCR y ALPR (Optimización)
+- [x] **Consenso 2X**: Reducción de latencia en reconocimiento al requerir solo 2 lecturas idénticas (ideal para capturas desde pantallas).
+- [x] **Soporte Formato Viejo**: Mejora en la normalización y pre-procesamiento para patentes argentinas de formato `AAA 123`.
+- [x] **Unificación de Nomenclatura**: Puntos de acceso renombrados a `ENTRADA_PRINCIPAL` y `SALIDA_PRINCIPAL` para consistencia total en el ecosistema.
 
-### 🖥️ Frontend Administrativo (Dashboard)
-- **Refactorización SPA**: Actualización de todas las llamadas de red para utilizar la API v1.
-- **Diseño de Acordeón**: Organización de tablas (Logs, Ocupación, Reservas) en secciones colapsables.
-- **Monitor Financiero**: Tabla de "Vehículos en el Predio" con visualización de deuda y botón de pago rápido.
-- **Vista Dual de Evidencia**: Dos visores independientes para monitorear la última Entrada y la última Salida.
-- **Modo Contingencia**: Formulario de ingreso manual de patentes para operar sin cámaras.
+### Backend y Lógica de Negocio
+- [x] **Tarifas Dinámicas**: Eliminación de valores hardcodeados. El sistema ahora calcula la deuda real basada en `precio_hora` configurable y tiempo transcurrido (mínimo 1 hora).
+- [x] **Conexión MQTT Asíncrona**: El servidor inicia instantáneamente sin esperar respuesta del broker HiveMQ.
+- [x] **Evidencia en Salida**: Se implementó el guardado de fotos también en el proceso de salida (`EXIT_patente_hora.jpg`).
+- [x] **Robustez de API**: Corrección de Schemas Pydantic para evitar errores 500 cuando no se envía el campo `action`.
 
-### 👁️ Visión Artificial (ALPR Pro)
-- **Cliente API v1**: Actualización del script `alpr_service.py` para comunicación con el nuevo esquema de endpoints.
-- **Filtro de Consenso (3x Check)**: Validación de patentes mediante comparación de 3 lecturas consecutivas idénticas en el búfer para eliminar falsos positivos.
+### Dashboard y Frontend
+- [x] **Sincronización de Streams**: Los feeds de video ahora apuntan dinámicamente a los nuevos IDs de cámara.
+- [x] **Heartbeat Mejorado**: Monitor de salud con ventana de 90 segundos y normalización de IDs.
 
----
+## 🛠️ Pendientes Inmediatos (Backlog)
+1. **Integración de Pagos**: Conectar el botón "Pagar" con el flujo real de Mercado Pago (actualmente es validación manual/simulada).
+2. **Reportes Avanzados**: Implementar exportación a PDF de tickets de auditoría.
+3. **Hardening**: Agregar autenticación JWT para el acceso al Dashboard Administrativo.
 
-## 🛠️ Tareas Pendientes
-
-### 1. Seguridad & Producción
-- **Implementar tokens JWT** para proteger los endpoints de la API y el acceso al Dashboard.
-- **Cifrado de contraseñas** de usuarios en la base de datos (Hashing con bcrypt/argon2).
-
-### 2. App Móvil (Expo)
-- Integración de la patente del usuario con su perfil.
-- Pago digital (Mercado Pago).
-
-### 3. Historial & Reportes
-- **Reportes Avanzados**: Exportación de reportes de recaudación en PDF/Excel (CSV ya implementado).
-- **Dashboard de Tendencias**: Gráficos históricos de ocupación por semana/mes.
+## 📡 Configuración de Puertas
+- **Entrada**: `ENTRADA_PRINCIPAL`
+- **Salida**: `SALIDA_PRINCIPAL`
+- **MQTT**: Comandos `OPEN` publicados en `parking/barrera/entrada/control` y `parking/barrera/salida/control`.
