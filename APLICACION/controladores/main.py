@@ -4,8 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-import models, schemas, database
-from database import engine, get_db
+import sys
+import os
+# AGREGAR EL DIRECTORIO PADRE AL PATH PARA PODER IMPORTAR MODELOS
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from modelos import models, schemas, database
+from modelos.database import engine, get_db
 import datetime
 import json
 import paho.mqtt.client as mqtt
@@ -163,7 +167,9 @@ def get_health(db: Session = Depends(get_db)):
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def get_dashboard_page():
-    with open("dashboard.html", "r", encoding="utf-8") as f: return f.read()
+    # RUTA RELATIVA DESDE LA CARPETA CONTROLADORES HACIA VISTAS
+    ruta_dashboard = os.path.join(os.path.dirname(__file__), "..", "vistas", "dashboard.html")
+    with open(ruta_dashboard, "r", encoding="utf-8") as f: return f.read()
 
 @app.get("/")
 def read_root(): return {"message": "AUTOPASS API v2.1"}

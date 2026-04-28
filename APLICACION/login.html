@@ -249,8 +249,8 @@
 
     <!-- PANTALLA INICIAL -->
     <div id="PantallaInicial">
-        <img src="LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoInicial">
-        <img src="mapa.png" alt="MAPA" class="Mapa">
+        <img src="recursos/LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoInicial">
+        <img src="recursos/mapa.png" alt="MAPA" class="Mapa">
         <div class="ContenedorBotonInicial">
             <div class="ResplandorFondo"></div>
             <button class="BotonCircular" onclick="mostrarLogin()">
@@ -261,7 +261,7 @@
 
     <!-- PANTALLA DE LOGIN -->
     <div id="PantallaLogin">
-        <img src="LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoLogin">
+        <img src="recursos/LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoLogin">
 
         <div id="errorMsg" class="Error">POR FAVOR COMPLETE TODOS LOS CAMPOS</div>
 
@@ -279,7 +279,7 @@
             <button type="submit" class="BotonEntrar">ENTRAR</button>
         </form>
 
-        <a href="/registro" class="LinkRegistro">¿NO TIENES CUENTA? REGISTRATE AQUI</a>
+        <a href="vistas/registro.html" class="LinkRegistro">¿NO TIENES CUENTA? REGISTRATE AQUI</a>
     </div>
 
     <script>
@@ -296,32 +296,18 @@
             }, 800);
         }
 
-        document.getElementById('formLogin').addEventListener('submit', async (e) => {
+        document.getElementById('formLogin').addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorMsg = document.getElementById('errorMsg');
 
-            try {
-                const response = await fetch('/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Guardar token y datos del usuario
-                    localStorage.setItem('token', data.access_token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    window.location.href = '/mapa';
-                } else {
-                    errorMsg.innerText = data.detail || 'Credenciales inválidas';
-                    errorMsg.style.display = 'block';
-                }
-            } catch (error) {
-                errorMsg.innerText = 'Error de conexión';
+            if (email && password) {
+                // SIMULAMOS EL LOGIN EXITOSO SIN GUARDAR EN BD
+                localStorage.setItem('usuario_simulado', email);
+                window.location.href = 'vistas/mapa.html';
+            } else {
+                errorMsg.innerText = 'POR FAVOR COMPLETE TODOS LOS CAMPOS';
                 errorMsg.style.display = 'block';
             }
         });

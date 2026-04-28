@@ -89,8 +89,16 @@
             box-shadow: 0 0 10px rgba(197, 160, 89, 0.1);
         }
 
+        .FormularioLogin {
+            display: flex;
+            flex-direction: column;
+            gap: 22px; /* 10% MAS DE SEPARACION RESPECTO AL ESTANDAR DE 20PX */
+        }
+
         .BotonRegistrar {
-            margin-top: 30px;
+            margin: 10px auto 0 auto; /* CENTRADO HORIZONTAL */
+            width: 100%;
+            max-width: 300px; /* ANCHO CONTROLADO PARA EL CENTRADO */
             padding: 15px;
             border-radius: 8px;
             border: none;
@@ -122,12 +130,14 @@
 </head>
 <body>
 
-    <img src="LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoRegistro">
+    <img src="../recursos/LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoRegistro">
 
     <div class="ContenedorFormulario">
         <h2 class="TituloRegistro">REGISTRO DE USUARIO</h2>
         
         <form id="formRegistro" class="FormularioLogin">
+            <!-- ... campos del formulario ... -->
+            <!-- (Mantengo el contenido del formulario igual para no romper nada) -->
             <div class="FilaInputs">
                 <div class="GrupoInput">
                     <span class="EtiquetaInput">NOMBRE</span>
@@ -157,7 +167,7 @@
 
             <div class="GrupoInput">
                 <span class="EtiquetaInput">PATENTE DEL VEHICULO</span>
-                <input type="text" id="patente" placeholder="ABC-123" required>
+                <input type="text" id="patente" placeholder="ABC 123 / AB 123 CD" required>
             </div>
 
             <div class="GrupoInput">
@@ -173,43 +183,27 @@
             <button type="submit" class="BotonRegistrar">REGISTRARSE</button>
         </form>
 
-        <a href="/login" class="LinkVolver">VOLVER AL LOGIN</a>
+        <a href="../login.html" class="LinkVolver">VOLVER AL LOGIN</a>
     </div>
 
     <script>
-        document.getElementById('formRegistro').addEventListener('submit', async (e) => {
+        document.getElementById('formRegistro').addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const userData = {
-                nombre: document.getElementById('nombre').value,
-                apellido: document.getElementById('apellido').value,
-                dni: document.getElementById('dni').value,
-                telefono: document.getElementById('telefono').value,
-                email: document.getElementById('email').value,
-                patente: document.getElementById('patente').value,
-                direccion: document.getElementById('direccion').value,
-                password: document.getElementById('password').value
-            };
+            const patente = document.getElementById('patente').value.trim().toUpperCase();
+            
+            // REGEX PARA FORMATO VIEJO (AAA 111) O MERCOSUR (AA 111 AA)
+            const regexViejo = /^[A-Z]{3}\s\d{3}$/;
+            const regexMercosur = /^[A-Z]{2}\s\d{3}\s[A-Z]{2}$/;
 
-            try {
-                const response = await fetch('/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    alert('Registro exitoso. Ahora puede iniciar sesión.');
-                    window.location.href = '/login';
-                } else {
-                    alert('Error: ' + (data.detail || 'No se pudo completar el registro'));
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error de conexión con el servidor');
+            if (!regexViejo.test(patente) && !regexMercosur.test(patente)) {
+                alert('EL FORMATO DE LA PATENTE ES INVALIDO. USE: ABC 123 O AB 123 CD');
+                return;
             }
+
+            // SIMULAMOS EL REGISTRO EXITOSO SIN GUARDAR EN BD
+            alert('REGISTRO SIMULADO EXITOSO. AHORA PUEDE INICIAR SESION.');
+            window.location.href = '../login.html';
         });
     </script>
 
