@@ -98,19 +98,20 @@
 <body>
 
     <script>
-        // SEGURIDAD SIMPLIFICADA PARA PROTOTIPO
-        if (!localStorage.getItem('usuario_simulado')) {
-            window.location.href = '../login.html';
+        // Seguridad: Verificar si hay token
+        if (!localStorage.getItem('token')) {
+            window.location.href = '/login';
         }
 
         function logout() {
-            localStorage.removeItem('usuario_simulado');
-            window.location.href = '../login.html';
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
         }
     </script>
 
     <header class="HeaderMapa">
-        <img src="../recursos/LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoHeader">
+        <img src="LOGOSINFONDO2-removebg-preview.png" alt="LOGO" class="LogoHeader">
         <div id="welcomeMsg" class="TituloHeader">CARGANDO...</div>
         <button onclick="logout()" class="BtnSalir">SALIR</button>
     </header>
@@ -123,14 +124,14 @@
             referrerpolicy="no-referrer-when-downgrade">
         </iframe>
 
-        <a href="reservas.html" class="BotonReserva">HACER UNA RESERVA</a>
+        <a href="/reservas" class="BotonReserva">HACER UNA RESERVA</a>
     </div>
 
     <script>
-        // PERSONALIZAR SALUDO
-        const usuario = localStorage.getItem('usuario_simulado');
-        if (usuario) {
-            document.getElementById('welcomeMsg').innerText = `HOLA, ${usuario.split('@')[0].toUpperCase()}`;
+        // Personalizar saludo
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.nombre) {
+            document.getElementById('welcomeMsg').innerText = `HOLA, ${user.nombre.toUpperCase()}`;
         } else {
             document.getElementById('welcomeMsg').innerText = `MAPA INTERACTIVO`;
         }
