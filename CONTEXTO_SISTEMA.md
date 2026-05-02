@@ -2,52 +2,58 @@
 
 Este documento describe la arquitectura de comunicación y el flujo de datos del ecosistema de estacionamiento inteligente.
 
-## 📐 Arquitectura de Puertas (Unificada)
+## 📐 Arquitectura del Ecosistema
 
-Para garantizar la sincronización entre el ALPR, el Backend y el Dashboard, se han estandarizado los IDs de las puertas:
+El sistema se divide en dos grandes áreas de acceso mediante **Roles (RBAC)**:
 
-1.  **Entrada (`ENTRADA_PRINCIPAL`)**:
-    - **Cámara**: Webcam local o IP Cam vinculada a este ID.
-    - **Lógica**: Valida aforo y registra ingresos.
-    - **MQTT**: Publica en `parking/barrera/entrada/control`.
-2.  **Salida (`SALIDA_PRINCIPAL`)**:
-    - **Cámara**: IP Cam inalámbrica o secundaria.
-    - **Lógica**: Valida estado de pago antes de autorizar egreso.
-    - **MQTT**: Publica en `parking/barrera/salida/control`.
+1.  **Panel de Administración (`rol: admin`)**:
+    - Acceso a `/dashboard`.
+    - Monitoreo de cámaras en tiempo real.
+    - Gestión de usuarios y finanzas.
+    - Control manual de barreras por MQTT.
+2.  **Portal del Cliente (`rol: user`)**:
+    - Acceso a `/perfil`.
+    - Registro y gestión de vehículos propios (Patentes).
+    - Creación de reservas digitales.
+    - Visualización de deuda activa y pagos.
+
+## 🔐 Seguridad y Autenticación
+- **Token JWT**: Todas las comunicaciones entre el Frontend y la API están protegidas por JSON Web Tokens.
+- **Validación de Identidad**: El ALPR valida el ingreso cruzando la patente detectada con los vehículos registrados.
+- **Validación de Datos**: Registro de usuarios con validación de DNI numérico y contraseñas de alta seguridad (Min 8 caracteres, Mayúscula, Especial).
 
 ## 🔄 Flujos de Operación (Actualizados)
 
-### Tarifas y Pagos
-- **Cálculo Dinámico**: La deuda se calcula como `(Tiempo en minutos / 60) * TarifaConfigurada`. 
-- **Mínimo Cobrable**: El sistema aplica el costo de 1 hora completa para cualquier estadía inferior a 60 minutos.
-- **Validación de Egreso**: El Backend deniega la salida si el último registro de entrada no tiene `pago_confirmado = True`.
+### Tarifas y Fidelización
+- **Puntos AutoPass**: Los usuarios acumulan puntos por cada pago confirmado (10 pts x $100).
+- **Historial Digital**: Acceso transparente a todas las transacciones pasadas desde el portal del cliente.
+- **Reservas**: Un usuario crea una reserva -> El ALPR detecta la patente -> El sistema prioriza el ingreso aunque el aforo esté al límite.
 
-### Optimización OCR
-- **Consenso 2X**: El sistema valida la patente tras 2 cuadros idénticos (antes 3X), permitiendo una respuesta mucho más rápida en entornos con ruido visual o pantallas.
-- **Soporte Híbrido**: Reconocimiento mejorado para patentes Mercosur (7 chars) y Formato Viejo (6 chars).
+### Interfaz y Experiencia
+- **Lenguaje**: Sistema 100% localizado a **Español Argentino Formal**.
+- **Acceso Directo**: Login y Registro integrados mediante modales en la página principal para una experiencia fluida.
+- **Geolocalización**: Mapa interactivo en modo oscuro para localizar oficinas y puntos de servicio regionales.
 
 ## 🛠️ Comandos de Inicio Rápido (Consola)
 
-### 1. Servidor y Dashboard
+### 1. Inicialización de Base de Datos
+```powershell
+python init_db.py
+```
+*(Crea tablas y usuario admin por defecto: `admin@autopass.com` / `admin123`)*
+
+### 2. Servidor API y Web
 ```powershell
 uvicorn main:app --reload
 ```
-*(Acceso: http://localhost:8000/dashboard)*
+- **Landing**: http://localhost:8000/
+- **Login**: http://localhost:8000/login
+- **Dashboard**: http://localhost:8000/dashboard
 
-### 2. Cámara de Entrada
+### 3. Cámaras ALPR
 ```powershell
 $env:GATE_TYPE="entrada"; python alpr_service.py
 ```
 
-### 3. Cámara de Salida
-```powershell
-$env:VIDEO_SOURCE="URL_DE_TU_IPCAM"; $env:GATE_TYPE="salida"; python alpr_service.py
-```
-
-### 4. Simulador de Barreras (Hardware)
-```powershell
-python simulate_esp32.py
-```
-
 ---
-*Nota: Asegúrese de que el Backend esté corriendo antes de iniciar los servicios ALPR para que el Heartbeat se registre correctamente.*
+*Nota: Es fundamental correr `init_db.py` antes del primer inicio para asegurar que los roles y configuraciones iniciales existan.*

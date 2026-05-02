@@ -1,26 +1,34 @@
-# Estado del Proyecto: ParkingTech (Actualizado 2026-04-28)
+# Estado del Proyecto: ParkingTech (Actualizado 2026-05-02)
 
 ## 🚀 Hitos Recientes
 
-### OCR y ALPR (Optimización)
-- [x] **Consenso 2X**: Reducción de latencia en reconocimiento al requerir solo 2 lecturas idénticas (ideal para capturas desde pantallas).
-- [x] **Soporte Formato Viejo**: Mejora en la normalización y pre-procesamiento para patentes argentinas de formato `AAA 123`.
-- [x] **Unificación de Nomenclatura**: Puntos de acceso renombrados a `ENTRADA_PRINCIPAL` y `SALIDA_PRINCIPAL` para consistencia total en el ecosistema.
+### 🎨 UI/UX & Identidad Visual (¡NUEVO!)
+- [x] **Armonización de Estilo**: Todos los templates (Index, Dashboard, Perfil, Contacto) con estética Premium (Dorado/Negro).
+- [x] **Limpieza Funcional**: Interfaces operativas con fondos sólidos y alto contraste para reducir fatiga visual.
+- [x] **Acceso Simplificado**: Migración de páginas de Login/Registro a **Modales Interactivos** en la Home.
+- [x] **Iconografía de Alta Gama**: Integración total de **Font Awesome 6** (eliminación de emojis).
+- [x] **Mapa Interactivo**: Nueva sección "Encuéntrenos" con mapa en modo oscuro, geolocalización y puntos regionales (Ituzaingó, Castelar, Morón).
+
+### 🔐 Seguridad y Autenticación
+- [x] **JWT Auth**: Implementación de tokens de seguridad para proteger la API y el Dashboard.
+- [x] **Validación Anti-Flicker**: Las rutas protegidas (/dashboard, /perfil) son invisibles para usuarios no autorizados antes de la redirección.
+- [x] **Validaciones Robustas**: Registro con reglas estrictas para DNI numérico y contraseñas seguras (Especial/Mayúscula).
+
+### 🌐 Interfaz Web & Funcionalidad
+- [x] **Landing Page Pro**: Página de inicio moderna con modals y navegación fluida.
+- [x] **Portal del Cliente (Perfil)**: El usuario gestiona sus vehículos y ve su deuda en tiempo real.
+- [x] **Historial de Pagos**: Visualización detallada de transacciones confirmadas para cada usuario.
+- [x] **Sistema de Puntos AutoPass**: Gamificación que otorga 10 puntos por cada $100 gastados automáticamente.
+- [x] **Página de Contacto**: Nueva sección profesional con formulario y detalles corporativos.
 
 ### Backend y Lógica de Negocio
-- [x] **Tarifas Dinámicas**: Eliminación de valores hardcodeados. El sistema ahora calcula la deuda real basada en `precio_hora` configurable y tiempo transcurrido (mínimo 1 hora).
-- [x] **Conexión MQTT Asíncrona**: El servidor inicia instantáneamente sin esperar respuesta del broker HiveMQ.
-- [x] **Evidencia en Salida**: Se implementó el guardado de fotos también en el proceso de salida (`EXIT_patente_hora.jpg`).
-- [x] **Robustez de API**: Corrección de Schemas Pydantic para evitar errores 500 cuando no se envía el campo `action`.
-
-### Dashboard y Frontend
-- [x] **Sincronización de Streams**: Los feeds de video ahora apuntan dinámicamente a los nuevos IDs de cámara.
-- [x] **Heartbeat Mejorado**: Monitor de salud con ventana de 90 segundos y normalización de IDs.
+- [x] **Normalización de Patentes**: Lógica mejorada para vincular vehículos de usuarios con los registros del ALPR.
+- [x] **Cálculo de Deuda en Perfil**: Los clientes ven su costo acumulado actualizado cada 30 segundos.
 
 ## 🛠️ Pendientes Inmediatos (Backlog)
-1. **Integración de Pagos**: Conectar el botón "Pagar" con el flujo real de Mercado Pago (actualmente es validación manual/simulada).
-2. **Reportes Avanzados**: Implementar exportación a PDF de tickets de auditoría.
-3. **Hardening**: Agregar autenticación JWT para el acceso al Dashboard Administrativo.
+1. **Integración Real de Pagos**: Conectar el botón "Pagar" con la API de Mercado Pago.
+2. **Canje de Puntos**: Implementar sistema para usar los Puntos AutoPass en beneficios o descuentos.
+3. **Notificaciones**: Avisos vía email/push cuando un vehículo del usuario ingresa o sale.
 
 ## 📡 Configuración de Puertas
 - **Entrada**: `ENTRADA_PRINCIPAL`

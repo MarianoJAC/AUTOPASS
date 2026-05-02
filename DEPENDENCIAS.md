@@ -1,35 +1,45 @@
-# 📦 Dependencias del Proyecto: ParkingTech
+# 📦 Dependencias del Proyecto: AUTOPASS
 
-Este documento detalla las bibliotecas de Python necesarias para el funcionamiento del sistema y el rol que cumple cada una en la arquitectura.
+Este documento detalla las librerías y herramientas necesarias para el funcionamiento del ecosistema completo de ParkingTech.
 
-## 🚀 Backend y API (FastAPI)
+## 🐍 Requisitos de Entorno
+- **Python**: 3.9 o superior.
+- **Gestor de paquetes**: pip (actualizado).
 
-*   **`fastapi`**: Framework moderno y de alto rendimiento para construir la API. Maneja las rutas de validación de patentes, gestión de logs y el dashboard.
-*   **`uvicorn`**: Servidor ASGI encargado de ejecutar la aplicación FastAPI y permitir el acceso web (puerto 8000).
-*   **`sqlalchemy`**: El ORM (Object-Relational Mapper) que facilita la comunicación con la base de datos SQLite (`parking.db`), permitiendo manejar tablas como si fueran objetos de Python.
+## 🛠️ Librerías Principales
 
-## 👁️ Visión Artificial y ALPR
+### 🚀 Backend y Servidor
+- **`fastapi`**: Framework moderno y rápido para construir la API.
+- **`uvicorn`**: Servidor ASGI de alto rendimiento para ejecutar la aplicación.
+- **`sqlalchemy`**: ORM para la gestión de la base de datos SQLite.
+- **`python-dotenv`**: Gestión de variables de entorno (archivo `.env`).
 
-*   **`opencv-python` (cv2)**: La biblioteca fundamental para el procesamiento de imágenes. Se encarga de capturar el video de la cámara, redimensionar cuadros, aplicar filtros de contraste y mostrar la interfaz visual en tiempo real.
-*   **`easyocr`**: Motor de Reconocimiento Óptico de Caracteres (OCR). Es el "cerebro" que extrae el texto de las patentes detectadas en la imagen. Soporta múltiples idiomas y arquitecturas de aprendizaje profundo.
-*   **`numpy`**: Utilizada para el manejo de matrices y cálculos matemáticos complejos requeridos por OpenCV y el procesamiento de imágenes.
+### 🔐 Seguridad y Autenticación
+- **`passlib[bcrypt]`**: Hashing seguro de contraseñas.
+- **`python-jose[cryptography]`**: Generación y validación de tokens JWT (JSON Web Tokens).
 
-## 📡 Comunicación y Transporte
+### 👁️ Visión Artificial (ALPR)
+- **`opencv-python`**: Procesamiento de imágenes y manejo de streams de video.
+- **`easyocr`**: Motor de reconocimiento óptico de caracteres para la lectura de patentes.
+- **`torch` / `torchvision`**: (Instalados automáticamente por EasyOCR) Motor de Deep Learning.
 
-*   **`paho-mqtt`**: Cliente para el protocolo MQTT. Permite que el Backend envíe comandos de apertura (`OPEN`) a la barrera (ESP32 o Simulador) de forma instantánea a través de un broker (HiveMQ).
-*   **`requests`**: Utilizada por el script `alpr_service.py` para enviar las patentes detectadas mediante peticiones HTTP POST hacia la API del Backend.
-
-## 🛠️ Utilidades y Configuración
-
-*   **`python-dotenv`**: Permite cargar variables de entorno desde el archivo `.env`. Esto asegura que las credenciales (MQTT_BROKER, BACKEND_URL) no estén hardcodeadas en el código.
-*   **`pydantic`**: (Incluida con FastAPI) Se utiliza en el archivo `schemas.py` para validar que los datos que llegan a la API (como el formato de la patente) sean correctos antes de procesarlos.
+### 📡 Comunicación y Utilidades
+- **`paho-mqtt`**: Cliente para la comunicación con el broker MQTT (apertura de barreras).
+- **`requests`**: Realización de peticiones HTTP entre servicios.
 
 ---
 
-## 🛠️ Instalación Rápida
+## 📥 Comando de Instalación Rápida
 
-Para instalar todas estas dependencias en un entorno nuevo, puedes usar:
+Puedes instalar todas las dependencias ejecutando:
 
 ```bash
-pip install fastapi uvicorn sqlalchemy paho-mqtt python-dotenv opencv-python easyocr numpy requests
+pip install fastapi uvicorn sqlalchemy python-dotenv passlib[bcrypt] python-jose[cryptography] paho-mqtt requests opencv-python easyocr
 ```
+
+## 📋 Resumen de Versiones (pip freeze)
+Para asegurar la reproducibilidad, se recomienda el uso de un entorno virtual (`venv`). Las versiones principales probadas son:
+- FastAPI >= 0.100.0
+- SQLAlchemy >= 2.0.0
+- Paho-MQTT >= 2.0.0 (con soporte para Callback API v2)
+- EasyOCR >= 1.7.0
