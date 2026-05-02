@@ -11,6 +11,8 @@ class User(Base):
     dni = Column(String, unique=True, index=True)
     telefono = Column(String)
     email = Column(String, unique=True, index=True)
+    patente = Column(String, nullable=True) # Patente principal
+    direccion = Column(String, nullable=True)
     password_hash = Column(String)
     rol = Column(String, default="user") # 'admin' o 'user'
     direccion = Column(String, nullable=True)
