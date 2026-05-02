@@ -1,7 +1,7 @@
 @echo off
-title Setup Backend - Smart Parking ALPR
+title Setup Backend - AUTOPASS Smart Parking
 echo ======================================================
-echo   INSTALACION DEL ENTORNO DE DESARROLLO (FASTAPI + AI)
+echo   INSTALACION DEL ENTORNO DE DESARROLLO (AUTOPASS)
 echo ======================================================
 echo.
 
@@ -9,7 +9,7 @@ echo.
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Python no esta instalado o no se encuentra en el PATH.
-    echo Por favor, instala Python 3.10 o superior desde python.org
+    echo Por favor, instala Python 3.9 o superior.
     pause
     exit /b
 )
@@ -30,23 +30,34 @@ call venv\Scripts\activate
 echo [+] Actualizando PIP...
 python -m pip install --upgrade pip
 
-echo [+] Instalando FastAPI y Servidor...
-pip install fastapi uvicorn sqlalchemy python-dotenv
+echo [+] Instalando FastAPI, Seguridad y Base de Datos...
+pip install fastapi uvicorn sqlalchemy python-dotenv passlib[bcrypt] python-jose[cryptography]
 
 echo [+] Instalando Comunicacion (MQTT y Requests)...
 pip install paho-mqtt requests
 
 echo [+] Instalando Vision Artificial (ALPR)...
-echo Nota: La primera instalacion de EasyOCR puede tardar unos minutos.
+echo Nota: La instalacion de EasyOCR puede tardar unos minutos.
 pip install opencv-python easyocr
+
+:: 4. Inicializar Base de Datos
+echo.
+echo [+] Inicializando Base de Datos y Usuario Admin...
+python init_db.py
 
 echo.
 echo ======================================================
 echo   INSTALACION COMPLETADA CON EXITO
 echo ======================================================
 echo.
-echo Para iniciar el servidor:
+echo Credenciales de Admin por defecto:
+echo Email: admin@autopass.com
+echo Pass: admin123
+echo.
+echo Para iniciar el sistema:
 echo 1. Activa el entorno: call venv\Scripts\activate
 echo 2. Corre el server: uvicorn main:app --reload
+echo.
+echo Acceso Web: http://localhost:8000
 echo.
 pause

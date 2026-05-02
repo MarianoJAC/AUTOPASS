@@ -7,8 +7,13 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String)
+    apellido = Column(String)
+    dni = Column(String, unique=True, index=True)
+    telefono = Column(String)
     email = Column(String, unique=True, index=True)
     password_hash = Column(String)
+    rol = Column(String, default="user") # 'admin' o 'user'
+    direccion = Column(String, nullable=True)
     puntos_acumulados = Column(Integer, default=0)
 
     vehicles = relationship("Vehicle", back_populates="owner")

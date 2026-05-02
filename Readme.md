@@ -1,26 +1,31 @@
-# 🚗 Sistema de Parking Mixto (Reservas + Al Paso)
+# 🚗 AUTOPASS - Estacionamiento Inteligente Integrado
 
-Solución integral para la gestión de estacionamientos que combina visión artificial (ALPR), comunicación MQTT y auditoría visual.
+Solución empresarial para la gestión de estacionamientos que combina **Visión Artificial (ALPR)**, **Autenticación JWT** y un **Ecosistema Web Completo** para administradores y clientes.
 
-## 🌟 Características Implementadas
+## 🌟 Características Destacadas
 
-### 👁️ Visión Artificial & Auditoría
-- **Reconocimiento ALPR**: Detección automática de patentes mediante EasyOCR.
-- **Captura de Evidencia**: El sistema toma una fotografía del vehículo en el momento exacto del ingreso para auditoría visual.
-- **Historial Fotográfico**: Las imágenes se almacenan en el servidor y son accesibles desde el panel de control.
+### 🔐 Seguridad y Control de Acceso
+- **Autenticación JWT**: Flujo seguro de login y registro con protección de rutas por roles (Admin/Usuario).
+- **Control ALPR (EasyOCR)**: Reconocimiento automático de patentes con validación de aforo y reservas.
+- **Auditoría Visual**: Captura de imágenes en cada evento de entrada y salida, vinculadas al perfil del usuario.
 
-### 🧠 Backend & Lógica
-- **Validación Dual**: Acceso automático para reservas y registro para usuarios "Al Paso".
-- **Gestión de Pagos**: Restricción de salida automatizada; la barrera solo abre si el pago ha sido confirmado.
-- **Cálculo de Tarifas**: Costo basado en tiempo de estancia ($100/hora).
-- **Aforo Inteligente**: Contador persistente en DB con actualización automática.
+### 📱 Experiencia del Usuario (Portal Cliente)
+- **Panel Personalizado**: Visualización de vehículos registrados y deuda actual en tiempo real.
+- **Reservas Digitales**: Posibilidad de reservar lugar por fecha y hora para asegurar disponibilidad.
+- **Notificaciones**: Estado de estadía actualizado mediante WebSockets/Pooling.
 
-### 🖥️ Administración Centralizada
-- **Dashboard Integrado**: Acceso vía web para monitorear ocupación, logs y fotos en tiempo real.
-- **Control Remoto**: Apertura manual de barreras y validación de pagos desde el navegador.
+### 🖥️ Gestión Administrativa (Dashboard Pro)
+- **Monitor en Vivo**: Visualización de cámaras y últimos movimientos con tecnología de streaming asíncrono.
+- **Analíticas Financieras**: Reportes de recaudación, ticket promedio y estadísticas de ocupación.
+- **Gestión de Usuarios**: Listado completo de la base de clientes y sus datos de contacto (DNI, Teléfono).
+- **Configuración Dinámica**: Ajuste de tarifas y control manual de barreras vía MQTT.
 
-## 🔄 Flujo de Auditoría y Salida
-1. El vehículo ingresa, el ALPR detecta la patente y **captura una foto**.
-2. El administrador puede verificar la foto en el **Dashboard** para confirmar la identidad del vehículo.
-3. El usuario abona en caja y el administrador confirma el pago.
-4. Al llegar a la salida, el sistema verifica la patente y el estado del pago para permitir el egreso.
+## 🛠️ Tecnologías Utilizadas
+- **Backend:** FastAPI (Python), SQLAlchemy, Paho-MQTT.
+- **Frontend:** Vanilla JS, CSS3 Modern (Glassmorphism), Jinja2 (vía FastAPI).
+- **IA/Visión:** OpenCV, EasyOCR.
+- **Seguridad:** JWT (JSON Web Tokens), Bcrypt Hashing.
+- **Base de Datos:** SQLite (Persistente).
+
+---
+*Desarrollado para la evolución de la movilidad urbana y la automatización de predios.*
