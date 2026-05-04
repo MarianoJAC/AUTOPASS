@@ -15,8 +15,7 @@ class User(Base):
     direccion = Column(String, nullable=True)
     password_hash = Column(String)
     rol = Column(String, default="user") # 'admin' o 'user'
-    direccion = Column(String, nullable=True)
-    puntos_acumulados = Column(Integer, default=0)
+    puntos = Column(Integer, default=0)
 
     vehicles = relationship("Vehicle", back_populates="owner")
     reservations = relationship("Reservation", back_populates="user")

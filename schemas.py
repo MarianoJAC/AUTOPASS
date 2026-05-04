@@ -22,7 +22,9 @@ class UserBase(BaseModel):
     dni: str
     telefono: str
     email: str
+    patente: Optional[str] = None
     direccion: Optional[str] = None
+    puntos: int = 0
 
 class UserCreate(UserBase):
     password: str

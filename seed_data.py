@@ -9,7 +9,7 @@ test_user = models.User(
     nombre="Juan Perez",
     email="juan@example.com",
     password_hash="hashed_password",
-    puntos_acumulados=100
+    puntos=100
 )
 db.add(test_user)
 db.commit()
