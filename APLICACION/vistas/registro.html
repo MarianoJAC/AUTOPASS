@@ -136,8 +136,6 @@
         <h2 class="TituloRegistro">REGISTRO DE USUARIO</h2>
         
         <form id="formRegistro" class="FormularioLogin">
-            <!-- ... campos del formulario ... -->
-            <!-- (Mantengo el contenido del formulario igual para no romper nada) -->
             <div class="FilaInputs">
                 <div class="GrupoInput">
                     <span class="EtiquetaInput">NOMBRE</span>
@@ -155,32 +153,32 @@
                     <input type="text" id="dni" placeholder="DNI" required>
                 </div>
                 <div class="GrupoInput">
-                    <span class="EtiquetaInput">TELEFONO</span>
-                    <input type="tel" id="telefono" placeholder="TELEFONO" required>
+                    <span class="EtiquetaInput">TELÉFONO</span>
+                    <input type="tel" id="telefono" placeholder="TELÉFONO" required>
                 </div>
             </div>
 
             <div class="GrupoInput">
+                <span class="EtiquetaInput">PATENTE DEL VEHÍCULO</span>
+                <input type="text" id="patente" placeholder="ABC123 Y AA111EE" required>
+            </div>
+
+            <div class="GrupoInput">
                 <span class="EtiquetaInput">MAIL</span>
-                <input type="email" id="email" placeholder="CORREO ELECTRONICO" style="text-transform: none;" required>
+                <input type="email" id="email" placeholder="CORREO ELECTRÓNICO" style="text-transform: none;" required>
             </div>
 
             <div class="GrupoInput">
-                <span class="EtiquetaInput">PATENTE DEL VEHICULO</span>
-                <input type="text" id="patente" placeholder="ABC 123 / AB 123 CD" required>
-            </div>
-
-            <div class="GrupoInput">
-                <span class="EtiquetaInput">DIRECCION</span>
-                <input type="text" id="direccion" placeholder="CALLE, NUMERO, CIUDAD" required>
-            </div>
-
-            <div class="GrupoInput">
-                <span class="EtiquetaInput">CONTRASENA DE ACCESO</span>
+                <span class="EtiquetaInput">CONTRASEÑA DE ACCESO</span>
                 <input type="password" id="password" placeholder="********" required>
             </div>
 
-            <button type="submit" class="BotonRegistrar">REGISTRARSE</button>
+            <div class="GrupoInput">
+                <span class="EtiquetaInput">DIRECCIÓN</span>
+                <input type="text" id="direccion" placeholder="CALLE, NÚMERO, CIUDAD" required>
+            </div>
+
+            <button type="submit" class="BotonRegistrar">REGÍSTRATE</button>
         </form>
 
         <a href="../login.html" class="LinkVolver">VOLVER AL LOGIN</a>
@@ -192,12 +190,12 @@
             
             const patente = document.getElementById('patente').value.trim().toUpperCase();
             
-            // REGEX PARA FORMATO VIEJO (AAA 111) O MERCOSUR (AA 111 AA)
-            const regexViejo = /^[A-Z]{3}\s\d{3}$/;
-            const regexMercosur = /^[A-Z]{2}\s\d{3}\s[A-Z]{2}$/;
+            // REGEX PARA FORMATO VIEJO (ABC123) O MERCOSUR (AA111EE) - SIN ESPACIOS
+            const regexViejo = /^[A-Z]{3}\d{3}$/;
+            const regexMercosur = /^[A-Z]{2}\d{3}[A-Z]{2}$/;
 
             if (!regexViejo.test(patente) && !regexMercosur.test(patente)) {
-                alert('EL FORMATO DE LA PATENTE ES INVALIDO. USE: ABC 123 O AB 123 CD');
+                alert('EL FORMATO DE LA PATENTE ES INVÁLIDO. USE: ABC123 Y AA111EE (SIN ESPACIOS)');
                 return;
             }
 
