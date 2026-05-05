@@ -23,6 +23,7 @@ class UserBase(BaseModel):
     telefono: str
     email: str
     direccion: Optional[str] = None
+    puntos_acumulados: Optional[int] = 0
 
 class UserCreate(UserBase):
     password: str

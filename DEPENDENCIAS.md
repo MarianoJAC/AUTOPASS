@@ -13,6 +13,7 @@ Este documento detalla las librerías y herramientas necesarias para el funciona
 - **`uvicorn`**: Servidor ASGI de alto rendimiento para ejecutar la aplicación.
 - **`sqlalchemy`**: ORM para la gestión de la base de datos SQLite.
 - **`python-dotenv`**: Gestión de variables de entorno (archivo `.env`).
+- **`jinja2`**: Motor de plantillas para renderizado de HTML con herencia.
 
 ### 🔐 Seguridad y Autenticación
 - **`passlib[bcrypt]`**: Hashing seguro de contraseñas.
@@ -34,7 +35,7 @@ Este documento detalla las librerías y herramientas necesarias para el funciona
 Puedes instalar todas las dependencias ejecutando:
 
 ```bash
-pip install fastapi uvicorn sqlalchemy python-dotenv passlib[bcrypt] python-jose[cryptography] paho-mqtt requests opencv-python easyocr
+pip install fastapi uvicorn sqlalchemy python-dotenv jinja2 passlib[bcrypt] python-jose[cryptography] paho-mqtt requests opencv-python easyocr
 ```
 
 ## 📋 Resumen de Versiones (pip freeze)

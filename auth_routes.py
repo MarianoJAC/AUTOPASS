@@ -1,67 +1,54 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import datetime
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import models, schemas, database, auth
+import models, schemas, auth
 from database import get_db
-from datetime import timedelta
 
-router = APIRouter(prefix="/v1/auth", tags=["auth"])
+router = APIRouter(prefix="/v1/auth", tags=["Authentication"])
 
-@router.post("/register", response_model=schemas.UserBase)
+@router.post("/register")
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    import re
-
-    # 1. Validar DNI (Solo números)
-    if not user.dni.isdigit():
-        raise HTTPException(status_code=400, detail="El DNI debe contener únicamente números")
-    
-    # 2. Validar Email
-    email_regex = r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
-    if not re.match(email_regex, user.email):
-        raise HTTPException(status_code=400, detail="El formato del correo electrónico es inválido")
-
-    # 3. Validar Teléfono (Solo números, min 10)
-    if not user.telefono.isdigit() or len(user.telefono) < 10:
-        raise HTTPException(status_code=400, detail="El teléfono debe tener al menos 10 dígitos numéricos")
-
-    # 4. Validar Contraseña (Min 8, 1 Mayus, 1 Especial)
-    password_regex = r"^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?\":{}|<>]).{8,}$"
-    if not re.match(password_regex, user.password):
-        raise HTTPException(status_code=400, detail="La contraseña no cumple con los requisitos de seguridad (mínimo 8 caracteres, una mayúscula y un carácter especial)")
-
+    # Verificar si el email ya existe
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="El correo electrónico ya se encuentra registrado")
+        raise HTTPException(status_code=400, detail="Email ya registrado")
     
+    # Hashear contraseña
     hashed_password = auth.get_password_hash(user.password)
+    
+    # Crear nuevo usuario
     new_user = models.User(
         nombre=user.nombre,
         apellido=user.apellido,
         dni=user.dni,
         telefono=user.telefono,
         email=user.email,
-        direccion=user.direccion,
         password_hash=hashed_password,
-        rol="user" # Por defecto son usuarios
+        rol="user" # Rol por defecto
     )
+    
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return new_user
+    
+    return {"status": "ok", "message": "Usuario registrado exitosamente"}
 
-@router.post("/login", response_model=schemas.Token)
-def login(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == user_data.email).first()
-    if not user or not auth.verify_password(user_data.password, user.password_hash):
+@router.post("/login")
+def login(form_data: schemas.UserLogin, db: Session = Depends(get_db)):
+    user = auth.authenticate_user(db, form_data.email, form_data.password)
+    if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=401,
             detail="Email o contraseña incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = datetime.timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth.create_access_token(
-        data={"sub": user.email, "rol": user.rol}, expires_delta=access_token_expires
+        data={"sub": user.email, "rol": user.rol}, 
+        expires_delta=access_token_expires
     )
+    
     return {
         "access_token": access_token, 
         "token_type": "bearer", 
