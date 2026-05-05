@@ -261,11 +261,19 @@ async function updateDashboard() {
         if (occBody && Array.isArray(occ)) {
             occBody.innerHTML = '';
             occ.forEach(o => {
+                const entrada = new Date(o.ingreso);
+                const ahora = new Date();
+                const diffMs = ahora - entrada;
+                const diffHrs = Math.floor(diffMs / 3600000);
+                const diffMins = Math.floor((diffMs % 3600000) / 60000);
+                const diffSecs = Math.floor((diffMs % 60000) / 1000);
+                const permanencia = `${diffHrs}h ${diffMins}m ${diffSecs}s`;
+
                 occBody.innerHTML += `
                     <tr>
                         <td><span class="plate-tag gold">${o.patente}</span></td>
                         <td>${o.ingreso.split('T')[1].substring(0, 5)}</td>
-                        <td>CALC...</td>
+                        <td style="color: #888; font-size: 0.8rem; font-weight: 600">${permanencia}</td>
                         <td style="font-weight: 800; color: ${o.ya_pago ? 'var(--secondary)' : 'var(--danger)'}">$${o.deuda}</td>
                         <td>${!o.ya_pago ? `<button class="btn btn-primary" style="padding: 5px 12px; font-size: 0.7rem" onclick="pay('${o.patente}')">COBRAR</button>` : 'PAGO OK'}</td>
                     </tr>`;

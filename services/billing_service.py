@@ -11,16 +11,19 @@ class BillingService:
 
     @staticmethod
     def calculate_debt(entry_time_str: str, db: Session) -> float:
-        """Calcula la deuda acumulada basada en el tiempo de estadía."""
+        """Calcula la deuda acumulada basada en bloques de horas completas."""
+        import math
         precio_hora = BillingService.get_hourly_rate(db)
         entrada_dt = datetime.datetime.fromisoformat(entry_time_str)
         
         # Diferencia de tiempo en horas
         delta = datetime.datetime.now() - entrada_dt
-        horas = delta.total_seconds() / 3600
+        horas_transcurridas = delta.total_seconds() / 3600
         
-        # Se cobra al menos una hora, luego proporcional
-        monto = max(precio_hora, round(horas * precio_hora, 2))
+        # Se cobra por bloques de hora (si pasó 1 min de la hora, ya se cobra la siguiente)
+        # Al menos se cobra 1 hora.
+        bloques_a_cobrar = max(1, math.ceil(horas_transcurridas))
+        monto = bloques_a_cobrar * precio_hora
         return float(monto)
 
     @staticmethod
@@ -51,9 +54,9 @@ class BillingService:
         # Acreditar puntos si el vehículo tiene dueño
         vehiculo = db.query(models.Vehicle).filter(models.Vehicle.patente == plate).first()
         puntos_ganados = 0
-        if vehiculo and vehiculo.user:
+        if vehiculo and vehiculo.owner:
             puntos_ganados = BillingService.calculate_points(monto_real)
-            vehiculo.user.puntos_acumulados += puntos_ganados
+            vehiculo.owner.puntos_acumulados += puntos_ganados
         
         db.commit()
         return {
