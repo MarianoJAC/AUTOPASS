@@ -1,7 +1,34 @@
 const API_BASE = '/v1';
 const token = localStorage.getItem('token');
 
+// --- LÓGICA DE SIDEBAR ---
+function toggleSidebar() {
+    const layout = document.querySelector('.layout-with-sidebar');
+    const sidebar = document.querySelector('.sidebar');
+    const toggleIcon = document.querySelector('.sidebar-toggle i');
+    const isCollapsed = layout.classList.toggle('collapsed');
+    sidebar.classList.toggle('collapsed');
+    
+    if (toggleIcon) {
+        toggleIcon.className = isCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+    }
+    
+    localStorage.setItem('sidebarCollapsed', isCollapsed);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Restaurar estado del sidebar
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+        const layout = document.querySelector('.layout-with-sidebar');
+        const sidebar = document.querySelector('.sidebar');
+        const toggleIcon = document.querySelector('.sidebar-toggle i');
+        if (layout && sidebar) {
+            layout.classList.add('collapsed');
+            sidebar.classList.add('collapsed');
+            if (toggleIcon) toggleIcon.className = 'fas fa-chevron-right';
+        }
+    }
+    
     // --- CONFIGURACIÓN DEL MAPA (INDEX) ---
     const mapEl = document.getElementById('map');
     if (mapEl) initMap();
@@ -86,7 +113,7 @@ if (registerForm) {
         const telefono = document.getElementById('reg-tel').value;
 
         if (!/^\d+$/.test(dni)) {
-            errorMsg.innerText = 'El DNI debe contener únicamente números';
+            errorMsg.innerText = 'El DNI debe contener únicamente números (sin puntos)';
             errorMsg.style.display = 'block';
             return;
         }
@@ -99,7 +126,7 @@ if (registerForm) {
         }
 
         if (!/^\d{10,}$/.test(telefono)) {
-            errorMsg.innerText = 'El teléfono debe tener al menos 10 dígitos numéricos';
+            errorMsg.innerText = 'El teléfono debe contener código de área y número (mínimo 10 dígitos)';
             errorMsg.style.display = 'block';
             return;
         }
