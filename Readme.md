@@ -1,4 +1,4 @@
-#  AUTOPASS - Estacionamiento Inteligente
+#  AUTOPASS
 
 Solución empresarial para la gestión de estacionamientos que combina **Visión Artificial (ALPR)**, **Arquitectura Modular** y un **Panel de Business Intelligence** completo.
 
