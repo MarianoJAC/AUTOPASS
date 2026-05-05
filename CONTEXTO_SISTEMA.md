@@ -2,57 +2,43 @@
 
 Este documento describe la arquitectura de comunicación y el flujo de datos del ecosistema de estacionamiento inteligente.
 
-## 📐 Arquitectura del Ecosistema
+## 📐 Arquitectura del Ecosistema (v3.0+)
 
-El sistema se divide en dos grandes áreas de acceso mediante **Roles (RBAC)**:
+El sistema ha sido refactorizado bajo una arquitectura modular de alta escalabilidad:
 
-1.  **Panel de Administración (`rol: admin`)**:
-    - Acceso a `/dashboard`.
-    - Monitoreo de cámaras en tiempo real.
-    - Gestión de usuarios y finanzas.
-    - Control manual de barreras por MQTT.
-2.  **Portal del Cliente (`rol: user`)**:
-    - Acceso a `/perfil`.
-    - Registro y gestión de vehículos propios (Patentes).
-    - Creación de reservas digitales.
-    - Visualización de deuda activa y pagos.
+1.  **Backend Modular (FastAPI Routers)**: 
+    - `routes/parking.py`: Control de aforo y validación ALPR.
+    - `routes/reports.py`: Analítica avanzada y reportes financieros.
+    - `routes/user.py`: Portal del cliente y gestión de vehículos.
+    - `routes/admin.py`: Operaciones de sistema y configuración.
+2.  **Capa de Servicios (Service Pattern)**:
+    - `services/billing_service.py`: Lógica centralizada de cobro y puntos AutoPass.
+3.  **Frontend con Herencia (Jinja2 Layouts)**:
+    - `templates/base.html`: Esqueleto maestro para consistencia visual.
+    - Componentes Pro: Integración de **Chart.js** y **Flatpickr**.
 
-## 🔐 Seguridad y Autenticación
-- **Token JWT**: Todas las comunicaciones entre el Frontend y la API están protegidas por JSON Web Tokens.
-- **Validación de Identidad**: El ALPR valida el ingreso cruzando la patente detectada con los vehículos registrados.
-- **Validación de Datos**: Registro de usuarios con validación de DNI numérico y contraseñas de alta seguridad (Min 8 caracteres, Mayúscula, Especial).
+## 🔐 Configuración y Seguridad
+- **Variables de Entorno**: Configuración centralizada en archivo `.env` (MQTT, Secret Keys, DB URLs).
+- **Token JWT**: Protección robusta de endpoints y persistencia de sesión.
 
-## 🔄 Flujos de Operación (Actualizados)
+## 🛠️ Comandos de Inicio Rápido (v3.1)
 
-### Tarifas y Fidelización
-- **Puntos AutoPass**: Los usuarios acumulan puntos por cada pago confirmado (10 pts x $100).
-- **Historial Digital**: Acceso transparente a todas las transacciones pasadas desde el portal del cliente.
-- **Reservas**: Un usuario crea una reserva -> El ALPR detecta la patente -> El sistema prioriza el ingreso aunque el aforo esté al límite.
+### 1. Preparación del Entorno
+```powershell
+# Instalar dependencias
+pip install -r DEPENDENCIAS.md (o el comando de instalación rápida)
+# Configurar variables
+cp .env.example .env  # Si existiera, o editar .env directamente
+```
 
-### Interfaz y Experiencia
-- **Lenguaje**: Sistema 100% localizado a **Español Argentino Formal**.
-- **Acceso Directo**: Login y Registro integrados mediante modales en la página principal para una experiencia fluida.
-- **Geolocalización**: Mapa interactivo en modo oscuro para localizar oficinas y puntos de servicio regionales.
-
-## 🛠️ Comandos de Inicio Rápido (Consola)
-
-### 1. Inicialización de Base de Datos
+### 2. Inicialización de Base de Datos
 ```powershell
 python init_db.py
 ```
-*(Crea tablas y usuario admin por defecto: `admin@autopass.com` / `admin123`)*
 
-### 2. Servidor API y Web
+### 3. Ejecución del Servidor
 ```powershell
 uvicorn main:app --reload
-```
-- **Landing**: http://localhost:8000/
-- **Login**: http://localhost:8000/login
-- **Dashboard**: http://localhost:8000/dashboard
-
-### 3. Cámaras ALPR
-```powershell
-$env:GATE_TYPE="entrada"; python alpr_service.py
 ```
 
 ---

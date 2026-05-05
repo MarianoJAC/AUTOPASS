@@ -1,4 +1,4 @@
-# 📋 Backlog Maestro: Sistema de Parking por Flujo
+# 📋 Backlog Maestro: Sistema de Parking por Flujo (v3.1)
 
 ---
 
@@ -11,6 +11,7 @@
 | **BE-03** | Lógica de Aforo: Script de inventario (Entradas - Salidas) y gestión de estados. | Alta | ✅ Completado |
 | **BE-04** | Integración ALPR: Script Python (OpenCV/EasyOCR) con captura de imágenes. | Alta | ✅ Completado |
 | **BE-05** | Configurar Broker MQTT para la comunicación con las barreras físicas. | Alta | ✅ Completado |
+| **BE-06** | **Arquitectura Pro**: Modularización por Routers y Patrón de Servicios. | Alta | ✅ Completado |
 
 ---
 
@@ -19,25 +20,24 @@
 | ID | Tarea / Historia de Usuario | Prioridad | Estado |
 | :--- | :--- | :--- | :--- |
 | **WD-01** | Visualización de Aforo: Contador de ocupación en tiempo real en el Dashboard. | Alta | ✅ Completado |
-| **WD-02** | Log de Actividad: Tabla de ingresos/egresos con visualización de fotos de evidencia. | Alta | ✅ Completado |
+| **WD-02** | Log de Actividad: Tabla de ingresos/egresos con visualización de fotos. | Alta | ✅ Completado |
 | **WD-03** | Control Remoto: Botones de apertura manual de barreras (Entrada/Salida). | Media | ✅ Completado |
-| **WD-04** | Gestión de Campañas: CRUD para cupones de descuento y promociones. | Media | 🟦 Pendiente |
+| **WD-04** | **BI Analytics**: Gráficos de recaudación (Chart.js) y filtros de calendario. | Alta | ✅ Completado |
+| **WD-05** | Gestión de Campañas: CRUD para cupones de descuento y promociones. | Media | 🟦 Pendiente |
 
 ---
 
-## 📱 Épica 3: Aplicación Móvil (Experiencia Expo & Fidelidad)
+## 📱 Épica 3: Aplicación Móvil & Fidelidad (Ecosistema User)
 
 | ID | Tarea / Historia de Usuario | Prioridad | Estado |
 | :--- | :--- | :--- | :--- |
-| **MA-01** | Setup de Expo (React Native) y configuración de navegación (Tabs/Stack). | Alta | 🟦 Pendiente |
-| **MA-02** | Autenticación: Registro de usuario y vinculación de **patente principal**. | Alta | 🟦 Pendiente |
-| **MA-03** | Home: Sincronización del contador de aforo mediante API. | Alta | 🟦 Pendiente |
-| **MA-04** | Reserva: Flujo de selección de zona y tiempo de estancia. | Alta | 🟦 Pendiente |
-| **MA-05** | **Pagos**: Integración del SDK de Mercado Pago (Checkout Pro). | Alta | 🟦 Pendiente |
-| **MA-06** | **Fidelización**: Pantalla de canje de puntos por beneficios (1h gratis, etc.). | Media | 🟦 Pendiente |
-| **MA-07** | **Cupones**: Módulo de ingreso y validación de códigos promocionales. | Media | 🟦 Pendiente |
-| **MA-08** | Notificaciones: Avisos de ingreso exitoso y recordatorios de salida. | Media | 🟦 Pendiente |
-| **MA-09** | Contingencia: Generador de QR dinámico (Plan B para ALPR). | Baja | 🟦 Pendiente |
+| **MA-01** | Setup de Expo (React Native) y configuración de navegación. | Alta | 🟦 Pendiente |
+| **MA-02** | Autenticación: Registro y vinculación de patentes (Web implementado). | Alta | 🟨 En Progreso |
+| **MA-03** | **Fidelización**: Lógica de puntos AutoPass (10 pts x $100). | Media | ✅ Completado |
+| **MA-04** | Home & Reservas: Sincronización de aforo y creación de solicitudes. | Alta | 🟨 En Progreso |
+| **MA-05** | **Pagos**: Integración real del SDK de Mercado Pago (Checkout Pro). | Alta | 🟦 Pendiente |
+| **MA-06** | **Cupones**: Módulo de ingreso y validación de códigos promocionales. | Media | 🟦 Pendiente |
+| **MA-07** | Notificaciones: Avisos de ingreso exitoso y recordatorios de salida. | Media | 🟦 Pendiente |
 
 ---
 
@@ -47,22 +47,23 @@
 | :--- | :--- | :--- | :--- |
 | **HW-01** | Firmware: Publicación MQTT de eventos y simulación de sensores. | Alta | ✅ Completado |
 | **HW-02** | Actuación: Suscripción a comando `OPEN` y control de barrera. | Alta | ✅ Completado |
-| **HW-03** | UI Local: Mensajes en LCD I2C ("BIENVENIDO [Patente]", "LLENO"). | Media | 🟦 Pendiente |
-| **HW-04** | Sensor de Seguridad: Lógica para evitar que la barrera baje si hay un auto debajo. | Media | 🟦 Pendiente |
+| **HW-03** | UI Local: Mensajes en LCD I2C ("BIENVENIDO", "LLENO"). | Media | 🟦 Pendiente |
+| **HW-04** | Sensor de Seguridad: Lógica anti-colisión para barrera. | Media | 🟦 Pendiente |
 
 ---
 
-## 🛡️ Épica 5: Calidad e Seguridad (Producción)
+## 🛡️ Épica 5: Calidad y Seguridad (Producción)
 
 | ID | Tarea / Historia de Usuario | Prioridad | Estado |
 | :--- | :--- | :--- | :--- |
-| **QA-01** | Prueba de Flujo Completo: ALPR reconoce -> Backend valida -> Abre barrera -> Pago -> Salida. | Alta | 🟨 En Progreso |
-| **QA-02** | Pruebas de Estrés: Validación del contador de aforo con múltiples entradas. | Media | 🟦 Pendiente |
-| **QA-03** | Auditoría de Seguridad: Implementación de JWT y cifrado de contraseñas. | Alta | 🟦 Pendiente |
+| **QA-01** | Prueba de Flujo Completo: ALPR -> Backend -> Barrera -> Pago -> Salida. | Alta | ✅ Completado |
+| **QA-02** | Auditoría de Seguridad: Implementación de JWT y hashing Bcrypt. | Alta | ✅ Completado |
+| **QA-03** | Configuración Pro: Centralización de secretos en archivo `.env`. | Alta | ✅ Completado |
+| **QA-04** | Pruebas de Estrés: Validación de aforo con alta concurrencia. | Media | 🟦 Pendiente |
 
 ---
 
-## 📅 Próximos Pasos
-1. **Seguridad:** Implementar protección JWT para los endpoints y el Dashboard.
-2. **App Móvil:** Iniciar el desarrollo del cliente en Expo.
-3. **Pagos:** Integrar la lógica de Mercado Pago en el flujo de salida.
+## 📅 Próximos Pasos Prioritarios
+1. **Mercado Pago:** Conectar la lógica de servicios con la pasarela de pagos real.
+2. **App Móvil:** Iniciar el desarrollo del cliente en Expo/React Native.
+3. **Notificaciones:** Implementar sistema de avisos por correo o push.

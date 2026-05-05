@@ -1,431 +1,268 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AUTOPASS - Mi Perfil</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Inter:wght@300;400;600&display=swap');
+{% extends "base.html" %}
 
-        :root {
-            --dorado: #C5A059;
-            --dorado-dark: #A68045;
-            --blanco: #FFFFFF;
-            --negro: #000000;
-            --gris-fondo: #0A0A0A;
-            --gris-sidebar: #111111;
-            --gris-card: #161616;
-            --border: rgba(197, 160, 89, 0.1);
-            --danger: #ff4d4d;
-            --secondary: #00e676;
-        }
+{% block title %}AUTOPASS - Mi Perfil{% endblock %}
 
-        * { box-sizing: border-box; }
-        body {
-            margin: 0; font-family: 'Inter', sans-serif;
-            background-color: var(--gris-fondo); color: var(--blanco);
-            display: flex; min-height: 100vh;
-        }
+{% block body_class %}layout-with-sidebar{% endblock %}
 
-        /* SIDEBAR */
-        .sidebar {
-            width: 280px; background: var(--gris-sidebar); border-right: 1px solid var(--border);
-            padding: 40px 20px; display: flex; flex-direction: column;
-        }
-
-        .logo {
-            font-family: 'Montserrat'; font-weight: 800; font-size: 1.4rem;
-            letter-spacing: 3px; color: var(--dorado); margin-bottom: 50px; text-align: center;
-        }
-
-        .nav-item {
-            padding: 15px 20px; border-radius: 10px; color: #666; text-decoration: none;
-            font-weight: 600; font-size: 0.85rem; margin-bottom: 8px; transition: 0.2s;
-            cursor: pointer; display: flex; align-items: center; gap: 12px;
-        }
-
-        .nav-item:hover { background: rgba(255, 255, 255, 0.03); color: #fff; }
-        .nav-item.active { background: var(--dorado); color: var(--negro); font-weight: 700; }
-
-        .logout-btn { margin-top: auto; color: var(--danger); font-weight: 700; opacity: 0.8; }
-        .logout-btn:hover { opacity: 1; }
-
-        /* MAIN */
-        .main-content { flex: 1; padding: 60px 8%; overflow-y: auto; background: var(--gris-fondo); }
-
-        .header-profile { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; border-bottom: 1px solid var(--border); padding-bottom: 30px; }
-        .welcome-msg h1 { font-family: 'Montserrat'; margin: 0; font-size: 2rem; letter-spacing: 1px; color: #eee; }
-        .welcome-msg p { color: #666; margin: 10px 0 0; font-size: 1rem; }
-
-        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; }
-
-        .card {
-            background: var(--gris-card); border-radius: 15px; padding: 35px;
-            border: 1px solid var(--border); margin-bottom: 30px;
-        }
-
-        .card-title { font-family: 'Montserrat'; color: var(--dorado); font-size: 0.85rem; margin-bottom: 30px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; }
-
-        /* VEHICLES */
-        .vehicle-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 18px; background: #000; border-radius: 10px; margin-bottom: 12px;
-            border: 1px solid #222;
-        }
-
-        .plate-badge {
-            background: #222; color: #fff; padding: 6px 15px;
-            border-radius: 6px; font-family: monospace; font-weight: 800; font-size: 1rem; border: 1px solid #333;
-        }
-
-        .add-vehicle-form { display: flex; gap: 12px; margin-top: 30px; }
-        input, select {
-            background: #000; border: 1px solid #333;
-            padding: 15px; border-radius: 10px; color: var(--blanco); flex: 1; outline: none;
-            transition: 0.3s; font-size: 0.9rem;
-        }
-        input:focus { border-color: var(--dorado); }
-
-        .btn {
-            padding: 14px 28px; border-radius: 8px; border: none; font-weight: 700;
-            cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem;
-            letter-spacing: 1px;
-        }
-        .btn-primary { background: var(--dorado); color: var(--negro); }
-        .btn-primary:hover { transform: translateY(-1px); }
-
-        /* STAYS */
-        .stay-card {
-            background: #000; padding: 25px; border-radius: 12px; border-left: 4px solid var(--dorado); margin-bottom: 25px;
-        }
-        .stay-deuda { font-family: 'Montserrat'; font-size: 2.2rem; font-weight: 800; color: var(--danger); margin: 15px 0; }
-
-        label { display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #555; margin-bottom: 8px; letter-spacing: 1px; }
-
-    </style>
-
-</head>
-<body style="display: none;">
-
+{% block content %}
     <script>
         (function() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/';
-            } else {
-                document.body.style.display = 'flex';
-            }
+            if (!localStorage.getItem('token')) window.location.href = '/';
         })();
     </script>
 
     <aside class="sidebar">
-        <div class="logo" style="width: 100%; margin-bottom: 40px;">
-            <img src="/static/images/logo.png" alt="Logo" style="height: 40px; max-width: 100%; display: block; margin: 0 auto 10px; object-fit: contain;">
+        <div class="logo">
+            <img src="/static/images/logo.png" alt="Logo" style="height: 40px;">
             <span style="font-size: 1.2rem;">AUTOPASS</span>
         </div>
-        <div class="nav-item active" onclick="showSection('inicio', this)"><i class="fas fa-house-user"></i> Inicio de Usuario</div>
-        <div class="nav-item" onclick="showSection('reservas', this)"><i class="fas fa-calendar-check"></i> Mis Reservas</div>
-        <div class="nav-item" onclick="showSection('pagos', this)"><i class="fas fa-receipt"></i> Historial de Pagos</div>
-        <div class="nav-item logout-btn" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Finalizar Sesión</div>
+        <nav class="nav-group">
+            <div class="nav-item active" onclick="showSection('inicio', this)"><i class="fas fa-house-user"></i> Inicio de Usuario</div>
+            <div class="nav-item" onclick="showSection('vehiculos', this)"><i class="fas fa-car-side"></i> Mis Vehículos</div>
+            <div class="nav-item" onclick="showSection('reservas', this)"><i class="fas fa-calendar-check"></i> Mis Reservas</div>
+            <div class="nav-item" onclick="showSection('pagos', this)"><i class="fas fa-receipt"></i> Historial de Pagos</div>
+        </nav>
+        <div class="sidebar-footer" onclick="logout()">
+            <i class="fas fa-right-from-bracket"></i> Cerrar Sesión
+        </div>
     </aside>
 
-    <main class="main-content">
-        <!-- SECCIÓN: INICIO -->
-        <div id="section-inicio" class="profile-section">
-            <div class="header-profile">
-                <div class="welcome-msg">
-                    <h1 id="user-name">Le damos la bienvenida, ---</h1>
-                    <p>Administre sus vehículos y consulte su estado de cuenta.</p>
+    <main class="main-content-scroll">
+        <header>
+            <div class="header-left">
+                <span style="color: #666; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Portal de Cliente</span>
+                <h1 id="user-name" style="margin: 5px 0 0; font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem;">Hola, Cargando...</h1>
+            </div>
+            <div class="header-right" style="display: flex; align-items: center; gap: 20px;">
+                <div class="points-badge" style="background: rgba(197, 160, 89, 0.1); border: 1px solid var(--border); padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-star" style="color: var(--dorado)"></i>
+                    <span id="points-val" style="font-family: var(--font-mono); font-weight: 800; color: var(--dorado);">0</span>
+                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #888;">Puntos AutoPass</span>
                 </div>
-                <div id="user-points" style="text-align: right">
-                    <span style="color: var(--dorado); font-weight: 800; font-size: 2rem; font-family: 'Montserrat'" id="points-val">0</span>
-                    <div style="font-size: 0.75rem; color: #555; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Puntos AutoPass</div>
+            </div>
+        </header>
+
+        <div class="content" style="padding: 40px;">
+            <!-- SECCIÓN: INICIO -->
+            <div id="section-inicio" class="profile-section active">
+                <div class="card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
+                    <div class="welcome-msg">
+                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-crown" style="color: var(--dorado);"></i> Panel de Control</h1>
+                        <p style="color: #888; margin-top: 10px;">Bienvenido a su espacio exclusivo de gestión de estacionamiento inteligente.</p>
+                    </div>
+                </div>
+
+                <div class="grid-stats" style="margin-bottom: 40px;">
+                    <div class="stat-card">
+                        <div class="label">Puntos Acumulados</div>
+                        <div class="value" id="stat-points">0</div>
+                        <i class="fas fa-star" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Vehículos Vinculados</div>
+                        <div class="value" id="stat-vehicles">0</div>
+                        <i class="fas fa-car" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Reservas Activas</div>
+                        <div class="value" id="stat-reservations">0</div>
+                        <i class="fas fa-calendar-check" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
+                    </div>
+                </div>
+
+                <div class="grid-profile" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-id-card"></i> Información del Perfil</div>
+                        <div class="profile-info" style="display: flex; flex-direction: column; gap: 20px;">
+                            <div class="info-item" style="display: flex; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">DNI Titular</label>
+                                <span id="val-dni" style="font-weight: 600;">---</span>
+                            </div>
+                            <div class="info-item" style="display: flex; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Correo Electrónico</label>
+                                <span id="val-email" style="font-weight: 600;">---</span>
+                            </div>
+                            <div class="info-item" style="display: flex; justify-content: space-between;">
+                                <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Teléfono</label>
+                                <span id="val-tel" style="font-weight: 600;">---</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Actividad en Tiempo Real</div>
+                        <div id="active-stays-list">
+                            <div style="text-align: center; padding: 20px; color: #555;">
+                                <i class="fas fa-parking" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                <p style="font-weight: 600; font-size: 0.85rem;">No se registran vehículos en el predio actualmente.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid">
-                <div class="left-col">
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-car-side"></i> Vehículos Registrados</div>
-                        <div id="vehicle-list">
-                            <!-- Cargando... -->
-                        </div>
-                        
-                        <form class="add-vehicle-form" id="vehicle-form">
-                            <input type="text" id="new-plate" placeholder="PATENTE (Ej: AA123BB)" required>
-                            <input type="text" id="new-model" placeholder="MARCA Y MODELO" required>
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Vincular</button>
+            <!-- SECCIÓN: VEHÍCULOS -->
+            <div id="section-vehiculos" class="profile-section">
+                <div class="card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
+                    <div class="welcome-msg">
+                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-car-rear" style="color: var(--dorado);"></i> Gestión de Flota</h1>
+                        <p style="color: #888; margin-top: 10px;">Administre sus vehículos para una experiencia de acceso automatizada.</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
+                    <div class="card" style="height: fit-content;">
+                        <div class="card-title"><i class="fas fa-plus-circle"></i> Nuevo Vínculo</div>
+                        <form id="add-vehicle-form" onsubmit="addVehicle(event)" style="display: flex; flex-direction: column; gap: 20px;">
+                            <div class="form-group">
+                                <label>Patente (Dominio)</label>
+                                <input type="text" id="new-plate" placeholder="Ej: AA123BB" required style="text-transform: uppercase; font-family: var(--font-mono);">
+                            </div>
+                            <div class="form-group">
+                                <label>Marca / Modelo</label>
+                                <input type="text" id="new-model" placeholder="Ej: VW Gol Trend" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check"></i> Registrar Patente</button>
                         </form>
                     </div>
-
                     <div class="card">
-                        <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Estadías en Curso</div>
-                        <div id="active-stays-list">
-                            <p style="color: #444; font-weight: 600;">No se registran vehículos en el predio actualmente.</p>
+                        <div class="card-title"><i class="fas fa-list"></i> Vehículos Registrados</div>
+                        <div id="vehicle-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                            <p style="color: #444; font-weight: 600;">Cargando flota...</p>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="right-col">
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-id-card"></i> Información Personal</div>
-                        <div id="user-details" style="font-size: 1rem; line-height: 2.5">
-                            <div style="color: #555; font-weight: 700; text-transform: uppercase; font-size: 0.8rem"><i class="fas fa-fingerprint" style="width: 20px; color: var(--dorado);"></i> DNI: <span style="color: #fff; margin-left: 10px" id="val-dni">---</span></div>
-                            <div style="color: #555; font-weight: 700; text-transform: uppercase; font-size: 0.8rem"><i class="fas fa-at" style="width: 20px; color: var(--dorado);"></i> Correo: <span style="color: #fff; margin-left: 10px" id="val-email">---</span></div>
-                            <div style="color: #555; font-weight: 700; text-transform: uppercase; font-size: 0.8rem"><i class="fas fa-phone-flip" style="width: 20px; color: var(--dorado);"></i> Teléfono: <span style="color: #fff; margin-left: 10px" id="val-tel">---</span></div>
-                        </div>
-                        <button class="btn btn-outline" style="width: 100%; margin-top: 30px; border: 1px solid var(--border); color: var(--dorado); background: transparent"><i class="fas fa-user-pen"></i> Actualizar Perfil</button>
+            <!-- SECCIÓN: RESERVAS -->
+            <div id="section-reservas" class="profile-section">
+                <div class="card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
+                    <div class="welcome-msg">
+                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-calendar-days" style="color: var(--dorado);"></i> Reservas Anticipadas</h1>
+                        <p style="color: #888; margin-top: 10px;">Asegure su lugar de estacionamiento y ahorre tiempo al llegar.</p>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- SECCIÓN: RESERVAS -->
-        <div id="section-reservas" class="profile-section" style="display: none;">
-            <div class="header-profile">
-                <div class="welcome-msg">
-                    <h1><i class="fas fa-calendar-days"></i> Mis Reservas</h1>
-                    <p>Asegure su lugar con antelación.</p>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="left-col">
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-file-circle-plus"></i> Nueva Solicitud de Reserva</div>
-                        <form id="reservation-form" style="display: flex; flex-direction: column; gap: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px;">
+                    <div class="card" style="height: fit-content;">
+                        <div class="card-title"><i class="fas fa-file-circle-plus"></i> Generar Solicitud</div>
+                        <form id="reservation-form" onsubmit="createReservation(event)" style="display: flex; flex-direction: column; gap: 20px;">
                             <div class="form-group">
-                                <label>Vehículo Seleccionado</label>
+                                <label>Vehículo a Utilizar</label>
                                 <select id="res-vehicle" required>
                                     <option value="">Cargando flota...</option>
                                 </select>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
                                 <div class="form-group">
-                                    <label>Fecha de Inicio</label>
-                                    <input type="datetime-local" id="res-start" required>
+                                    <label><i class="fas fa-calendar-day"></i> Fecha y Hora Inicio</label>
+                                    <input type="text" id="res-start" placeholder="Seleccione fecha y hora..." required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Fecha de Fin</label>
-                                    <input type="datetime-local" id="res-end" required>
+                                    <label><i class="fas fa-calendar-check"></i> Fecha y Hora Fin</label>
+                                    <input type="text" id="res-end" placeholder="Seleccione fecha y hora..." required>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px"><i class="fas fa-check-double"></i> Confirmar Solicitud</button>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check-double"></i> Confirmar Reserva</button>
                         </form>
                     </div>
-                </div>
 
-                <div class="right-col">
                     <div class="card">
-                        <div class="card-title"><i class="fas fa-list-ul"></i> Listado de Reservas Vigentes</div>
-                        <div id="reservation-list" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="card-title"><i class="fas fa-list-ul"></i> Historial de Reservas</div>
+                        <div id="reservation-list" style="display: flex; flex-direction: column; gap: 15px;">
                             <p style="color: #444; font-weight: 600;">No posee reservas activas en este momento.</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- SECCIÓN: PAGOS -->
-        <div id="section-pagos" class="profile-section" style="display: none;">
-            <div class="header-profile">
-                <div class="welcome-msg">
-                    <h1><i class="fas fa-receipt"></i> Historial de Pagos</h1>
-                    <p>Consulte sus transacciones y comprobantes digitales.</p>
+            <!-- SECCIÓN: PAGOS -->
+            <div id="section-pagos" class="profile-section">
+                <div class="card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
+                    <div class="welcome-msg">
+                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-receipt" style="color: var(--dorado);"></i> Centro de Pagos</h1>
+                        <p style="color: #888; margin-top: 10px;">Historial detallado de sus transacciones y estados de facturación.</p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="card">
-                <div class="card-title"><i class="fas fa-money-bill-transfer"></i> Mis Transacciones Realizadas</div>
-                <div id="payment-list" style="display: flex; flex-direction: column; gap: 15px;">
-                    <p style="color: #444; font-weight: 600;">Cargando historial...</p>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-money-bill-transfer"></i> Transacciones Realizadas</div>
+                    <div id="payment-list" style="display: flex; flex-direction: column; gap: 10px;">
+                        <p style="color: #444; font-weight: 600;">Cargando historial...</p>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
+{% endblock %}
 
-    <script>
-        const token = localStorage.getItem('token');
-
-        function showSection(sectionId, el) {
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            el.classList.add('active');
-            document.querySelectorAll('.profile-section').forEach(s => s.style.display = 'none');
-            document.getElementById(`section-${sectionId}`).style.display = 'block';
-            if (sectionId === 'reservas') loadReservations();
-            if (sectionId === 'pagos') loadPaymentHistory();
-        }
-
-        async function loadProfile() {
-            try {
-                const res = await fetch('/v1/user/me', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!res.ok) throw new Error('Auth error');
-                const user = await res.json();
-                
-                document.getElementById('user-name').innerText = `Hola, ${user.nombre}`;
-                document.getElementById('val-dni').innerText = user.dni;
-                document.getElementById('val-email').innerText = user.email;
-                document.getElementById('val-tel').innerText = user.telefono || 'No registrado';
-                document.getElementById('points-val').innerText = user.puntos || 0;
-            } catch (err) {
-                logout();
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startPicker = flatpickr("#res-start", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            theme: "dark",
+            locale: {
+                firstDayOfWeek: 1
+            },
+            onChange: function(selectedDates, dateStr, instance) {
+                endPicker.set("minDate", dateStr);
             }
-        }
+        });
 
-        async function loadVehicles() {
-            const res = await fetch('/v1/user/vehicles', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const vehicles = await res.json();
-            const list = document.getElementById('vehicle-list');
-            list.innerHTML = vehicles.length ? '' : '<p style="color: #444; font-weight: 600;">No tienes vehículos registrados.</p>';
-            
-            vehicles.forEach(v => {
-                list.innerHTML += `
-                    <div class="vehicle-item">
-                        <div>
-                            <span class="plate-badge">${v.patente}</span>
-                            <span style="margin-left: 15px; font-size: 1rem; font-weight: 600"><i class="fas fa-tag" style="color: var(--dorado); font-size: 0.8rem; margin-right: 8px;"></i>${v.marca_modelo}</span>
-                        </div>
-                        <button style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.2rem" title="Desvincular"><i class="fas fa-trash-can"></i></button>
-                    </div>
-                `;
-            });
-        }
-
-        async function loadActiveStays() {
-            const res = await fetch('/v1/user/active-stays', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const stays = await res.json();
-            const list = document.getElementById('active-stays-list');
-            
-            if (stays.length) {
-                list.innerHTML = '';
-                stays.forEach(s => {
-                    list.innerHTML += `
-                        <div class="stay-card">
-                            <div style="font-weight: 800; font-size: 1.2rem; color: var(--dorado); letter-spacing: 1px"><i class="fas fa-location-dot"></i> ${s.patente}</div>
-                            <div style="font-size: 0.85rem; color: #555; margin-top: 5px; font-weight: 600"><i class="fas fa-calendar-day"></i> INGRESÓ: ${s.ingreso.replace('T', ' ').substring(0, 16)}</div>
-                            <div class="stay-deuda"><i class="fas fa-hand-holding-dollar" style="font-size: 1.5rem;"></i> $${s.deuda}</div>
-                            <button class="btn btn-primary" style="padding: 10px 20px; font-size: 0.75rem"><i class="fab fa-cc-mastercard"></i> Pagar con Mercado Pago</button>
-                        </div>
-                    `;
-                });
+        const endPicker = flatpickr("#res-end", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            theme: "dark",
+            locale: {
+                firstDayOfWeek: 1
             }
+        });
+    });
+
+    async function addVehicle(e) {
+        e.preventDefault();
+        const p = document.getElementById('new-plate').value;
+        const m = document.getElementById('new-model').value;
+        const res = await fetch(`${API_BASE}/user/vehicles?patente=${p}&marca_modelo=${m}`, {
+            method: 'POST',
+            headers: {'Authorization': `Bearer ${token}`}
+        });
+        if (res.ok) {
+            showToast('Vehículo registrado con éxito');
+            loadVehicles();
+            e.target.reset();
+        } else {
+            const d = await res.json();
+            alert(d.detail);
         }
+    }
 
-        document.getElementById('vehicle-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const patente = document.getElementById('new-plate').value;
-            const marca_modelo = document.getElementById('new-model').value;
-
-            const res = await fetch(`/v1/user/vehicles?patente=${patente}&marca_modelo=${marca_modelo}`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (res.ok) {
-                document.getElementById('vehicle-form').reset();
-                loadVehicles();
-            } else {
-                const data = await res.json();
-                alert(data.detail || 'Error al añadir vehículo');
-            }
+    async function createReservation(e) {
+        e.preventDefault();
+        const payload = {
+            patente: document.getElementById('res-vehicle').value,
+            fecha_inicio: document.getElementById('res-start').value,
+            fecha_fin: document.getElementById('res-end').value
         };
-
-        async function loadReservations() {
-            const resV = await fetch('/v1/user/vehicles', { headers: { 'Authorization': `Bearer ${token}` } });
-            const vehicles = await resV.json();
-            const select = document.getElementById('res-vehicle');
-            select.innerHTML = vehicles.length ? '<option value="">Seleccione vehículo...</option>' : '<option value="">No tiene vehículos</option>';
-            vehicles.forEach(v => {
-                select.innerHTML += `<option value="${v.patente}">${v.patente} - ${v.marca_modelo}</option>`;
-            });
-
-            const resR = await fetch('/v1/user/reservations', { headers: { 'Authorization': `Bearer ${token}` } });
-            const reservations = await resR.json();
-            const list = document.getElementById('reservation-list');
-            list.innerHTML = reservations.length ? '' : '<p style="color: #444; font-weight: 600;">No tienes reservas activas.</p>';
-            reservations.forEach(r => {
-                list.innerHTML += `
-                    <div class="stay-card" style="border-left-color: ${r.estado_pago === 'Pagado' ? 'var(--secondary)' : '#f59e0b'}">
-                        <div style="font-weight: 800; font-size: 1.1rem; color: var(--dorado); letter-spacing: 1px">${r.patente}</div>
-                        <div style="font-size: 0.85rem; color: #555; margin-top: 8px; font-weight: 600">DESDE: ${r.fecha_inicio.replace('T', ' ').substring(0, 16)}</div>
-                        <div style="font-size: 0.85rem; color: #555; font-weight: 600">HASTA: ${r.fecha_fin.replace('T', ' ').substring(0, 16)}</div>
-                        <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 15px; font-size: 1.2rem; color: ${r.estado_pago === 'Pagado' ? 'var(--secondary)' : '#f59e0b'}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
-                        ${r.estado_pago === 'Pendiente' ? '<button class="btn btn-primary" style="padding: 10px 20px; font-size: 0.7rem; margin-top: 15px">PAGAR AHORA</button>' : ''}
-                    </div>
-                `;
-            });
+        const res = await fetch(`${API_BASE}/user/reservations`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+            showToast('Reserva creada con éxito');
+            loadReservations();
+            e.target.reset();
+        } else {
+            const d = await res.json();
+            alert(d.detail);
         }
-
-        async function loadPaymentHistory() {
-            const res = await fetch('/v1/user/payment-history', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const payments = await res.json();
-            const list = document.getElementById('payment-list');
-            
-            if (payments.length) {
-                list.innerHTML = '';
-                payments.forEach(p => {
-                    const fecha = p.fecha_hora.replace('T', ' ').substring(0, 19);
-                    list.innerHTML += `
-                        <div class="vehicle-item" style="border-left: 4px solid var(--secondary)">
-                            <div style="flex: 1">
-                                <span class="plate-badge">${p.patente_detectada}</span>
-                                <span style="margin-left: 15px; font-size: 0.9rem; color: #888"><i class="fas fa-clock" style="font-size: 0.8rem;"></i> ${fecha}</span>
-                            </div>
-                            <div style="font-family: 'Montserrat'; font-weight: 800; font-size: 1.2rem; color: var(--secondary)">
-                                <i class="fas fa-circle-check" style="font-size: 1rem; margin-right: 5px;"></i> $${p.costo_estadia.toFixed(2)}
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                list.innerHTML = '<p style="color: #444; font-weight: 600;">Aún no registra transacciones pagadas.</p>';
-            }
-        }
-
-        document.getElementById('reservation-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const payload = {
-                patente: document.getElementById('res-vehicle').value,
-                fecha_inicio: document.getElementById('res-start').value,
-                fecha_fin: document.getElementById('res-end').value
-            };
-
-            const res = await fetch('/v1/user/reservations', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (res.ok) {
-                alert('Reserva creada con éxito');
-                loadReservations();
-            } else {
-                const data = await res.json();
-                alert(data.detail || 'Error al crear reserva');
-            }
-        };
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = '/';
-        }
-
-        loadProfile();
-        loadVehicles();
-        loadActiveStays();
-        setInterval(loadActiveStays, 30000); // Actualizar deuda cada 30s
-    </script>
-</body>
-</html>
+    }
+</script>
+{% endblock %}

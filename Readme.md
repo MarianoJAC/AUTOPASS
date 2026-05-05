@@ -1,31 +1,42 @@
-# 🚗 AUTOPASS - Estacionamiento Inteligente Integrado
+# 🚗 AUTOPASS - Estacionamiento Inteligente (Professional Edition v3.1)
 
-Solución empresarial para la gestión de estacionamientos que combina **Visión Artificial (ALPR)**, **Autenticación JWT** y un **Ecosistema Web Completo** para administradores y clientes.
+Solución empresarial para la gestión de estacionamientos que combina **Visión Artificial (ALPR)**, **Arquitectura Modular** y un **Panel de Business Intelligence** completo.
+
+## 🏗️ Arquitectura del Sistema (v3.1)
+
+El proyecto ha sido refactorizado siguiendo estándares de ingeniería de software de alto nivel:
+
+- **Backend Modular (FastAPI + Routers)**: La lógica se divide en módulos especializados (`parking`, `reports`, `user`, `admin`, `system`) para máxima mantenibilidad.
+- **Service Pattern**: La lógica de negocio (cobros, puntos AutoPass) está aislada en servicios independientes.
+- **Frontend Engine (Jinja2 + Layouts)**: Sistema de herencia de plantillas que garantiza consistencia visual y reduce el código repetido.
+- **Configuración Pro (.env)**: Centralización total de variables de entorno y secretos de seguridad.
+
+## 📊 Panel de Business Intelligence
+
+El Dashboard administrativo ahora cuenta con una suite de analítica avanzada:
+- **Gráficos en Tiempo Real**: Visualización de tendencias de recaudación mediante **Chart.js**.
+- **Filtrado Dinámico**: Motor de búsqueda por periodos (Día, Semana, Mes, Año).
+- **Control de Calendario**: Integración de **Flatpickr** para una selección de rangos de fechas profesional.
 
 ## 🌟 Características Destacadas
 
 ### 🔐 Seguridad y Control de Acceso
-- **Autenticación JWT**: Flujo seguro de login y registro con protección de rutas por roles (Admin/Usuario).
-- **Control ALPR (EasyOCR)**: Reconocimiento automático de patentes con validación de aforo y reservas.
-- **Auditoría Visual**: Captura de imágenes en cada evento de entrada y salida, vinculadas al perfil del usuario.
+- **Autenticación JWT**: Flujo seguro de sesión con protección de rutas por roles.
+- **Control ALPR (EasyOCR)**: Reconocimiento inteligente de patentes con validación de aforo.
+- **Gestión de MQTT**: Apertura automatizada de barreras IoT.
 
-### 📱 Experiencia del Usuario (Portal Cliente)
-- **Panel Personalizado**: Visualización de vehículos registrados y deuda actual en tiempo real.
-- **Reservas Digitales**: Posibilidad de reservar lugar por fecha y hora para asegurar disponibilidad.
-- **Notificaciones**: Estado de estadía actualizado mediante WebSockets/Pooling.
+### 📱 Portal del Cliente
+- **Mis Vehículos**: Registro y vinculación de dominios a la cuenta de usuario.
+- **Historial y Deuda**: Seguimiento en tiempo real del costo de estadía.
+- **Puntos AutoPass**: Sistema de fidelización por cada pago realizado.
 
-### 🖥️ Gestión Administrativa (Dashboard Pro)
-- **Monitor en Vivo**: Visualización de cámaras y últimos movimientos con tecnología de streaming asíncrono.
-- **Analíticas Financieras**: Reportes de recaudación, ticket promedio y estadísticas de ocupación.
-- **Gestión de Usuarios**: Listado completo de la base de clientes y sus datos de contacto (DNI, Teléfono).
-- **Configuración Dinámica**: Ajuste de tarifas y control manual de barreras vía MQTT.
-
-## 🛠️ Tecnologías Utilizadas
-- **Backend:** FastAPI (Python), SQLAlchemy, Paho-MQTT.
-- **Frontend:** Vanilla JS, CSS3 Modern (Glassmorphism), Jinja2 (vía FastAPI).
-- **IA/Visión:** OpenCV, EasyOCR.
-- **Seguridad:** JWT (JSON Web Tokens), Bcrypt Hashing.
-- **Base de Datos:** SQLite (Persistente).
+## 🛠️ Stack Tecnológico
+- **Lenguaje:** Python 3.9+
+- **Framework API:** FastAPI (Async)
+- **Base de Datos:** SQLAlchemy + SQLite (Configurable a PostgreSQL/MySQL via .env)
+- **Frontend:** Vanilla JS, CSS3 Moderno, Jinja2, Chart.js, Flatpickr.
+- **Comunicación IoT:** Paho-MQTT.
+- **IA:** OpenCV + EasyOCR.
 
 ---
-*Desarrollado para la evolución de la movilidad urbana y la automatización de predios.*
+*AUTOPASS: La evolución de la movilidad urbana.*

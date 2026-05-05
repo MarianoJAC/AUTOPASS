@@ -10,8 +10,8 @@ import models, database
 
 # Configuración
 SECRET_KEY = os.getenv("SECRET_KEY", "tu_super_secreto_para_produccion")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 1 día
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 1440))
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="v1/auth/login")
 
@@ -51,4 +51,12 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     user = db.query(models.User).filter(models.User.email == email).first()
     if user is None:
         raise credentials_exception
+    return user
+
+def authenticate_user(db: Session, email: str, password: str):
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        return None
+    if not verify_password(password, user.password_hash):
+        return None
     return user
