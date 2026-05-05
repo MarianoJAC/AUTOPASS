@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, List
+import re
 
 class PlateValidation(BaseModel):
     plate: str
@@ -25,8 +26,33 @@ class UserBase(BaseModel):
     direccion: Optional[str] = None
     puntos_acumulados: Optional[int] = 0
 
+    @field_validator('dni')
+    @classmethod
+    def validate_dni(cls, v):
+        if not v.isdigit():
+            raise ValueError('El DNI debe contener únicamente números (sin puntos)')
+        return v
+
+    @field_validator('telefono')
+    @classmethod
+    def validate_telefono(cls, v):
+        if not v.isdigit() or len(v) < 10:
+            raise ValueError('El teléfono debe contener código de área y número (mínimo 10 dígitos)')
+        return v
+
 class UserCreate(UserBase):
     password: str
+
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, v):
+        if len(v) < 8:
+            raise ValueError('La contraseña debe tener al menos 8 caracteres')
+        if not re.search(r"[A-Z]", v):
+            raise ValueError('La contraseña debe tener al menos una mayúscula')
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", v):
+            raise ValueError('La contraseña debe tener al menos un carácter especial')
+        return v
 
 class UserLogin(BaseModel):
     email: str
