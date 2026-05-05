@@ -12,18 +12,21 @@
     </script>
 
     <aside class="sidebar">
+        <div class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
         <div class="logo">
             <img src="/static/images/logo.png" alt="Logo" style="height: 40px;">
-            <span style="font-size: 1.2rem;">AUTOPASS</span>
+            <span>AUTOPASS</span>
         </div>
         <nav class="nav-group">
-            <div class="nav-item active" onclick="showSection('inicio', this)"><i class="fas fa-house-user"></i> Inicio de Usuario</div>
-            <div class="nav-item" onclick="showSection('vehiculos', this)"><i class="fas fa-car-side"></i> Mis Vehículos</div>
-            <div class="nav-item" onclick="showSection('reservas', this)"><i class="fas fa-calendar-check"></i> Mis Reservas</div>
-            <div class="nav-item" onclick="showSection('pagos', this)"><i class="fas fa-receipt"></i> Historial de Pagos</div>
+            <div class="nav-item active" onclick="showSection('inicio', this)"><i class="fas fa-house-user"></i> <span class="nav-text">Inicio de Usuario</span></div>
+            <div class="nav-item" onclick="showSection('vehiculos', this)"><i class="fas fa-car-side"></i> <span class="nav-text">Mis Vehículos</span></div>
+            <div class="nav-item" onclick="showSection('reservas', this)"><i class="fas fa-calendar-check"></i> <span class="nav-text">Mis Reservas</span></div>
+            <div class="nav-item" onclick="showSection('pagos', this)"><i class="fas fa-receipt"></i> <span class="nav-text">Historial de Pagos</span></div>
         </nav>
         <div class="sidebar-footer" onclick="logout()">
-            <i class="fas fa-right-from-bracket"></i> Cerrar Sesión
+            <i class="fas fa-right-from-bracket"></i> <span>Cerrar Sesión</span>
         </div>
     </aside>
 
@@ -43,14 +46,14 @@
         </header>
 
         <div class="content" style="padding: 40px;">
-            <!-- SECCIÓN: INICIO -->
-            <div id="section-inicio" class="profile-section active">
-                <div class="card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
-                    <div class="welcome-msg">
-                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-crown" style="color: var(--dorado);"></i> Panel de Control</h1>
-                        <p style="color: #888; margin-top: 10px;">Bienvenido a su espacio exclusivo de gestión de estacionamiento inteligente.</p>
+            <div class="content-wrapper">
+                <!-- SECCIÓN: INICIO -->
+                <div id="section-inicio" class="profile-section active">
+                    <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
+                        <div class="welcome-msg">
+                            <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-crown" style="color: var(--dorado);"></i> Panel de Control</h1>
+                        </div>
                     </div>
-                </div>
 
                 <div class="grid-stats" style="margin-bottom: 40px;">
                     <div class="stat-card">
@@ -102,10 +105,9 @@
 
             <!-- SECCIÓN: VEHÍCULOS -->
             <div id="section-vehiculos" class="profile-section">
-                <div class="card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
+                <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
                     <div class="welcome-msg">
-                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-car-rear" style="color: var(--dorado);"></i> Gestión de Flota</h1>
-                        <p style="color: #888; margin-top: 10px;">Administre sus vehículos para una experiencia de acceso automatizada.</p>
+                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-car-rear" style="color: var(--dorado);"></i> Gestion de vehiculos</h1>
                     </div>
                 </div>
 
@@ -135,10 +137,9 @@
 
             <!-- SECCIÓN: RESERVAS -->
             <div id="section-reservas" class="profile-section">
-                <div class="card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
+                <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
                     <div class="welcome-msg">
-                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-calendar-days" style="color: var(--dorado);"></i> Reservas Anticipadas</h1>
-                        <p style="color: #888; margin-top: 10px;">Asegure su lugar de estacionamiento y ahorre tiempo al llegar.</p>
+                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-calendar-days" style="color: var(--dorado);"></i> Reservas</h1>
                     </div>
                 </div>
 
@@ -177,10 +178,9 @@
 
             <!-- SECCIÓN: PAGOS -->
             <div id="section-pagos" class="profile-section">
-                <div class="card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
+                <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
                     <div class="welcome-msg">
-                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-receipt" style="color: var(--dorado);"></i> Centro de Pagos</h1>
-                        <p style="color: #888; margin-top: 10px;">Historial detallado de sus transacciones y estados de facturación.</p>
+                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-receipt" style="color: var(--dorado);"></i> Pagos</h1>
                     </div>
                 </div>
 
@@ -192,6 +192,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </main>
 {% endblock %}
 

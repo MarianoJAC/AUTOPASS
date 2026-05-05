@@ -18,19 +18,22 @@
     </script>
 
     <aside class="sidebar">
+        <div class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
         <div class="logo">
             <img src="/static/images/logo.png" alt="Logo" style="height: 40px;">
-            <span style="font-size: 1.2rem;">AUTOPASS</span>
+            <span>AUTOPASS</span>
         </div>
         <nav class="nav-group">
-            <div class="nav-item active" onclick="switchTab('live', this)"><i class="fas fa-video"></i> Monitoreo en Vivo</div>
-            <div class="nav-item" onclick="switchTab('occupancy', this)"><i class="fas fa-car"></i> Ocupación Actual</div>
-            <div class="nav-item" onclick="switchTab('users', this)"><i class="fas fa-users-gear"></i> Gestión de Usuarios</div>
-            <div class="nav-item" onclick="switchTab('finance', this)"><i class="fas fa-chart-line"></i> Reporte Financiero</div>
-            <div class="nav-item" onclick="switchTab('settings', this)"><i class="fas fa-gears"></i> Configuración</div>
+            <div class="nav-item active" onclick="switchTab('live', this)"><i class="fas fa-video"></i> <span class="nav-text">Monitoreo en Vivo</span></div>
+            <div class="nav-item" onclick="switchTab('occupancy', this)"><i class="fas fa-car"></i> <span class="nav-text">Ocupación Actual</span></div>
+            <div class="nav-item" onclick="switchTab('users', this)"><i class="fas fa-users-gear"></i> <span class="nav-text">Gestión de Usuarios</span></div>
+            <div class="nav-item" onclick="switchTab('finance', this)"><i class="fas fa-chart-line"></i> <span class="nav-text">Reporte Financiero</span></div>
+            <div class="nav-item" onclick="switchTab('settings', this)"><i class="fas fa-gears"></i> <span class="nav-text">Configuración</span></div>
         </nav>
         <div class="sidebar-footer" onclick="logout()">
-            <i class="fas fa-right-from-bracket"></i> Finalizar Sesión
+            <i class="fas fa-right-from-bracket"></i> <span>Finalizar Sesión</span>
         </div>
     </aside>
 

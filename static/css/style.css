@@ -93,10 +93,107 @@ nav a:hover { color: var(--dorado); }
 .tab-view.active, .profile-section.active { display: block; }
 
 /* --- SIDEBAR LAYOUT (ADMIN/USER) --- */
-.layout-with-sidebar { display: grid; grid-template-columns: 260px 1fr; height: 100vh; overflow: hidden; }
-.sidebar { background: var(--gris-sidebar); border-right: 1px solid var(--border-light); display: flex; flex-direction: column; padding: 30px 0; }
-.sidebar .logo { padding: 0 15px 40px; justify-content: center; width: 100%; }
+.layout-with-sidebar { 
+    display: grid; 
+    grid-template-columns: 280px 1fr; 
+    height: 100vh; 
+    overflow: hidden; 
+    transition: grid-template-columns 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.layout-with-sidebar.collapsed {
+    grid-template-columns: 80px 1fr;
+}
+
+.sidebar { 
+    background: var(--gris-sidebar); 
+    border-right: 1px solid var(--border-light); 
+    display: flex; 
+    flex-direction: column; 
+    padding: 20px 0; 
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible;
+    white-space: nowrap;
+    position: relative;
+}
+
+.sidebar.collapsed .logo span,
+.sidebar.collapsed .nav-item .nav-text,
+.sidebar.collapsed .sidebar-footer span {
+    opacity: 0;
+    visibility: hidden;
+    width: 0;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar .logo span,
+.sidebar .nav-item .nav-text,
+.sidebar .sidebar-footer span {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s ease 0.1s;
+}
+
+.sidebar.collapsed .logo {
+    padding: 0;
+    justify-content: center;
+}
+
+.sidebar.collapsed .logo img {
+    margin: 0;
+}
+
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding: 15px 0;
+    margin: 0 10px;
+}
+
+.sidebar.collapsed .nav-item i {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    right: -15px; /* Floating on the border */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background: var(--gris-sidebar);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--dorado);
+    cursor: pointer;
+    z-index: 1000;
+    transition: 0.3s;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+.sidebar-toggle:hover {
+    color: #fff;
+    background: var(--dorado);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.logo {
+    display: flex; align-items: center; gap: 15px;
+    padding: 0 5px 30px 10px;
+    transition: 0.3s;
+    overflow: visible;
+}
+
+.logo-text {
+    font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem;
+    letter-spacing: 2px; color: var(--dorado); text-decoration: none;
+    margin: 0; line-height: 1;
+}
+
 .nav-group { flex: 1; padding: 0 15px; display: flex; flex-direction: column; gap: 5px; }
+
 .nav-item { 
     padding: 12px 15px; border-radius: 12px; color: #888; text-decoration: none; 
     font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.3s;
@@ -104,7 +201,19 @@ nav a:hover { color: var(--dorado); }
 }
 .nav-item:hover { background: rgba(255, 255, 255, 0.03); color: #fff; }
 .nav-item.active { background: var(--dorado); color: var(--negro); box-shadow: 0 10px 20px rgba(197, 160, 89, 0.2); }
-.sidebar-footer { padding: 20px 25px; border-top: 1px solid var(--border-light); font-size: 0.8rem; color: var(--danger); font-weight: 700; cursor: pointer; margin-top: auto; }
+
+.sidebar-footer { 
+    padding: 20px 25px; 
+    border-top: 1px solid var(--border-light); 
+    font-size: 0.8rem; 
+    color: var(--danger); 
+    font-weight: 700; 
+    cursor: pointer; 
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
 .main-content-scroll { display: flex; flex-direction: column; overflow-y: auto; flex: 1; }
 .main-content-scroll header { 
@@ -136,6 +245,22 @@ td { padding: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255
 
 /* --- TOAST --- */
 #toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
+
+/* --- OPTIMIZACIÓN DE ESPACIOS --- */
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+.welcome-card {
+    width: fit-content !important;
+    min-width: 400px;
+    padding-right: 60px !important;
+}
+.profile-section {
+    max-width: 1200px;
+    margin: 0 auto;
+}
 .toast { background: var(--gris); padding: 15px 25px; border-radius: 12px; border-left: 4px solid var(--dorado); margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s forwards; color: #fff; font-weight: 600; }
 @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
