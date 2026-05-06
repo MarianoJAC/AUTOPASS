@@ -54,7 +54,68 @@ document.addEventListener('DOMContentLoaded', () => {
         loadActiveStays();
         setInterval(loadActiveStays, 30000);
     }
+
+    // --- INICIALIZACIÓN DEL CARRUSEL (HOME) ---
+    if (document.getElementById('contenedorCarrusel')) {
+        InicializarCarrusel();
+    }
 });
+
+// --- LÓGICA DEL CARRUSEL DE INICIO ---
+const DatosCarrusel = [
+    { imagen: '/images/INICIO/trafico1.webp', leyenda: '¿no te agota tanto embotellamiento en Buenos Aires?' },
+    { imagen: '/images/INICIO/trafico2.webp', leyenda: '¿Sentís que el tráfico continuo te consume la energía?' },
+    { imagen: '/images/INICIO/trafico3.webp', leyenda: '¿no es agotador perder horas en la autopista?' },
+    { imagen: '/images/INICIO/estacionamiento1.webp', leyenda: '¿no te agota buscar lugar en la calle siempre?' },
+    { imagen: '/images/INICIO/estacionamiento2.webp', leyenda: '¿no te frustra llegar y que no haya lugar?' },
+    { imagen: '/images/INICIO/estacionamiento3.webp', leyenda: 'AUTOPASS elimina el estres del estacionamiento en la ciudad.' },
+    { imagen: '/images/INICIO/estacionamiento4.webp', leyenda: 'reserva tu cochera online en segundos con AUTOPASS.' }
+];
+
+let IndiceCarruselActual = 0;
+let IntervaloCarrusel = null;
+
+function InicializarCarrusel() {
+    const Contenedor = document.getElementById('contenedorCarrusel');
+    if (!Contenedor) return;
+
+    // GENERAR ITEMS
+    DatosCarrusel.forEach((dato, i) => {
+        const Item = document.createElement('div');
+        Item.className = `item-carrusel ${i === 0 ? 'activo' : ''}`;
+        Item.style.backgroundImage = `url('${dato.imagen}')`;
+        // ELIMINAMOS text-transform: uppercase DE LA LEYENDA EN CSS PARA RESPETAR ESTE FORMATO
+        Item.innerHTML = `<div class="leyenda-carrusel">${dato.leyenda}</div>`;
+        Contenedor.appendChild(Item);
+    });
+
+    // ROTACION AUTOMATICA
+    IniciarTemporizadorCarrusel();
+}
+
+function IniciarTemporizadorCarrusel() {
+    if (IntervaloCarrusel) clearInterval(IntervaloCarrusel);
+    IntervaloCarrusel = setInterval(() => RotarCarrusel(1), 5000);
+}
+
+function RotarCarrusel(Direccion) {
+    const Items = document.querySelectorAll('.item-carrusel');
+    if (Items.length === 0) return;
+
+    Items[IndiceCarruselActual].classList.remove('activo');
+    
+    IndiceCarruselActual += Direccion;
+    
+    if (IndiceCarruselActual >= Items.length) IndiceCarruselActual = 0;
+    if (IndiceCarruselActual < 0) IndiceCarruselActual = Items.length - 1;
+    
+    Items[IndiceCarruselActual].classList.add('activo');
+}
+
+function MoverCarrusel(Direccion) {
+    RotarCarrusel(Direccion);
+    IniciarTemporizadorCarrusel(); // REINICIAR TIEMPO PARA QUE NO SALTE JUSTO DESPUES DEL CLIC
+}
 
 // --- LÓGICA GENÉRICA DE MODALES ---
 function openModal(id) { document.getElementById(id).style.display = 'block'; }
@@ -120,7 +181,7 @@ if (registerForm) {
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            errorMsg.innerText = 'Ingrese un correo electrónico válido';
+            errorMsg.innerText = 'Ingresá un correo electrónico válido';
             errorMsg.style.display = 'block';
             return;
         }

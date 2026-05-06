@@ -264,6 +264,124 @@ td { padding: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255
 .toast { background: var(--gris); padding: 15px 25px; border-radius: 12px; border-left: 4px solid var(--dorado); margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s forwards; color: #fff; font-weight: 600; }
 @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
+/* --- SECCIÓN CARRUSEL --- */
+.seccion-carrusel {
+    width: 100%;
+    height: 600px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 110px; /* ESPACIO PARA EL HEADER ABSOLUTO */
+    border-bottom: 2px solid var(--border);
+}
+
+.contenedor-carrusel {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.item-carrusel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 80px;
+    background-size: cover;
+    background-position: center;
+}
+
+.item-carrusel.activo {
+    opacity: 1;
+}
+
+/* --- FLECHAS DEL CARRUSEL --- */
+.flecha-carrusel {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: var(--dorado);
+    border: 1px solid var(--border-light);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.flecha-carrusel:hover {
+    background: var(--dorado);
+    color: var(--negro);
+    box-shadow: 0 0 15px var(--dorado);
+}
+
+.flecha-izq { left: 30px; }
+.flecha-der { right: 30px; }
+
+.item-carrusel::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(transparent, rgba(0,0,0,0.9));
+    z-index: 1;
+}
+
+.leyenda-carrusel {
+    position: relative;
+    z-index: 2;
+    font-family: 'Montserrat';
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--blanco);
+    text-align: center;
+    max-width: 80%;
+    letter-spacing: 2px;
+    text-shadow: 0 5px 15px rgba(0,0,0,1);
+    animation: slideUp 1s ease-out;
+}
+
+.seccion-frase-destacada {
+    background: var(--negro);
+    padding: 20px 0;
+    text-align: center;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.frase-parpadeante {
+    font-family: 'Montserrat';
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--dorado);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    animation: parpadeo-dorado 2s infinite;
+}
+
+@keyframes parpadeo-dorado {
+    0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--dorado); }
+    50% { opacity: 0.3; text-shadow: none; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
 /* --- HERO & FEATURES (INDEX) --- */
 .hero {
     height: 100vh; display: flex; flex-direction: column;

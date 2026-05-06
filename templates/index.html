@@ -12,17 +12,34 @@
         </a>
         <nav>
             <a href="/contacto">Contacto</a>
-            <a href="javascript:void(0)" onclick="openModal('loginModal')">Iniciar Sesión</a>
-            <a href="javascript:void(0)" onclick="openModal('registerModal')">Crear Cuenta</a>
+            <a href="javascript:void(0)" onclick="openModal('loginModal')">Iniciá Sesión</a>
+            <a href="javascript:void(0)" onclick="openModal('registerModal')">Creá tu Cuenta</a>
         </nav>
     </header>
+
+    <!-- SECCION CARRUSEL -->
+    <section class="seccion-carrusel">
+        <div id="contenedorCarrusel" class="contenedor-carrusel">
+            <!-- LOS ITEMS SE GENERARAN DINAMICAMENTE POR JS -->
+        </div>
+        <button class="flecha-carrusel flecha-izq" onclick="MoverCarrusel(-1)">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="flecha-carrusel flecha-der" onclick="MoverCarrusel(1)">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </section>
+
+    <div class="seccion-frase-destacada">
+        <div class="frase-parpadeante">AUTOPASS estacionamiento inteligente</div>
+    </div>
 
     <section class="hero">
         <h1>AUTOPASS</h1>
         <p>La evolución del estacionamiento. Acceso inteligente, pagos digitales y control total desde cualquier dispositivo.</p>
         <div class="cta-group">
-            <a href="javascript:void(0)" onclick="openModal('registerModal')" class="btn btn-primary">Comenzar Ahora</a>
-            <a href="#features" class="btn btn-outline">Conozca Más</a>
+            <a href="javascript:void(0)" onclick="openModal('registerModal')" class="btn btn-primary">Comenzá Ahora</a>
+            <a href="#features" class="btn btn-outline">Conocé Más</a>
         </div>
     </section>
 
@@ -35,18 +52,18 @@
         <div class="feature-card">
             <span class="feature-icon"><i class="fas fa-microchip"></i></span>
             <h3>Control Total</h3>
-            <p>Administre sus reservas, vehículos y pagos a través de su panel personalizado en tiempo real.</p>
+            <p>Administrá tus reservas, vehículos y pagos a través de tu panel personalizado en tiempo real.</p>
         </div>
         <div class="feature-card">
             <span class="feature-icon"><i class="fas fa-credit-card"></i></span>
             <h3>Pagá online</h3>
-            <p>Integración con Mercado Pago para cobros ágiles y seguros. Gestione su estadía de forma remota.</p>
+            <p>Integración con Mercado Pago para cobros ágiles y seguros. Gestioná tu estadía de forma remota.</p>
         </div>
     </section>
 
     <section class="map-section" id="donde-estamos">
-        <h2>Encuéntrenos</h2>
-        <p>Visite nuestras oficinas centrales o encuentre el punto AutoPass más cercano a su ubicación.</p>
+        <h2>Encontranos</h2>
+        <p>Visitá nuestras oficinas centrales o encontrá el punto AUTOPASS más cercano a tu ubicación.</p>
         <div class="map-container">
             <div id="map"></div>
             <div class="map-overlay">
@@ -63,7 +80,7 @@
                     <img src="/static/images/logo.png" alt="Logo" style="height: 30px;">
                     AUTOPASS
                 </div>
-                <p style="margin-bottom: 20px;">Líderes en tecnología de estacionamiento inteligente en Argentina. Innovación, seguridad y confort para su movilidad diaria.</p>
+                <p style="margin-bottom: 20px;">Líderes en tecnología de estacionamiento inteligente en Argentina. Innovación, seguridad y confort para tu movilidad diaria.</p>
                 <div class="social-links" style="display: flex; gap: 15px;">
                     <a href="#" style="font-size: 1.2rem; color: var(--dorado);"><i class="fab fa-facebook-f"></i></a>
                     <a href="#" style="font-size: 1.2rem; color: var(--dorado);"><i class="fab fa-instagram"></i></a>
@@ -99,7 +116,7 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('loginModal')"><i class="fas fa-xmark"></i></span>
-            <h2>INICIAR SESIÓN</h2>
+            <h2>INICIÁ SESIÓN</h2>
             <div id="login-error" class="error-msg"></div>
             <form id="loginForm">
                 <div class="form-group">
@@ -111,12 +128,12 @@
                     <input type="password" id="login-password" placeholder="********" required>
                 </div>
                 <div style="text-align: right; margin-top: -15px; margin-bottom: 20px;">
-                    <a href="javascript:void(0)" style="color: var(--dorado); text-decoration: none; font-size: 0.75rem; font-weight: 600; opacity: 0.8;" onclick="alert('Funcionalidad en desarrollo. Por favor, contacte a soporte.')">¿Olvidó su contraseña?</a>
+                    <a href="javascript:void(0)" style="color: var(--dorado); text-decoration: none; font-size: 0.75rem; font-weight: 600; opacity: 0.8;" onclick="alert('Funcionalidad en desarrollo. Por favor, contactate con soporte.')">¿Olvidaste tu contraseña?</a>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Ingresar</button>
             </form>
             <div style="text-align: center; margin-top: 25px; font-size: 0.85rem; color: #666;">
-                ¿Aún no posee cuenta? <a href="javascript:void(0)" onclick="switchModal('loginModal', 'registerModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Regístrese aquí</a>
+                ¿Todavía no tenés cuenta? <a href="javascript:void(0)" onclick="switchModal('loginModal', 'registerModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Registrate acá</a>
             </div>
         </div>
     </div>
@@ -125,17 +142,17 @@
     <div id="registerModal" class="modal">
         <div class="modal-content" style="max-width: 550px;">
             <span class="close-btn" onclick="closeModal('registerModal')"><i class="fas fa-xmark"></i></span>
-            <h2>CREAR CUENTA</h2>
+            <h2>CREÁ TU CUENTA</h2>
             <div id="register-error" class="error-msg"></div>
             <form id="registerForm">
                 <div class="form-row">
                     <div class="form-group">
                         <label>Nombre/s</label>
-                        <input type="text" id="reg-nombre" placeholder="Su nombre/s" required>
+                        <input type="text" id="reg-nombre" placeholder="Tu nombre/s" required>
                     </div>
                     <div class="form-group">
                         <label>Apellido</label>
-                        <input type="text" id="reg-apellido" placeholder="Su apellido" required>
+                        <input type="text" id="reg-apellido" placeholder="Tu apellido" required>
                     </div>
                 </div>
                 <div class="form-row">
@@ -159,7 +176,7 @@
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Finalizar Registro</button>
             </form>
             <div style="text-align: center; margin-top: 25px; font-size: 0.85rem; color: #666;">
-                ¿Ya posee una cuenta? <a href="javascript:void(0)" onclick="switchModal('registerModal', 'loginModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Inicie sesión aquí</a>
+                ¿Ya tenés una cuenta? <a href="javascript:void(0)" onclick="switchModal('registerModal', 'loginModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Iniciá sesión acá</a>
             </div>
         </div>
     </div>
