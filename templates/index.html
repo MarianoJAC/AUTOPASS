@@ -32,13 +32,14 @@
 
     <div class="seccion-frase-destacada">
         <div class="frase-parpadeante">AUTOPASS estacionamiento inteligente</div>
+        <p class="descripcion-frase">AUTOPASS simplifica estacionar: detecta espacios libres, permite reservar online, abre barreras con solo ver tu patente y gestiona pagos digitales, reduciendo demoras, estrés y mejorando la experiencia urbana.</p>
     </div>
 
     <section class="hero">
         <h1>AUTOPASS</h1>
         <p>La evolución del estacionamiento. Acceso inteligente, pagos digitales y control total desde cualquier dispositivo.</p>
         <div class="cta-group">
-            <a href="javascript:void(0)" onclick="openModal('registerModal')" class="btn btn-primary">Comenzá Ahora</a>
+            <a href="javascript:void(0)" onclick="openModal('registerModal')" class="btn btn-primary">RESERVÁ YA</a>
             <a href="#features" class="btn btn-outline">Conocé Más</a>
         </div>
     </section>
@@ -62,7 +63,7 @@
     </section>
 
     <section class="map-section" id="donde-estamos">
-        <h2>Encontranos</h2>
+        <h2>Encontrá los mejores puntos</h2>
         <p>Visitá nuestras oficinas centrales o encontrá el punto AUTOPASS más cercano a tu ubicación.</p>
         <div class="map-container">
             <div id="map"></div>
@@ -143,6 +144,9 @@
         <div class="modal-content" style="max-width: 550px;">
             <span class="close-btn" onclick="closeModal('registerModal')"><i class="fas fa-xmark"></i></span>
             <h2>CREÁ TU CUENTA</h2>
+            <div style="text-align: center; margin-bottom: 25px; font-size: 0.85rem; color: #666;">
+                ¿Ya tenés una cuenta? <a href="javascript:void(0)" onclick="switchModal('registerModal', 'loginModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Iniciá sesión acá</a>
+            </div>
             <div id="register-error" class="error-msg"></div>
             <form id="registerForm">
                 <div class="form-row">
@@ -175,9 +179,6 @@
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Finalizar Registro</button>
             </form>
-            <div style="text-align: center; margin-top: 25px; font-size: 0.85rem; color: #666;">
-                ¿Ya tenés una cuenta? <a href="javascript:void(0)" onclick="switchModal('registerModal', 'loginModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Iniciá sesión acá</a>
-            </div>
         </div>
     </div>
 {% endblock %}

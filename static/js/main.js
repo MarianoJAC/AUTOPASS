@@ -258,7 +258,7 @@ function initMap() {
     const points = [
         { name: "AUTOPASS Ituzaingó", coords: [-34.6585, -58.6685], desc: "Punto de Acceso Estación Ituzaingó" },
         { name: "AUTOPASS Castelar", coords: [-34.6485, -58.6350], desc: "Centro Comercial Castelar" },
-        { name: "AUTOPASS Morón", coords: [-34.6515, -58.6210], desc: "Plaza Oeste Shopping - Morón" }
+        { name: "AUTOPASS Morón", coords: [-34.6508, -58.6228], desc: "San Martín - Morón" }
     ];
 
     points.forEach(p => {
@@ -572,7 +572,7 @@ async function loadProfile() {
     const res = await fetch(`${API_BASE}/user/me`, { headers: { 'Authorization': `Bearer ${token}` } });
     if (!res.ok) return logout();
     const user = await res.json();
-    document.getElementById('user-name').innerText = `Hola, ${user.nombre}`;
+    document.getElementById('user-name').innerText = `Hola, ${user.nombre.toUpperCase()}`;
     const dni = document.getElementById('val-dni'); if (dni) dni.innerText = user.dni;
     const email = document.getElementById('val-email'); if (email) email.innerText = user.email;
     const tel = document.getElementById('val-tel'); if (tel) tel.innerText = user.telefono || 'No registrado';

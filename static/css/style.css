@@ -270,7 +270,6 @@ td { padding: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255
     height: 600px;
     position: relative;
     overflow: hidden;
-    margin-top: 110px; /* ESPACIO PARA EL HEADER ABSOLUTO */
     border-bottom: 2px solid var(--border);
 }
 
@@ -372,6 +371,15 @@ td { padding: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255
     animation: parpadeo-dorado 2s infinite;
 }
 
+.descripcion-frase {
+    color: var(--blanco);
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 15px auto 0;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
 @keyframes parpadeo-dorado {
     0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--dorado); }
     50% { opacity: 0.3; text-shadow: none; }
@@ -463,5 +471,8 @@ td { padding: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255
     .sidebar { display: none; } /* Could implement a hamburger menu here */
     .hero h1 { font-size: 2.5rem; letter-spacing: 5px; }
     header { padding: 20px 5%; }
+    nav a { margin-left: 15px; font-size: 0.75rem; }
+}
+ padding: 20px 5%; }
     nav a { margin-left: 15px; font-size: 0.75rem; }
 }
