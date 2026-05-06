@@ -54,151 +54,159 @@
                         </div>
                     </div>
 
-                <div class="grid-stats" style="margin-bottom: 40px;">
-                    <div class="stat-card">
-                        <div class="label">Puntos Acumulados</div>
-                        <div class="value" id="stat-points">0</div>
-                        <i class="fas fa-star" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Vehículos Vinculados</div>
-                        <div class="value" id="stat-vehicles">0</div>
-                        <i class="fas fa-car" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Reservas Activas</div>
-                        <div class="value" id="stat-reservations">0</div>
-                        <i class="fas fa-calendar-check" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
-                    </div>
-                </div>
-
-                <div class="grid-profile" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-id-card"></i> Información del Perfil</div>
-                        <div class="profile-info" style="display: flex; flex-direction: column; gap: 20px;">
-                            <div class="info-item" style="display: flex; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">DNI Titular</label>
-                                <span id="val-dni" style="font-weight: 600;">---</span>
-                            </div>
-                            <div class="info-item" style="display: flex; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Correo Electrónico</label>
-                                <span id="val-email" style="font-weight: 600;">---</span>
-                            </div>
-                            <div class="info-item" style="display: flex; justify-content: space-between;">
-                                <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Teléfono</label>
-                                <span id="val-tel" style="font-weight: 600;">---</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Actividad en Tiempo Real</div>
-                        <div id="active-stays-list">
-                            <div style="text-align: center; padding: 20px; color: #555;">
-                                <i class="fas fa-parking" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                                <p style="font-weight: 600; font-size: 0.85rem;">No se registran vehículos en el predio actualmente.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN: VEHÍCULOS -->
-            <div id="section-vehiculos" class="profile-section">
-                <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
-                    <div class="welcome-msg">
-                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-car-rear" style="color: var(--dorado);"></i> GESTIÓN DE VEHÍCULOS</h1>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
-                    <div class="card" style="height: fit-content;">
-                        <div class="card-title"><i class="fas fa-plus-circle"></i> NUEVO VÍNCULO</div>
-                        <form id="add-vehicle-form" onsubmit="addVehicle(event)" style="display: flex; flex-direction: column; gap: 20px;">
-                            <div class="form-group">
-                                <label>Patente (Dominio)</label>
-                                <input type="text" id="new-plate" placeholder="Ej: AA123BB" required style="text-transform: uppercase; font-family: var(--font-mono);">
-                            </div>
-                            <div class="form-group">
-                                <label>Marca / Modelo</label>
-                                <input type="text" id="new-model" placeholder="Ej: VW Gol Trend" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check"></i> Registrar Patente</button>
-                        </form>
-                    </div>
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-list"></i> VEHÍCULOS REGISTRADOS</div>
-                        <div id="vehicle-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
-                            <p style="color: #444; font-weight: 600;">Cargando flota...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN: RESERVAS -->
-            <div id="section-reservas" class="profile-section">
-                <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
-                    <div class="welcome-msg">
-                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-calendar-days" style="color: var(--dorado);"></i> Reservas</h1>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px;">
-                    <div class="card" style="height: fit-content;">
-                        <div class="card-title"><i class="fas fa-file-circle-plus"></i> Generar Solicitud</div>
-                        <form id="reservation-form" onsubmit="createReservation(event)" style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- FORMULARIO DE RESERVA RÁPIDA (INICIO) -->
+                    <div class="card" style="max-width: 600px; margin: 0 auto 40px; border-top: 2px solid var(--dorado);">
+                        <div class="card-title" style="text-align: center;"><i class="fas fa-file-circle-plus"></i> GENERAR NUEVA RESERVA</div>
+                        <form class="reservation-form" onsubmit="createReservation(event)" style="display: flex; flex-direction: column; gap: 20px;">
                             <div class="form-group">
                                 <label>Vehículo a Utilizar</label>
-                                <select id="res-vehicle" required>
+                                <select class="res-vehicle" required>
                                     <option value="">Cargando flota...</option>
                                 </select>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                 <div class="form-group">
-                                    <label><i class="fas fa-calendar-day"></i> Fecha y Hora Inicio</label>
-                                    <input type="text" id="res-start" placeholder="Seleccione fecha y hora..." required>
+                                    <label><i class="fas fa-calendar-day"></i> Inicio</label>
+                                    <input type="text" class="res-start" placeholder="Fecha y hora..." required>
                                 </div>
                                 <div class="form-group">
-                                    <label><i class="fas fa-calendar-check"></i> Fecha y Hora Fin</label>
-                                    <input type="text" id="res-end" placeholder="Seleccione fecha y hora..." required>
+                                    <label><i class="fas fa-calendar-check"></i> Fin</label>
+                                    <input type="text" class="res-end" placeholder="Fecha y hora..." required>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check-double"></i> Confirmar Reserva</button>
                         </form>
                     </div>
 
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-list-ul"></i> Historial de Reservas</div>
-                        <div id="reservation-list" style="display: flex; flex-direction: column; gap: 15px;">
-                            <p style="color: #444; font-weight: 600;">No posee reservas activas en este momento.</p>
+                    <div class="grid-stats" style="margin-bottom: 40px;">
+                        <div class="stat-card">
+                            <div class="label">Puntos Acumulados</div>
+                            <div class="value" id="stat-points">0</div>
+                            <i class="fas fa-star" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
+                        </div>
+                        <div class="stat-card">
+                            <div class="label">Vehículos Vinculados</div>
+                            <div class="value" id="stat-vehicles">0</div>
+                            <i class="fas fa-car" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
+                        </div>
+                        <div class="stat-card">
+                            <div class="label">Reservas Activas</div>
+                            <div class="value" id="stat-reservations">0</div>
+                            <i class="fas fa-calendar-check" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
+                        </div>
+                    </div>
+
+                    <div class="grid-profile" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                        <div class="card">
+                            <div class="card-title"><i class="fas fa-id-card"></i> Información del Perfil</div>
+                            <div class="profile-info" style="display: flex; flex-direction: column; gap: 20px;">
+                                <div class="info-item" style="display: flex; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">DNI Titular</label>
+                                    <span id="val-dni" style="font-weight: 600;">---</span>
+                                </div>
+                                <div class="info-item" style="display: flex; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Correo Electrónico</label>
+                                    <span id="val-email" style="font-weight: 600;">---</span>
+                                </div>
+                                <div class="info-item" style="display: flex; justify-content: space-between;">
+                                    <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Teléfono</label>
+                                    <span id="val-tel" style="font-weight: 600;">---</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Actividad en Tiempo Real</div>
+                            <div id="active-stays-list">
+                                <div style="text-align: center; padding: 20px; color: #555;">
+                                    <i class="fas fa-parking" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                    <p style="font-weight: 600; font-size: 0.85rem;">No se registran vehículos en el predio actualmente.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN: VEHÍCULOS -->
+                <div id="section-vehiculos" class="profile-section">
+                    <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
+                        <div class="welcome-msg">
+                            <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-car-rear" style="color: var(--dorado);"></i> GESTIÓN DE VEHÍCULOS</h1>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
+                        <div class="card" style="height: fit-content;">
+                            <div class="card-title"><i class="fas fa-plus-circle"></i> NUEVO VÍNCULO</div>
+                            <form id="add-vehicle-form" onsubmit="addVehicle(event)" style="display: flex; flex-direction: column; gap: 20px;">
+                                <div class="form-group">
+                                    <label>Patente (Dominio)</label>
+                                    <input type="text" id="new-plate" placeholder="Ej: AA123BB" required style="text-transform: uppercase; font-family: var(--font-mono);">
+                                </div>
+                                <div class="form-group">
+                                    <label>Marca / Modelo</label>
+                                    <input type="text" id="new-model" placeholder="Ej: VW Gol Trend" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check"></i> Registrar Patente</button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <div class="card-title"><i class="fas fa-list"></i> VEHÍCULOS REGISTRADOS</div>
+                            <div id="vehicle-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                                <p style="color: #444; font-weight: 600;">Cargando flota...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN: RESERVAS -->
+                <div id="section-reservas" class="profile-section">
+                    <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
+                        <div class="welcome-msg">
+                            <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-calendar-days" style="color: var(--dorado);"></i> Reservas</h1>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px;">
+                        <div class="card" style="height: fit-content;">
+                            <div class="card-title"><i class="fas fa-file-circle-plus"></i> GENERAR NUEVA RESERVA</div>
+                            <form class="reservation-form" onsubmit="createReservation(event)" style="display: flex; flex-direction: column; gap: 20px;">
+                                <div class="form-group">
+                                    <label>Vehículo a Utilizar</label>
+                                    <select class="res-vehicle" required>
+                                        <option value="">Cargando flota...</option>
+                                    </select>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                                    <div class="form-group">
+                                        <label><i class="fas fa-calendar-day"></i> Fecha y Hora Inicio</label>
+                                        <input type="text" class="res-start" placeholder="Seleccione fecha y hora..." required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label><i class="fas fa-calendar-check"></i> Fecha y Hora Fin</label>
+                                        <input type="text" class="res-end" placeholder="Seleccione fecha y hora..." required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check-double"></i> Confirmar Reserva</button>
+                            </form>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title"><i class="fas fa-list-ul"></i> Historial de Reservas</div>
+                            <div id="reservation-list" style="display: flex; flex-direction: column; gap: 15px;">
+                                <p style="color: #444; font-weight: 600;">No posee reservas activas en este momento.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- SECCIÓN: PAGOS -->
-            <div id="section-pagos" class="profile-section">
-                <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
-                    <div class="welcome-msg">
-                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-receipt" style="color: var(--dorado);"></i> Pagos</h1>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-money-bill-transfer"></i> Transacciones Realizadas</div>
-                    <div id="payment-list" style="display: flex; flex-direction: column; gap: 10px;">
-                        <p style="color: #444; font-weight: 600;">Cargando historial...</p>
-                    </div>
-                </div>
-            </div>
         </div>
-    </div>
     </main>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const startPicker = flatpickr("#res-start", {
+        const startPickers = flatpickr(".res-start", {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
             minDate: "today",
@@ -207,11 +215,15 @@
                 firstDayOfWeek: 1
             },
             onChange: function(selectedDates, dateStr, instance) {
-                endPicker.set("minDate", dateStr);
+                const container = instance.element.closest('form');
+                const endInput = container.querySelector('.res-end');
+                if (endInput && endInput._flatpickr) {
+                    endInput._flatpickr.set("minDate", dateStr);
+                }
             }
         });
 
-        const endPicker = flatpickr("#res-end", {
+        const endPickers = flatpickr(".res-end", {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
             minDate: "today",
@@ -242,10 +254,11 @@
 
     async function createReservation(e) {
         e.preventDefault();
+        const form = e.target;
         const payload = {
-            patente: document.getElementById('res-vehicle').value,
-            fecha_inicio: document.getElementById('res-start').value,
-            fecha_fin: document.getElementById('res-end').value
+            patente: form.querySelector('.res-vehicle').value,
+            fecha_inicio: form.querySelector('.res-start').value,
+            fecha_fin: form.querySelector('.res-end').value
         };
         const res = await fetch(`${API_BASE}/user/reservations`, {
             method: 'POST',
@@ -258,7 +271,7 @@
         if (res.ok) {
             showToast('Reserva creada con éxito');
             loadReservations();
-            e.target.reset();
+            form.reset();
         } else {
             const d = await res.json();
             alert(d.detail);

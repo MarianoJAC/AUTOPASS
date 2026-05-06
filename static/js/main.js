@@ -63,13 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- LÓGICA DEL CARRUSEL DE INICIO ---
 const DatosCarrusel = [
-    { imagen: '/images/INICIO/trafico1.webp', leyenda: '¿no te agota tanto embotellamiento en Buenos Aires?' },
+    { imagen: '/images/INICIO/trafico1.webp', leyenda: '¿Te agota tanto embotellamiento en Buenos Aires?' },
     { imagen: '/images/INICIO/trafico2.webp', leyenda: '¿Sentís que el tráfico continuo te consume la energía?' },
-    { imagen: '/images/INICIO/trafico3.webp', leyenda: '¿no es agotador perder horas en la autopista?' },
-    { imagen: '/images/INICIO/estacionamiento1.webp', leyenda: '¿no te agota buscar lugar en la calle siempre?' },
-    { imagen: '/images/INICIO/estacionamiento2.webp', leyenda: '¿no te frustra llegar y que no haya lugar?' },
+    { imagen: '/images/INICIO/trafico3.webp', leyenda: '¿Es frustrante perder horas en la autopista?' },
+    { imagen: '/images/INICIO/estacionamiento1.webp', leyenda: '¿Te fastidia buscar lugar en la calle siempre?' },
+    { imagen: '/images/INICIO/estacionamiento2.webp', leyenda: '¿Te molesta llegar y que no haya lugar?' },
     { imagen: '/images/INICIO/estacionamiento3.webp', leyenda: 'AUTOPASS elimina el estres del estacionamiento en la ciudad.' },
-    { imagen: '/images/INICIO/estacionamiento4.webp', leyenda: 'reserva tu cochera online en segundos con AUTOPASS.' }
+    { imagen: '/images/INICIO/estacionamiento4.webp', leyenda: 'Reserva tu cochera online en segundos con AUTOPASS.' }
 ];
 
 let IndiceCarruselActual = 0;
@@ -127,6 +127,14 @@ function closeModal(id) {
     if (regErr) regErr.style.display = 'none';
 }
 function switchModal(oldId, newId) { closeModal(oldId); openModal(newId); }
+
+function irAReserva() {
+    if (localStorage.getItem('token')) {
+        window.location.href = '/perfil';
+    } else {
+        openModal('loginModal');
+    }
+}
 
 // --- LÓGICA DE AUTENTICACIÓN ---
 const loginForm = document.getElementById('loginForm');
@@ -616,16 +624,18 @@ async function loadActiveStays() {
     }
 }
 
+// --- ACTUALIZAR CARGA DE VEHÍCULOS EN SELECTS ---
 async function loadReservations() {
     const resV = await fetch(`${API_BASE}/user/vehicles`, { headers: { 'Authorization': `Bearer ${token}` } });
     const vehicles = await resV.json();
-    const select = document.getElementById('res-vehicle');
-    if (select) {
-        select.innerHTML = vehicles.length ? '<option value="">Seleccione vehículo...</option>' : '<option value="">No tiene vehículos</option>';
+    const selects = document.querySelectorAll('.res-vehicle');
+    
+    selects.forEach(select => {
+        select.innerHTML = vehicles.length ? '<option value="">Seleccioná tu vehículo...</option>' : '<option value="">No tenés vehículos</option>';
         vehicles.forEach(v => {
             select.innerHTML += `<option value="${v.patente}">${v.patente} - ${v.marca_modelo}</option>`;
         });
-    }
+    });
 
     const resR = await fetch(`${API_BASE}/user/reservations`, { headers: { 'Authorization': `Bearer ${token}` } });
     const reservations = await resR.json();
