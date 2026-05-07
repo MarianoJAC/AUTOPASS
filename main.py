@@ -75,6 +75,10 @@ async def get_dashboard(request: Request):
 async def get_perfil(request: Request):
     return templates.TemplateResponse(request=request, name="perfil.html")
 
+@app.get("/publicidad", response_class=HTMLResponse)
+async def get_publicidad(request: Request):
+    return templates.TemplateResponse(request=request, name="publicidad.html")
+
 @app.get("/contacto", response_class=HTMLResponse)
 async def get_contacto(request: Request):
     return templates.TemplateResponse(request=request, name="contacto.html")

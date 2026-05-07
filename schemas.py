@@ -25,6 +25,7 @@ class UserBase(BaseModel):
     email: str
     direccion: Optional[str] = None
     puntos_acumulados: Optional[int] = 0
+    saldo: Optional[float] = 0.0
 
     @field_validator('dni')
     @classmethod
@@ -39,6 +40,13 @@ class UserBase(BaseModel):
         if not v.isdigit() or len(v) < 10:
             raise ValueError('El teléfono debe contener código de área y número (mínimo 10 dígitos)')
         return v
+
+class UserUpdate(BaseModel):
+    nombre: Optional[str] = None
+    apellido: Optional[str] = None
+    telefono: Optional[str] = None
+    email: Optional[str] = None
+    direccion: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str
@@ -82,6 +90,12 @@ class UserReservationCreate(BaseModel):
     patente: str
     fecha_inicio: str
     fecha_fin: str
+    sucursal_nombre: Optional[str] = "AUTOPASS Central"
+
+class ReservationUpdate(BaseModel):
+    fecha_inicio: Optional[str] = None
+    fecha_fin: Optional[str] = None
+    patente: Optional[str] = None
 
 class UserReservationResponse(BaseModel):
     id: int
@@ -91,6 +105,8 @@ class UserReservationResponse(BaseModel):
     estado_pago: str
     estado_reserva: str
     monto_total: float
+    sucursal_nombre: Optional[str] = None
+    sucursal_info: Optional[str] = None
 
     class Config:
         from_attributes = True

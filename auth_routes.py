@@ -8,6 +8,7 @@ router = APIRouter(prefix="/v1/auth", tags=["Authentication"])
 
 @router.post("/register")
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    from routes.parking import normalize_name, normalize_dni
     # Verificar si el email ya existe
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
@@ -16,13 +17,13 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # Hashear contraseña
     hashed_password = auth.get_password_hash(user.password)
     
-    # Crear nuevo usuario
+    # Crear nuevo usuario con datos normalizados
     new_user = models.User(
-        nombre=user.nombre,
-        apellido=user.apellido,
-        dni=user.dni,
+        nombre=normalize_name(user.nombre),
+        apellido=normalize_name(user.apellido),
+        dni=normalize_dni(user.dni),
         telefono=user.telefono,
-        email=user.email,
+        email=user.email.lower().strip(),
         password_hash=hashed_password,
         rol="user" # Rol por defecto
     )
@@ -53,5 +54,6 @@ def login(form_data: schemas.UserLogin, db: Session = Depends(get_db)):
         "access_token": access_token, 
         "token_type": "bearer", 
         "rol": user.rol,
-        "nombre": user.nombre
+        "nombre": user.nombre,
+        "apellido": user.apellido
     }
