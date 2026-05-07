@@ -1,8 +1,8 @@
-#  AUTOPASS
+# 🚗 AUTOPASS - Estacionamiento Inteligente (Professional Edition v3.5)
 
-Solución empresarial para la gestión de estacionamientos que combina **Visión Artificial (ALPR)**, **Arquitectura Modular** y un **Panel de Business Intelligence** completo.
+Solución empresarial para la gestión de estacionamientos que combina **Visión Artificial (ALPR)**, **Arquitectura Modular** y un **Frontend Premium** de alto impacto.
 
-##  Arquitectura del Sistema (v3.1)
+## 🏗️ Arquitectura del Sistema (v3.5)
 
 El proyecto ha sido refactorizado siguiendo estándares de ingeniería de software de alto nivel:
 
@@ -11,12 +11,11 @@ El proyecto ha sido refactorizado siguiendo estándares de ingeniería de softwa
 - **Frontend Engine (Jinja2 + Layouts)**: Sistema de herencia de plantillas que garantiza consistencia visual y reduce el código repetido.
 - **Configuración Pro (.env)**: Centralización total de variables de entorno y secretos de seguridad.
 
-##  Panel de Business Intelligence
+## 🎨 Experiencia de Usuario de Vanguardia
 
-El Dashboard administrativo ahora cuenta con una suite de analítica avanzada:
-- **Gráficos en Tiempo Real**: Visualización de tendencias de recaudación mediante **Chart.js**.
-- **Filtrado Dinámico**: Motor de búsqueda por periodos (Día, Semana, Mes, Año).
-- **Control de Calendario**: Integración de **Flatpickr** para una selección de rangos de fechas profesional.
+- **Landing Page v4.0**: Nueva interfaz de inicio con carrusel dinámico, animaciones de parpadeo y navegación optimizada.
+- **Sidebar Profesional**: Menú lateral inteligente con modos expandido/colapsado y alineación visual perfecta.
+- **Business Intelligence**: Dashboard administrativo con gráficos **Chart.js** y reportes financieros detallados.
 
 ##  Características Destacadas
 

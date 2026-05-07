@@ -25,6 +25,27 @@ IMAGE_DIR = os.getenv("IMAGE_DIR", "captured_images")
 def normalize_plate(p: str): 
     return re.sub(r'[^A-Z0-9]', '', p.upper())
 
+def format_plate(p: str):
+    clean = normalize_plate(p)
+    if len(clean) == 6: # Formato ABC123
+        return f"{clean[:3]} {clean[3:]}"
+    if len(clean) == 7: # Formato AB123CD
+        return f"{clean[:2]} {clean[2:5]} {clean[5:]}"
+    return clean
+
+def normalize_name(s: str):
+    return s.strip().title()
+
+def normalize_dni(s: str):
+    clean = re.sub(r'[^0-9]', '', s)
+    if len(clean) < 7: return clean
+    # Formatear con puntos (ej: 12.345.678 o 1.234.567)
+    if len(clean) == 7:
+        return f"{clean[0]}.{clean[1:4]}.{clean[4:]}"
+    if len(clean) == 8:
+        return f"{clean[:2]}.{clean[2:5]}.{clean[5:]}"
+    return clean
+
 @router.get("/parking/status", response_model=schemas.ParkingStatus)
 def get_parking_status(db: Session = Depends(get_db)):
     a = db.query(models.ParkingAforo).first()

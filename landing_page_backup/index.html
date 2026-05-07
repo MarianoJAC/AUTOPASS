@@ -11,10 +11,9 @@
             <div class="logo-text">AUTOPASS</div>
         </a>
         <nav>
-            <a href="javascript:void(0)" onclick="irAReserva()">RESERVA YA</a>
+            <a href="/contacto">Contacto</a>
             <a href="javascript:void(0)" onclick="openModal('loginModal')">Iniciá Sesión</a>
             <a href="javascript:void(0)" onclick="openModal('registerModal')">Creá tu Cuenta</a>
-            <a href="/contacto">Contacto</a>
         </nav>
     </header>
 
@@ -40,8 +39,8 @@
         <h1>AUTOPASS</h1>
         <p>La evolución del estacionamiento. Acceso inteligente, pagos digitales y control total desde cualquier dispositivo.</p>
         <div class="cta-group">
-            <a href="javascript:void(0)" onclick="irAReserva()" class="btn btn-primary">RESERVÁ YA</a>
-            <a href="#features" class="btn btn-outline">Conocé Más</a>
+            <a href="javascript:void(0)" onclick="openModal('registerModal')" class="btn btn-primary">RESERVÁ YA</a>
+            <a href="/publicidad" class="btn btn-outline">Conocé Más</a>
         </div>
     </section>
 
@@ -148,9 +147,11 @@
     <div id="registerModal" class="modal">
         <div class="modal-content" style="max-width: 550px;">
             <span class="close-btn" onclick="closeModal('registerModal')"><i class="fas fa-xmark"></i></span>
-            <h2>CREÁ TU CUENTA <span style="font-size: 0.8em; text-transform: none; font-weight: normal; color: #666; margin-left: 5px;">para hacer una reserva</span></h2>
-            <div style="text-align: center; margin-bottom: 25px; font-size: 0.85rem; color: #666;">
-                ¿Ya tenés una cuenta? <a href="javascript:void(0)" onclick="switchModal('registerModal', 'loginModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Iniciá sesión acá</a>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="background: rgba(197, 160, 89, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; border: 1px solid var(--border);">
+                    <i class="fas fa-user-plus" style="color: var(--dorado); font-size: 1.5rem;"></i>
+                </div>
+                <h2 style="margin: 0; letter-spacing: 2px;">CREÁ TU CUENTA</h2>
             </div>
             <div id="register-error" class="error-msg"></div>
             
@@ -230,43 +231,4 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-    // Lógica del Carrusel (Integrada temporalmente o para ser movida a main.js)
-    const imagenesCarrusel = [
-        { src: '/static/images/INICIO/estacionamiento1.webp', leyenda: 'SEGURIDAD 24 HORAS' },
-        { src: '/static/images/INICIO/estacionamiento2.webp', leyenda: 'ACCESO INTELIGENTE' },
-        { src: '/static/images/INICIO/estacionamiento3.webp', leyenda: 'PAGOS DIGITALES' },
-        { src: '/static/images/INICIO/estacionamiento4.webp', leyenda: 'GESTIÓN EN TIEMPO REAL' },
-        { src: '/static/images/INICIO/trafico1.webp', leyenda: 'SIN DEMORAS' },
-        { src: '/static/images/INICIO/trafico2.webp', leyenda: 'EL FUTURO ES HOY' },
-        { src: '/static/images/INICIO/trafico3.webp', leyenda: 'TU LUGAR ASEGURADO' }
-    ];
-
-    let slideActual = 0;
-    const contenedor = document.getElementById('contenedorCarrusel');
-
-    function inicializarCarrusel() {
-        if (!contenedor) return;
-        imagenesCarrusel.forEach((img, index) => {
-            const div = document.createElement('div');
-            div.className = `item-carrusel ${index === 0 ? 'activo' : ''}`;
-            div.style.backgroundImage = `url('${img.src}')`;
-            div.innerHTML = `<div class="leyenda-carrusel">${img.leyenda}</div>`;
-            contenedor.appendChild(div);
-        });
-        
-        setInterval(() => MoverCarrusel(1), 5000);
-    }
-
-    function MoverCarrusel(direccion) {
-        const items = document.querySelectorAll('.item-carrusel');
-        if (items.length === 0) return;
-        
-        items[slideActual].classList.remove('activo');
-        slideActual = (slideActual + direccion + items.length) % items.length;
-        items[slideActual].classList.add('activo');
-    }
-
-    document.addEventListener('DOMContentLoaded', inicializarCarrusel);
-</script>
 {% endblock %}

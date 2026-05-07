@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}AUTOPASS - Conozca Más{% endblock %}
+
+{% block content %}
+    <header>
+        <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 15px;">
+            <img src="/static/images/logo.png" alt="Logo" style="height: 65px;">
+            <div class="logo-text">AUTOPASS</div>
+        </a>
+        <nav>
+            <a href="/">Inicio</a>
+            <a href="/contacto">Contacto</a>
+        </nav>
+    </header>
+
+    <section class="hero" style="min-height: 40vh; padding: 60px 20px;">
+        <h1>NUESTRA RED</h1>
+        <p>Descubra por qué miles de usuarios eligen la tecnología de AUTOPASS para su movilidad diaria.</p>
+    </section>
+
+    <section class="content" style="padding: 60px 10%; background: var(--negro);">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; margin-bottom: 80px;">
+            <div>
+                <h2 style="color: var(--dorado); margin-bottom: 20px;">Innovación en cada plaza</h2>
+                <p style="color: #ccc; line-height: 1.8;">AUTOPASS no es solo un sistema de estacionamiento; es un ecosistema diseñado para eliminar las fricciones del día a día. Nuestra red de estacionamientos inteligentes utiliza visión artificial de última generación para reconocer su vehículo al instante.</p>
+                <ul style="color: #ccc; margin-top: 20px; list-style: none; padding: 0;">
+                    <li style="margin-bottom: 10px;"><i class="fas fa-check" style="color: var(--dorado); margin-right: 10px;"></i> Sin tickets de papel</li>
+                    <li style="margin-bottom: 10px;"><i class="fas fa-check" style="color: var(--dorado); margin-right: 10px;"></i> Pagos automatizados</li>
+                    <li style="margin-bottom: 10px;"><i class="fas fa-check" style="color: var(--dorado); margin-right: 10px;"></i> Seguridad garantizada con ALPR</li>
+                </ul>
+            </div>
+            <div style="background: linear-gradient(45deg, #1a1a1a, #0a0a0a); padding: 40px; border-radius: 20px; border: 1px solid var(--border);">
+                <i class="fas fa-shield-halved" style="font-size: 4rem; color: var(--dorado); margin-bottom: 20px;"></i>
+                <h3 style="color: var(--blanco);">Confianza AutoPass</h3>
+                <p style="color: #888;">Trabajamos con los estacionamientos más prestigiosos del país para asegurar que su vehículo esté siempre en buenas manos.</p>
+            </div>
+        </div>
+
+        <h2 style="text-align: center; color: var(--blanco); margin-bottom: 40px;">Estacionamientos Adheridos</h2>
+        <div class="grid-stats" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <div class="card" style="text-align: center;">
+                <h3 style="color: var(--dorado);">AUTOPASS Central</h3>
+                <p style="font-size: 0.85rem; color: #888;">Av. del Libertador 1200, CABA</p>
+                <p style="margin-top: 10px; font-weight: 600;">Abierto 24hs</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3 style="color: var(--dorado);">Punto Ituzaingó</h3>
+                <p style="font-size: 0.85rem; color: #888;">Estación Ituzaingó, Prov. Bs As</p>
+                <p style="margin-top: 10px; font-weight: 600;">07:00 a 23:00</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3 style="color: var(--dorado);">Centro Castelar</h3>
+                <p style="font-size: 0.85rem; color: #888;">Cerca del Centro Comercial</p>
+                <p style="margin-top: 10px; font-weight: 600;">24hs Seguras</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3 style="color: var(--dorado);">Morón Shopping</h3>
+                <p style="font-size: 0.85rem; color: #888;">Plaza Oeste, Morón</p>
+                <p style="margin-top: 10px; font-weight: 600;">Abierto Hoy</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            &copy; 2026 AUTOPASS TECHNOLOGY.
+        </div>
+    </footer>
+{% endblock %}

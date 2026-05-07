@@ -20,9 +20,10 @@
             <span>AUTOPASS</span>
         </div>
         <nav class="nav-group">
-            <div class="nav-item active" onclick="showSection('inicio', this)"><i class="fas fa-house-user"></i> <span class="nav-text">Inicio de Usuario</span></div>
+            <div class="nav-item active" onclick="showSection('inicio', this)"><i class="fas fa-house-user"></i> <span class="nav-text">Inicio</span></div>
             <div class="nav-item" onclick="showSection('vehiculos', this)"><i class="fas fa-car-side"></i> <span class="nav-text">Mis Vehículos</span></div>
             <div class="nav-item" onclick="showSection('reservas', this)"><i class="fas fa-calendar-check"></i> <span class="nav-text">Mis Reservas</span></div>
+            <div class="nav-item" onclick="showSection('perfil', this)"><i class="fas fa-user-gear"></i> <span class="nav-text">Mi Cuenta</span></div>
         </nav>
         <div class="sidebar-footer" onclick="logout()">
             <i class="fas fa-right-from-bracket"></i> <span>Cerrar Sesión</span>
@@ -36,6 +37,11 @@
                 <h1 id="user-name" style="margin: 5px 0 0; font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem;">Hola, Cargando...</h1>
             </div>
             <div class="header-right" style="display: flex; align-items: center; gap: 20px;">
+                <div class="balance-badge" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.2); padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-wallet" style="color: #2ecc71"></i>
+                    <span id="balance-val" style="font-family: var(--font-mono); font-weight: 800; color: #2ecc71;">$0.00</span>
+                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #888;">Mi Saldo</span>
+                </div>
                 <div class="points-badge" style="background: rgba(197, 160, 89, 0.1); border: 1px solid var(--border); padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 10px;">
                     <i class="fas fa-star" style="color: var(--dorado)"></i>
                     <span id="points-val" style="font-family: var(--font-mono); font-weight: 800; color: var(--dorado);">0</span>
@@ -48,9 +54,13 @@
             <div class="content-wrapper">
                 <!-- SECCIÓN: INICIO -->
                 <div id="section-inicio" class="profile-section active">
-                    <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
-                        <div class="welcome-msg">
-                            <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-crown" style="color: var(--dorado);"></i> Panel de Control</h1>
+                    <div class="card" style="background: linear-gradient(135deg, #C5A059 0%, #a68545 100%); cursor: pointer; margin-bottom: 30px;" onclick="showSection('reservas', document.querySelectorAll('.nav-item')[2])">
+                        <div style="padding: 20px; color: var(--negro); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h1 style="font-family: 'Montserrat'; font-weight: 900; margin: 0; font-size: 2rem;">RESERVAR AHORA</h1>
+                                <p style="margin: 5px 0 0; font-weight: 700; opacity: 0.8;">Asegurá tu lugar en un clic</p>
+                            </div>
+                            <i class="fas fa-calendar-plus" style="font-size: 4rem; opacity: 0.2;"></i>
                         </div>
                     </div>
 
@@ -74,7 +84,20 @@
                                     <input type="text" class="res-end" placeholder="Fecha y hora..." required>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check-double"></i> Confirmar Reserva</button>
+
+                            <!-- PANEL DE RESUMEN DINÁMICO -->
+                            <div id="res-summary" style="background: rgba(197, 160, 89, 0.05); padding: 15px; border-radius: 12px; border: 1px dashed var(--dorado); display: none; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="font-size: 0.8rem; color: #888; font-weight: 700;">DURACIÓN ESTIMADA:</span>
+                                    <span id="res-duration" style="font-weight: 800; color: #fff; font-size: 0.8rem;">0h 0m</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(197, 160, 89, 0.2); padding-top: 8px;">
+                                    <span style="font-size: 0.8rem; color: #888; font-weight: 700;">TOTAL A PAGAR:</span>
+                                    <span id="res-total-cost" style="font-size: 1.3rem; font-weight: 900; color: var(--dorado); font-family: var(--font-mono);">$0.00</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-weight: 800; letter-spacing: 1px;"><i class="fas fa-check-double"></i> Confirmar Reserva</button>
                         </form>
                     </div>
 
@@ -208,12 +231,17 @@
     document.addEventListener('DOMContentLoaded', function() {
         const startPickers = flatpickr(".res-start", {
             enableTime: true,
+            time_24hr: true,
+            altInput: true,
+            altFormat: "d/m/Y H:i",
             dateFormat: "Y-m-d H:i",
             minDate: "today",
             theme: "dark",
-            locale: {
-                firstDayOfWeek: 1
-            },
+            locale: { firstDayOfWeek: 1 }
+        };
+
+        const startPicker = flatpickr("#res-start", {
+            ...flatpickrConfig,
             onChange: function(selectedDates, dateStr, instance) {
                 const container = instance.element.closest('form');
                 const endInput = container.querySelector('.res-end');

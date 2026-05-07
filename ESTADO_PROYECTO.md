@@ -14,6 +14,8 @@
 - [x] **Calendario Pro**: Integración de **Flatpickr** para una selección de fechas interactiva y moderna.
 
 ### 🎨 UI/UX & Identidad Visual
+- [x] **Nueva Landing Page**: Carrusel de imágenes dinámico con leyendas, frases con efecto de parpadeo y diseño hero mejorado.
+- [x] **Sidebar Adaptativo**: Sistema de navegación lateral con colapso suave, iconos centrados en modo compacto y efectos hover refinados.
 - [x] **Armonización de Estilo**: Todos los templates (Index, Dashboard, Perfil, Contacto) con estética Premium (Dorado/Negro).
 - [x] **Limpieza Funcional**: Interfaces operativas con fondos sólidos y alto contraste para reducir fatiga visual.
 - [x] **Acceso Simplificado**: Migración de páginas de Login/Registro a **Modales Interactivos** en la Home.
@@ -36,6 +38,15 @@
 - [x] **Normalización de Patentes**: Lógica mejorada para vincular vehículos de usuarios con los registros del ALPR.
 - [x] **Cálculo de Deuda en Perfil**: Los clientes ven su costo acumulado actualizado cada 30 segundos.
 
+### ✨ Mejoras de Experiencia y Seguridad (v3.5+)
+- [x] **Ticket Digital Premium**: Sustitución del sistema básico de compartir por un **Voucher Visual** con QR dinámico, compartible como **imagen PNG** (vía WhatsApp) usando `html2canvas`.
+- [x] **Validación de Registro Avanzada**: Checklist en tiempo real para contraseñas (8+ carac, Mayúscula, Símbolo) y medidor de fuerza visual.
+- [x] **Edición "In-Place" en Perfil**: Gestión de datos personales (DNI, Teléfono, etc.) directamente en las tarjetas, eliminando diálogos del navegador para una experiencia nativa.
+- [x] **Calculadora de Reservas**: Estimación de costos en tiempo real con obtención dinámica de tarifas desde la DB ($1500/hora con redondeo).
+- [x] **Gestión Modular de Reservas**: Separación de *Próximas Reservas* e *Historial*, este último con diseño desplegable y filtro por rango de fechas.
+- [x] **Normalización Regional**: Formateo automático de DNI (puntos) y Teléfonos (espacios) en toda la interfaz para mayor legibilidad.
+- [x] **Seguridad de Datos**: Sincronización robusta de identidad (Nombre/Apellido) en almacenamiento local para personalización de tickets.
+
 ## 🛠️ Pendientes Inmediatos (Backlog)
 1. **Integración Real de Pagos**: Conectar el botón "Pagar" con la API de Mercado Pago.
 2. **Canje de Puntos**: Implementar sistema para usar los Puntos AutoPass en beneficios o descuentos.
@@ -44,4 +55,6 @@
 ## 📡 Configuración de Puertas
 - **Entrada**: `ENTRADA_PRINCIPAL`
 - **Salida**: `SALIDA_PRINCIPAL`
+- **MQTT**: Comandos `OPEN` publicados en `parking/barrera/entrada/control` y `parking/barrera/salida/control`.
+DA_PRINCIPAL`
 - **MQTT**: Comandos `OPEN` publicados en `parking/barrera/entrada/control` y `parking/barrera/salida/control`.
