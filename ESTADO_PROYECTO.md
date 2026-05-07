@@ -14,6 +14,8 @@
 - [x] **Calendario Pro**: Integración de **Flatpickr** para una selección de fechas interactiva y moderna.
 
 ### 🎨 UI/UX & Identidad Visual
+- [x] **Nueva Landing Page**: Carrusel de imágenes dinámico con leyendas, frases con efecto de parpadeo y diseño hero mejorado.
+- [x] **Sidebar Adaptativo**: Sistema de navegación lateral con colapso suave, iconos centrados en modo compacto y efectos hover refinados.
 - [x] **Armonización de Estilo**: Todos los templates (Index, Dashboard, Perfil, Contacto) con estética Premium (Dorado/Negro).
 - [x] **Limpieza Funcional**: Interfaces operativas con fondos sólidos y alto contraste para reducir fatiga visual.
 - [x] **Acceso Simplificado**: Migración de páginas de Login/Registro a **Modales Interactivos** en la Home.
@@ -53,4 +55,6 @@
 ## 📡 Configuración de Puertas
 - **Entrada**: `ENTRADA_PRINCIPAL`
 - **Salida**: `SALIDA_PRINCIPAL`
+- **MQTT**: Comandos `OPEN` publicados en `parking/barrera/entrada/control` y `parking/barrera/salida/control`.
+DA_PRINCIPAL`
 - **MQTT**: Comandos `OPEN` publicados en `parking/barrera/entrada/control` y `parking/barrera/salida/control`.
