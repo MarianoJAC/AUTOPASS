@@ -12,31 +12,35 @@
     - NOMBRES DE VARIABLES, FUNCIONES Y CLASES EN ESPAÑOL USANDO **PascalCase**.
     - COMENTARIOS EN CÓDIGO SIEMPRE EN ESPAÑOL, EN **MAYÚSCULAS** Y SIN ACENTOS.
 
-## 🚀 ESTADO ACTUAL DEL TRABAJO (ÚLTIMOS AJUSTES)
+## 🚀 ESTADO ACTUAL DEL TRABAJO (VERSIÓN 4.0 — 2026-05-07)
 
-- **SISTEMA DE RESERVAS (V3.6)**:
-    - **LÓGICA DINÁMICA**: IMPLEMENTACIÓN DE CALENDARIOS RESTRICTIVOS. EL PLAN "POR HORA" PERMITE RANGO LIBRE (MAX 24HS). LOS PLANES "DÍA", "SEMANA", "QUINCENA" Y "MES" CALCULAN AUTOMÁTICAMENTE LA FECHA DE FIN BLOQUEANDO EL CAMPO PARA EVITAR ERRORES.
-    - **MERCADO PAGO**: IMPLEMENTADO ENDPOINT `/pay-reservation` PARA PAGO DE RESERVAS PENDIENTES (SIMULACIÓN EXITOSA).
-    - **BASE DE DATOS**: MIGRACIÓN DE TABLA `reservations` COMPLETADA (COLUMNAS `tipo_estadia`, `sucursal_nombre`, `sucursal_info` AGREGADAS).
+### 🏠 LANDING PAGE
+- **CARRUSEL + HERO OVERLAY**: El título AUTOPASS, leyendas rotativas y botones ahora se superponen directamente sobre el carrusel de imágenes (hero overlay), eliminando la sección separada.
+- **ANIMACIÓN DE LEYENDAS**: Transición de opacidad más lenta (0.8s) al cambiar entre slides.
+- **FOOTER**: Logo AUTOPASS rediseñado con tipografía Montserrat dorada. Redes sociales como botones circulares con hover dorado. Copyright con "AUTOPASS" destacado.
 
-- **PERFIL DE USUARIO**:
-    - **GESTIÓN DE CLAVE**: NUEVA SECCIÓN DE SEGURIDAD CON CAMBIO DE CONTRASEÑA "IN-PLACE" Y VALIDACIÓN DE SEGURIDAD EN TIEMPO REAL.
-    - **ESTÉTICA**: AJUSTE DE PLACEHOLDERS (0.8REM, GRIS SUAVE) Y REDUCCIÓN DE MÁRGENES ENTRE CAMPOS PARA UN DISEÑO MÁS COMPACTO Y MODERNO.
-    - **CÁLCULO DE COSTOS**: SINCRONIZACIÓN DE LA CALCULADORA DEL FRONTEND CON LAS TARIFAS REALES DEL BACKEND (`/settings/prices`).
+### 👤 PERFIL DE USUARIO (PORTAL)
+- **REEMPLAZO COMPLETO DE INLINE STYLES POR CLASES CSS**: ~40 atributos `style` eliminados de las templates. Toda la UI ahora usa clases reutilizables.
+- **PANTALLA DE INICIO REDISEÑADA**: Banner de bienvenida con nombre del usuario, tarjetas de estadísticas (vehículos, reservas), tarjeta "RESERVAR" grande con gradiente dorado, alerta de estadía activa.
+- **FIX MODALES**: Modal overlay arreglado (`.modal` faltaba en `style.css` activo).
+- **PASE DIGITAL**: Agregado aviso de fallback "Si no funciona el reconocimiento de patente, usá el QR." Título cambiado a "TICKET AUTOPASS".
+- **SIDEBAR**: Logo más compacto (imagen 32px, texto 1.1rem), sidebar-footer más pequeño, botón de cerrar sesión reducido.
 
-- **HOME (PANTALLA DE INICIO)**:
-    - **CARRUSEL**: 7 IMÁGENES CON NAVEGACIÓN MANUAL (FLECHAS) Y ROTACIÓN AUTOMÁTICA REINICIABLE.
-    - **LAYOUT**: ELIMINADO ESPACIO NEGRO SUPERIOR; EL HEADER AHORA FLOTA SOBRE EL CARRUSEL (ESTÉTICA PREMIUM).
-    - **CONTENIDO**: AGREGADO PÁRRAFO DESCRIPTIVO BAJO EL TÍTULO PARPADEANTE "AUTOPASS ESTACIONAMIENTO INTELIGENTE".
-    - **CTA**: BOTÓN PRINCIPAL ACTUALIZADO A **"RESERVÁ YA"**.
-    - **HEADER**: AGREGADO LINK **"RESERVA YA"** COMO PRIMER ELEMENTO, SEGUIDO DE LOGIN, REGISTRO Y CONTACTO.
-    - **LÓGICA**: IMPLEMENTADA FUNCIÓN `irAReserva()` EN `main.js` QUE REDIRIGE AL PERFIL SI HAY TOKEN O ABRE EL LOGIN SI NO LO HAY.
-    - **MAPA**: UBICACIÓN PRECISA DE "AUTOPASS MORÓN SAN MARTÍN" EN SAN MARTÍN 247 (AJUSTADO VISUALMENTE).
-    - **UX**: ENLACE DE LOGIN MOVIDO A LA PARTE SUPERIOR DEL MODAL DE REGISTRO.
+### 🛠️ DASHBOARD ADMINISTRATIVO
+- **REFACTORIZACIÓN COMPLETA**: ~25 inline styles reemplazados por clases CSS dedicadas (`.cam-box`, `.card-header`, `.grid-stats-4`, `.health-dot`, `.danger-card`, etc.).
+- **MONITOREO EN VIVO MEJORADO**: Stats con íconos y colores (verde/rojo/azul/dorado). Badge "EN VIVO" con punto pulsante en cada cámara. Fallback visual cuando la señal de video no está disponible. Pills de color para eventos ENTRADA/SALIDA. Indicador de última actualización con timestamp.
+- **NUEVA PESTAÑA "RESERVAS"**: Tabla de reservas activas filtrada por sucursal Ituzaingó. Formulario para crear reservas presenciales (nombre, patente, tipo, fecha/hora).
+- **NUEVO ENDPOINT ADMIN**: `POST /v1/admin/reservations` para crear reservas en persona (con o sin usuario registrado).
 
-- **PANEL DE CONTROL (PERFIL)**:
-    - **LIMPIEZA**: ELIMINADA LA SECCIÓN Y EL ACCESO A "HISTORIAL DE PAGOS".
-    - **SALUDO**: NORMALIZACIÓN DE NOMBRE DE USUARIO A MAYÚSCULAS.
+### 🎨 CSS
+- **ÚNICO STYLESHEET**: Toda la UI centralizada en `static/css/style.css` (sin archivos por página).
+- **PATRÓN `.open`**: Toggles de acordeón (historial, contraseña) manejados con clases CSS en lugar de manipulación inline de maxHeight/opacidad.
+- **RESPONSIVE**: Breakpoints en 1100px, 992px, 768px, 480px para todos los componentes nuevos.
+- **~50 CLASES NUEVAS**: Desde `.welcome-banner` hasta `.cam-fallback`, `.fin-layout`, `.occ-deuda-paid`, etc.
+
+### 🔧 BACKEND
+- **NUEVO MODELO**: Columna `cliente_nombre` en tabla `reservations` para reservas presenciales sin usuario registrado.
+- **NUEVO SCHEMA**: `AdminReservationCreate` para creación de reservas desde el dashboard.
 
 ## 📌 GUÍA PARA PRÓXIMAS SESIONES
 
