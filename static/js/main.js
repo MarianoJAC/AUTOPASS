@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- LÓGICA DEL CARRUSEL DE INICIO ---
 const DatosCarrusel = [
+<<<<<<< HEAD
     { imagen: '/static/images/INICIO/trafico1.webp', leyenda: '¿No te agota tanto embotellamiento en Buenos Aires?' },
     { imagen: '/static/images/INICIO/trafico2.webp', leyenda: '¿Sentís que el tráfico continuo te consume la energía?' },
     { imagen: '/static/images/INICIO/trafico3.webp', leyenda: '¿No es agotador perder horas en la autopista?' },
@@ -123,6 +124,15 @@ const DatosCarrusel = [
     { imagen: '/static/images/INICIO/estacionamiento2.webp', leyenda: '¿No te frustra llegar y que no haya lugar?' },
     { imagen: '/static/images/INICIO/estacionamiento3.webp', leyenda: 'AUTOPASS elimina el estres del estacionamiento en la ciudad.' },
     { imagen: '/static/images/INICIO/estacionamiento4.webp', leyenda: 'Reserva tu cochera online en segundos con AUTOPASS.' }
+=======
+    { imagen: '/images/INICIO/trafico1.webp', leyenda: '¿Te agota tanto embotellamiento en Buenos Aires?' },
+    { imagen: '/images/INICIO/trafico2.webp', leyenda: '¿Sentís que el tráfico continuo te consume la energía?' },
+    { imagen: '/images/INICIO/trafico3.webp', leyenda: '¿Es frustrante perder horas en la autopista?' },
+    { imagen: '/images/INICIO/estacionamiento1.webp', leyenda: '¿Te fastidia buscar lugar en la calle siempre?' },
+    { imagen: '/images/INICIO/estacionamiento2.webp', leyenda: '¿Te molesta llegar y que no haya lugar?' },
+    { imagen: '/images/INICIO/estacionamiento3.webp', leyenda: 'AUTOPASS elimina el estres del estacionamiento en la ciudad.' },
+    { imagen: '/images/INICIO/estacionamiento4.webp', leyenda: 'Reserva tu cochera online en segundos con AUTOPASS.' }
+>>>>>>> c16f460e87ef5e7393530e93e97975acd7a65c03
 ];
 
 let IndiceCarruselActual = 0;
@@ -193,81 +203,13 @@ function closeModal(id) {
 }
 function switchModal(oldId, newId) { closeModal(oldId); openModal(newId); }
 
-// --- LÓGICA DE MEJORA DE FORMULARIOS ---
-function togglePasswordVisibility(id, el) {
-    const input = document.getElementById(id);
-    if (input.type === 'password') {
-        input.type = 'text';
-        el.className = 'fas fa-eye-slash toggle-password';
+function irAReserva() {
+    if (localStorage.getItem('token')) {
+        window.location.href = '/perfil';
     } else {
-        input.type = 'password';
-        el.className = 'fas fa-eye toggle-password';
+        openModal('loginModal');
     }
 }
-
-// Validación y Formateo en Tiempo Real
-document.addEventListener('DOMContentLoaded', () => {
-    const regDni = document.getElementById('reg-dni');
-    if (regDni) {
-        regDni.addEventListener('input', (e) => {
-            let val = e.target.value.replace(/\D/g, '');
-            if (val.length > 8) val = val.slice(0, 8);
-            e.target.value = val;
-        });
-    }
-
-    const regPass = document.getElementById('reg-password');
-    const regPassConfirm = document.getElementById('reg-password-confirm');
-    const strengthMeter = document.getElementById('password-strength');
-    
-    const reqLen = document.getElementById('req-len');
-    const reqUp = document.getElementById('req-up');
-    const reqSpec = document.getElementById('req-spec');
-    const reqMatch = document.getElementById('req-match');
-
-    if (regPass && strengthMeter) {
-        const validatePass = () => {
-            const val = regPass.value;
-            const confirmVal = regPassConfirm ? regPassConfirm.value : "";
-            
-            strengthMeter.className = 'strength-meter';
-            
-            const isLen = val.length >= 8;
-            const isUp = /[A-Z]/.test(val);
-            const isSpec = /[!@#$%^&*(),.?":{}|<>]/.test(val);
-            const isMatch = val.length > 0 && val === confirmVal;
-
-            const updateReq = (el, condition) => {
-                if (!el) return;
-                if (condition) {
-                    el.classList.add('satisfied');
-                    el.querySelector('i').className = 'fas fa-check-circle';
-                } else {
-                    el.classList.remove('satisfied');
-                    el.querySelector('i').className = 'far fa-circle';
-                }
-            };
-
-            updateReq(reqLen, isLen);
-            updateReq(reqUp, isUp);
-            updateReq(reqSpec, isSpec);
-            updateReq(reqMatch, isMatch);
-
-            if (val.length === 0) return;
-            let strength = 0;
-            if (isLen) strength++;
-            if (isUp) strength++;
-            if (isSpec) strength++;
-            
-            if (strength === 1) strengthMeter.classList.add('strength-weak');
-            if (strength === 2) strengthMeter.classList.add('strength-medium');
-            if (strength === 3) strengthMeter.classList.add('strength-strong');
-        };
-
-        regPass.addEventListener('input', validatePass);
-        if (regPassConfirm) regPassConfirm.addEventListener('input', validatePass);
-    }
-});
 
 // --- LÓGICA DE AUTENTICACIÓN ---
 const loginForm = document.getElementById('loginForm');
@@ -947,6 +889,7 @@ async function loadActiveStays() {
     }
 }
 
+<<<<<<< HEAD
 async function payWithMP(plate) {
     alert(`Simulando integración con Mercado Pago para ${plate}. El sistema procesará el pago automáticamente.`);
     await fetch(`${API_BASE}/access/pay-stay?plate=${plate}`, { method: 'POST', headers: {'Authorization': `Bearer ${token}`} });
@@ -1123,16 +1066,20 @@ function reconfigureEndPicker(startDate) {
     }
 }
 
+=======
+// --- ACTUALIZAR CARGA DE VEHÍCULOS EN SELECTS ---
+>>>>>>> c16f460e87ef5e7393530e93e97975acd7a65c03
 async function loadReservations() {
     const resV = await fetch(`${API_BASE}/user/vehicles`, { headers: { 'Authorization': `Bearer ${token}` } });
     const vehicles = await resV.json();
-    const select = document.getElementById('res-vehicle');
-    if (select) {
-        select.innerHTML = vehicles.length ? '<option value="">Seleccione vehículo...</option>' : '<option value="">No tiene vehículos</option>';
+    const selects = document.querySelectorAll('.res-vehicle');
+    
+    selects.forEach(select => {
+        select.innerHTML = vehicles.length ? '<option value="">Seleccioná tu vehículo...</option>' : '<option value="">No tenés vehículos</option>';
         vehicles.forEach(v => {
             select.innerHTML += `<option value="${v.patente}">${v.patente} - ${v.marca_modelo}</option>`;
         });
-    }
+    });
 
     await actualizarPreciosGlobales();
 

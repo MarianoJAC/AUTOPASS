@@ -10,10 +10,16 @@
             <img src="/static/images/logo.png" alt="Logo" style="height: 65px;">
             <div class="logo-text">AUTOPASS</div>
         </a>
+<<<<<<< HEAD
         <nav id="main-nav">
             <a href="/contacto">Contacto</a>
+=======
+        <nav>
+            <a href="javascript:void(0)" onclick="irAReserva()">RESERVA YA</a>
+>>>>>>> c16f460e87ef5e7393530e93e97975acd7a65c03
             <a href="javascript:void(0)" onclick="openModal('loginModal')">Iniciá Sesión</a>
             <a href="javascript:void(0)" onclick="openModal('registerModal')">Creá tu Cuenta</a>
+            <a href="/contacto">Contacto</a>
         </nav>
     </header>
 
@@ -35,6 +41,7 @@
         <p class="descripcion-frase">AUTOPASS simplifica estacionar: detecta espacios libres, permite reservar online, abre barreras con solo ver tu patente y gestiona pagos digitales, reduciendo demoras, estrés y mejorando la experiencia urbana.</p>
     </div>
 
+<<<<<<< HEAD
     <section class="hero" style="min-height: 70vh; padding: 100px 10%;">
         <div class="hero-content">
             <h1>AUTOPASS</h1>
@@ -43,6 +50,14 @@
                 <a href="javascript:void(0)" onclick="openModal('registerModal')" class="btn btn-primary">RESERVÁ YA</a>
                 <a href="/publicidad" class="btn btn-outline">Conocé Más</a>
             </div>
+=======
+    <section class="hero">
+        <h1>AUTOPASS</h1>
+        <p>La evolución del estacionamiento. Acceso inteligente, pagos digitales y control total desde cualquier dispositivo.</p>
+        <div class="cta-group">
+            <a href="javascript:void(0)" onclick="irAReserva()" class="btn btn-primary">RESERVÁ YA</a>
+            <a href="#features" class="btn btn-outline">Conocé Más</a>
+>>>>>>> c16f460e87ef5e7393530e93e97975acd7a65c03
         </div>
     </section>
 
@@ -148,11 +163,9 @@
     <div id="registerModal" class="modal">
         <div class="modal-content" style="max-width: 550px;">
             <span class="close-btn" onclick="closeModal('registerModal')"><i class="fas fa-xmark"></i></span>
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div style="background: rgba(197, 160, 89, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; border: 1px solid var(--border);">
-                    <i class="fas fa-user-plus" style="color: var(--dorado); font-size: 1.5rem;"></i>
-                </div>
-                <h2 style="margin: 0; letter-spacing: 2px;">CREÁ TU CUENTA</h2>
+            <h2>CREÁ TU CUENTA <span style="font-size: 0.8em; text-transform: none; font-weight: normal; color: #666; margin-left: 5px;">para hacer una reserva</span></h2>
+            <div style="text-align: center; margin-bottom: 25px; font-size: 0.85rem; color: #666;">
+                ¿Ya tenés una cuenta? <a href="javascript:void(0)" onclick="switchModal('registerModal', 'loginModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Iniciá sesión acá</a>
             </div>
             <div id="register-error" class="error-msg"></div>
             
