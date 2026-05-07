@@ -97,6 +97,15 @@ class UserReservationCreate(BaseModel):
     sucursal_nombre: Optional[str] = "AUTOPASS Central"
     tipo_estadia: Optional[str] = "hora"
 
+class AdminReservationCreate(BaseModel):
+    user_id: Optional[int] = None
+    cliente_nombre: Optional[str] = ""
+    patente: str
+    fecha_inicio: str
+    fecha_fin: str
+    sucursal_nombre: Optional[str] = "AUTOPASS Ituzaingó"
+    tipo_estadia: Optional[str] = "hora"
+
 class ReservationUpdate(BaseModel):
     fecha_inicio: Optional[str] = None
     fecha_fin: Optional[str] = None
@@ -104,6 +113,9 @@ class ReservationUpdate(BaseModel):
 
 class UserReservationResponse(BaseModel):
     id: int
+    user_id: int
+    user_name: str = ""
+    user_email: str = ""
     patente: str
     fecha_inicio: str
     fecha_fin: str
@@ -113,6 +125,7 @@ class UserReservationResponse(BaseModel):
     tipo_estadia: Optional[str] = "hora"
     sucursal_nombre: Optional[str] = None
     sucursal_info: Optional[str] = None
+    cliente_nombre: Optional[str] = ""
 
     class Config:
         from_attributes = True

@@ -92,20 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- INICIALIZACIÓN DE PERFIL ---
-    if (document.getElementById('user-name') && token) {
+    if (document.getElementById('user-name-banner') && token) {
         loadProfile();
         loadVehicles();
+        loadReservations();
         loadActiveStays();
         actualizarPreciosGlobales();
         setInterval(loadActiveStays, 30000);
-
-        // Listeners para la calculadora de reservas
-        const resStart = document.getElementById('res-start');
-        const resEnd = document.getElementById('res-end');
-        const resType = document.getElementById('res-type');
-        if (resStart) resStart.addEventListener('change', updateReservationCost);
-        if (resEnd) resEnd.addEventListener('change', updateReservationCost);
-        if (resType) resType.addEventListener('change', updateReservationCost);
     }
 
     // --- INICIALIZACIÓN DEL CARRUSEL (HOME) ---
@@ -116,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- LÓGICA DEL CARRUSEL DE INICIO ---
 const DatosCarrusel = [
-<<<<<<< HEAD
     { imagen: '/static/images/INICIO/trafico1.webp', leyenda: '¿No te agota tanto embotellamiento en Buenos Aires?' },
     { imagen: '/static/images/INICIO/trafico2.webp', leyenda: '¿Sentís que el tráfico continuo te consume la energía?' },
     { imagen: '/static/images/INICIO/trafico3.webp', leyenda: '¿No es agotador perder horas en la autopista?' },
@@ -124,15 +116,6 @@ const DatosCarrusel = [
     { imagen: '/static/images/INICIO/estacionamiento2.webp', leyenda: '¿No te frustra llegar y que no haya lugar?' },
     { imagen: '/static/images/INICIO/estacionamiento3.webp', leyenda: 'AUTOPASS elimina el estres del estacionamiento en la ciudad.' },
     { imagen: '/static/images/INICIO/estacionamiento4.webp', leyenda: 'Reserva tu cochera online en segundos con AUTOPASS.' }
-=======
-    { imagen: '/images/INICIO/trafico1.webp', leyenda: '¿Te agota tanto embotellamiento en Buenos Aires?' },
-    { imagen: '/images/INICIO/trafico2.webp', leyenda: '¿Sentís que el tráfico continuo te consume la energía?' },
-    { imagen: '/images/INICIO/trafico3.webp', leyenda: '¿Es frustrante perder horas en la autopista?' },
-    { imagen: '/images/INICIO/estacionamiento1.webp', leyenda: '¿Te fastidia buscar lugar en la calle siempre?' },
-    { imagen: '/images/INICIO/estacionamiento2.webp', leyenda: '¿Te molesta llegar y que no haya lugar?' },
-    { imagen: '/images/INICIO/estacionamiento3.webp', leyenda: 'AUTOPASS elimina el estres del estacionamiento en la ciudad.' },
-    { imagen: '/images/INICIO/estacionamiento4.webp', leyenda: 'Reserva tu cochera online en segundos con AUTOPASS.' }
->>>>>>> c16f460e87ef5e7393530e93e97975acd7a65c03
 ];
 
 let IndiceCarruselActual = 0;
@@ -183,7 +166,7 @@ function RotarCarrusel(Direccion) {
         setTimeout(() => {
             LeyendaHero.innerText = DatosCarrusel[IndiceCarruselActual].leyenda;
             LeyendaHero.style.opacity = '1';
-        }, 500);
+        }, 800);
     }
 }
 
@@ -383,6 +366,7 @@ function switchTab(tab, el) {
     document.getElementById('view-title').innerText = el.innerText;
     if (tab === 'users') loadUsers();
     if (tab === 'finance') loadFinance();
+    if (tab === 'reservas') loadAdminReservations();
 }
 
 async function updateDashboard() {
@@ -400,15 +384,18 @@ async function updateDashboard() {
             tbody.innerHTML = '';
             logs.slice(0, 8).forEach(l => {
                 const time = l.fecha_hora.split('T')[1].substring(0, 8);
+                const pillClass = l.tipo_evento === 'ENTRADA' ? 'entry' : 'exit';
                 tbody.innerHTML += `
                     <tr>
                         <td>${time}</td>
                         <td><span class="plate-tag gold">${l.patente_detectada}</span></td>
-                        <td><span class="status-pill" style="background: ${l.tipo_evento === 'ENTRADA' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)'}; color: ${l.tipo_evento === 'ENTRADA' ? 'var(--secondary)' : 'var(--danger)'}">${l.tipo_evento}</span></td>
-                        <td><span style="color: var(--secondary)">● ACTIVO</span></td>
+                        <td><span class="status-pill ${pillClass}">${l.tipo_evento}</span></td>
+                        <td><span class="live-dot-active">ACTIVO</span></td>
                     </tr>`;
             });
         }
+        const updateEl = document.getElementById('live-update');
+        if (updateEl) updateEl.innerHTML = '<i class="fas fa-circle"></i> Actualizado: ' + new Date().toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
 
         const resOcc = await fetch(`${API_BASE}/parking/current-occupancy`);
         const occ = await resOcc.json();
@@ -424,13 +411,15 @@ async function updateDashboard() {
                 const diffSecs = Math.floor((diffMs % 60000) / 1000);
                 const permanencia = `${diffHrs}h ${diffMins}m ${diffSecs}s`;
 
+                const deudaClass = o.ya_pago ? 'occ-deuda-paid' : 'occ-deuda-unpaid';
+                const accion = o.ya_pago ? '<span class="occ-paid-label">PAGO OK</span>' : `<button class="btn btn-primary btn-pay" onclick="pay('${o.patente}')">COBRAR</button>`;
                 occBody.innerHTML += `
                     <tr>
                         <td><span class="plate-tag gold">${o.patente}</span></td>
                         <td>${o.ingreso.split('T')[1].substring(0, 5)}</td>
-                        <td style="color: #888; font-size: 0.8rem; font-weight: 600">${permanencia}</td>
-                        <td style="font-weight: 800; color: ${o.ya_pago ? 'var(--secondary)' : 'var(--danger)'}">$${o.deuda}</td>
-                        <td>${!o.ya_pago ? `<button class="btn btn-primary" style="padding: 5px 12px; font-size: 0.7rem" onclick="pay('${o.patente}')">COBRAR</button>` : 'PAGO OK'}</td>
+                        <td class="occ-permanencia">${permanencia}</td>
+                        <td class="${deudaClass}">$${o.deuda}</td>
+                        <td>${accion}</td>
                     </tr>`;
             });
         }
@@ -438,7 +427,10 @@ async function updateDashboard() {
         const resHealth = await fetch(`${API_BASE}/system/health`);
         const health = await resHealth.json();
         const healthDb = document.getElementById('health-db');
-        if (healthDb) healthDb.style.background = health.database === 'ONLINE' ? 'var(--secondary)' : 'var(--danger)';
+        if (healthDb) {
+            healthDb.className = 'health-dot';
+            healthDb.classList.add(health.database === 'ONLINE' ? 'ok' : 'err');
+        }
 
     } catch (e) { console.error("Dashboard update failed:", e); }
 }
@@ -459,6 +451,72 @@ async function loadUsers() {
                 <td>---</td>
             </tr>`;
     });
+}
+
+async function loadAdminReservations() {
+    const res = await fetch(`${API_BASE}/admin/reservations?sucursal=Ituzaing%C3%B3`, { headers: {'Authorization': `Bearer ${token}`} });
+    const reservations = await res.json();
+    const body = document.getElementById('admin-reservation-list');
+    if (!body || !Array.isArray(reservations)) return;
+    body.innerHTML = '';
+    const pendientes = reservations.filter(r => r.estado_reserva === 'Pendiente');
+    if (pendientes.length === 0) {
+        body.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #555; padding: 30px;">No hay reservas actuales en Ituzaingó.</td></tr>';
+        return;
+    }
+    pendientes.forEach(r => {
+        const start = r.fecha_inicio.replace('T', ' ').substring(0, 16);
+        const end = r.fecha_fin.replace('T', ' ').substring(0, 16);
+        const estadoClass = r.estado_reserva === 'Pendiente' ? 'entry' : (r.estado_reserva === 'Cancelada' ? 'exit' : 'paid');
+        body.innerHTML += `
+            <tr>
+                <td style="color: #888; font-size: 0.8rem;">#${r.id}</td>
+                <td>${r.user_name || r.user_email || '---'}</td>
+                <td><span class="plate-tag gold">${r.patente}</span></td>
+                <td>${start}</td>
+                <td>${end}</td>
+                <td style="font-weight: 800; color: var(--dorado)">$${r.monto_total.toFixed(2)}</td>
+                <td><span class="status-pill ${estadoClass}">${r.estado_reserva}</span></td>
+            </tr>`;
+    });
+}
+
+async function createAdminReservation() {
+    const name = document.getElementById('res-name').value.trim();
+    const plate = document.getElementById('res-plate').value.toUpperCase().trim();
+    const type = document.getElementById('res-type').value;
+    const start = document.getElementById('res-start').value;
+    const end = document.getElementById('res-end').value;
+
+    if (!name || !plate || !start || !end) {
+        showToast('Completá todos los campos');
+        return;
+    }
+
+    const res = await fetch(`${API_BASE}/admin/reservations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+            cliente_nombre: name,
+            patente: plate,
+            fecha_inicio: new Date(start).toISOString(),
+            fecha_fin: new Date(end).toISOString(),
+            tipo_estadia: type,
+            sucursal_nombre: 'AUTOPASS Ituzaingó'
+        })
+    });
+
+    if (res.ok) {
+        showToast('Reserva creada con éxito');
+        document.getElementById('res-name').value = '';
+        document.getElementById('res-plate').value = '';
+        document.getElementById('res-start').value = '';
+        document.getElementById('res-end').value = '';
+        loadAdminReservations();
+    } else {
+        const d = await res.json();
+        alert(d.detail || 'Error al crear reserva');
+    }
 }
 
 let revenueChartInstance = null;
@@ -679,7 +737,8 @@ async function loadProfile() {
     localStorage.setItem('nombre', user.nombre);
     localStorage.setItem('apellido', user.apellido);
     
-    document.getElementById('user-name').innerText = `Hola, ${user.nombre}`;
+    const nameBanner = document.getElementById('user-name-banner'); if (nameBanner) nameBanner.innerText = `${user.nombre} ${user.apellido}`;
+
     const pts = document.getElementById('points-val'); if (pts) pts.innerText = user.puntos_acumulados || 0;
     
     const balance = document.getElementById('balance-val'); if (balance) balance.innerText = `$${(user.saldo || 0).toFixed(2)}`;
@@ -688,6 +747,7 @@ async function loadProfile() {
     const dispNombre = document.getElementById('display-nombre'); if (dispNombre) dispNombre.innerText = user.nombre;
     const dispApellido = document.getElementById('display-apellido'); if (dispApellido) dispApellido.innerText = user.apellido;
     const dispEmail = document.getElementById('display-email'); if (dispEmail) dispEmail.innerText = user.email;
+    const dispEmailEdit = document.getElementById('display-email-edit'); if (dispEmailEdit) dispEmailEdit.innerText = user.email;
     
     // Normalizar Teléfono (XX XXXX XXXX)
     const dispTel = document.getElementById('display-telefono'); 
@@ -776,13 +836,15 @@ function enterEditMode(field) {
     const display = item.querySelector('.display-mode');
     const edit = item.querySelector('.edit-mode');
     const input = document.getElementById(`input-${field}`);
-    const displaySpan = document.getElementById(`display-${field}`);
+    const displaySpan = document.getElementById(`display-${field}`) || document.getElementById(`display-${field}-edit`);
 
     // Poblar input con el valor actual (limpio)
-    input.value = displaySpan.innerText.replace(/\./g, '').replace(/\s/g, '');
+    if (displaySpan) {
+        input.value = displaySpan.innerText.replace(/\./g, '').replace(/\s/g, '');
+    }
     
     display.style.display = 'none';
-    edit.style.display = 'flex';
+    edit.style.display = 'flex'; // Forzamos flex para mantener el diseño CSS
     input.focus();
 }
 
@@ -791,7 +853,7 @@ function exitEditMode(field) {
     const display = item.querySelector('.display-mode');
     const edit = item.querySelector('.edit-mode');
     
-    display.style.display = 'flex';
+    display.style.display = 'flex'; // Volvemos a flex
     edit.style.display = 'none';
 }
 
@@ -873,6 +935,7 @@ async function loadActiveStays() {
     const stays = await res.json();
     const list = document.getElementById('active-stays-list');
     if (!list) return;
+    const alertBox = document.getElementById('active-stay-alert');
     if (stays.length) {
         list.innerHTML = '';
         stays.forEach(s => {
@@ -884,12 +947,13 @@ async function loadActiveStays() {
                     <button class="btn btn-primary" style="padding: 10px 20px; font-size: 0.75rem" onclick="payWithMP('${s.patente}')"><i class="fab fa-cc-mastercard"></i> Pagar con Mercado Pago</button>
                 </div>`;
         });
+        if (alertBox) alertBox.style.display = 'block';
     } else {
         list.innerHTML = '<div style="text-align: center; padding: 20px; color: #555;"><i class="fas fa-parking" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i><p style="font-weight: 600; font-size: 0.85rem;">No se registran vehículos en el predio actualmente.</p></div>';
+        if (alertBox) alertBox.style.display = 'none';
     }
 }
 
-<<<<<<< HEAD
 async function payWithMP(plate) {
     alert(`Simulando integración con Mercado Pago para ${plate}. El sistema procesará el pago automáticamente.`);
     await fetch(`${API_BASE}/access/pay-stay?plate=${plate}`, { method: 'POST', headers: {'Authorization': `Bearer ${token}`} });
@@ -935,21 +999,26 @@ async function actualizarPreciosGlobales() {
     } catch (e) { console.error("Error al cargar tarifas:", e); }
 }
 
-function updateReservationCost() {
-    const startVal = document.getElementById('res-start').value;
-    const endVal = document.getElementById('res-end').value;
-    const type = document.getElementById('res-type').value;
-    const summary = document.getElementById('res-summary');
+function updateReservationCost(form) {
+    if (!form) form = document.querySelector('.reservation-form'); // Fallback al primero
     
-    if (startVal && endVal) {
-        const start = new Date(startVal.replace(' ', 'T'));
-        const end = new Date(endVal.replace(' ', 'T'));
+    const startInput = form.querySelector('.res-start');
+    const endInput = form.querySelector('.res-end');
+    const typeSelect = form.querySelector('#res-type') || form.querySelector('.res-type');
+    const summary = form.querySelector('#res-summary') || form.querySelector('.res-summary');
+    const durationEl = form.querySelector('#res-duration') || form.querySelector('.res-duration');
+    const totalCostEl = form.querySelector('#res-total-cost') || form.querySelector('.res-total-cost');
+    
+    if (startInput && endInput && startInput.value && endInput.value) {
+        const start = new Date(startInput.value.replace(' ', 'T'));
+        const end = new Date(endInput.value.replace(' ', 'T'));
         const diffMs = end - start;
         
         if (diffMs > 0) {
             const diffHrs = diffMs / 3600000;
             let total = 0;
             let durationTxt = "";
+            const type = typeSelect ? typeSelect.value : 'hora';
 
             if (type === 'hora') {
                 const units = Math.ceil(diffHrs);
@@ -973,8 +1042,8 @@ function updateReservationCost() {
                 durationTxt = `${units} ${units === 1 ? 'Mes' : 'Meses'}`;
             }
             
-            if (document.getElementById('res-duration')) document.getElementById('res-duration').innerText = durationTxt;
-            if (document.getElementById('res-total-cost')) document.getElementById('res-total-cost').innerText = `$${total.toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+            if (durationEl) durationEl.innerText = durationTxt;
+            if (totalCostEl) totalCostEl.innerText = `$${total.toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
             if (summary) summary.style.display = 'flex';
         } else {
             if (summary) summary.style.display = 'none';
@@ -985,57 +1054,71 @@ function updateReservationCost() {
 }
 
 // --- LÓGICA DE SELECTORES DE RESERVA DINÁMICOS ---
-let startPicker, endPicker;
-
 function initReservationPickers() {
-    const startInput = document.getElementById('res-start');
-    const endInput = document.getElementById('res-end');
-    const typeSelect = document.getElementById('res-type');
-    
-    if (!startInput || !endInput) return;
+    document.querySelectorAll('.reservation-form').forEach(form => {
+        const startInput = form.querySelector('.res-start');
+        const endInput = form.querySelector('.res-end');
+        const typeSelect = form.querySelector('#res-type') || form.querySelector('.res-type');
+        
+        if (!startInput || !endInput) return;
 
-    const configBase = {
-        enableTime: true,
-        time_24hr: true,
-        altInput: true,
-        altFormat: "d/m/Y H:i",
-        dateFormat: "Y-m-d H:i",
-        minDate: "today",
-        theme: "dark",
-        locale: { firstDayOfWeek: 1 }
-    };
+        const configBase = {
+            enableTime: true,
+            time_24hr: true,
+            altInput: true,
+            altFormat: "d/m/Y H:i",
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            theme: "dark",
+            locale: { firstDayOfWeek: 1 }
+        };
 
-    startPicker = flatpickr(startInput, {
-        ...configBase,
-        onChange: function(selectedDates, dateStr) {
-            if (selectedDates.length > 0) {
-                reconfigureEndPicker(selectedDates[0]);
+        const startPicker = flatpickr(startInput, {
+            ...configBase,
+            onChange: function(selectedDates) {
+                if (selectedDates.length > 0) {
+                    reconfigureEndPicker(selectedDates[0], form);
+                }
+                updateReservationCost(form);
             }
+        });
+
+        const endPicker = flatpickr(endInput, {
+            ...configBase,
+            onChange: function() {
+                updateReservationCost(form);
+            }
+        });
+
+        // Guardar referencia en el form para fácil acceso
+        form.startPicker = startPicker;
+        form.endPicker = endPicker;
+
+        if (typeSelect) {
+            typeSelect.addEventListener('change', () => {
+                if (startPicker.selectedDates.length > 0) {
+                    reconfigureEndPicker(startPicker.selectedDates[0], form);
+                }
+                updateReservationCost(form);
+            });
+        }
+
+        // Estado inicial si ya hay fechas (ej: al volver a reservar)
+        if (startInput.value) {
+            const d = new Date(startInput.value.replace(' ', 'T'));
+            if (!isNaN(d)) reconfigureEndPicker(d, form);
         }
     });
-
-    endPicker = flatpickr(endInput, configBase);
-
-    // Reconfigurar al cambiar el tipo
-    typeSelect.addEventListener('change', () => {
-        if (startPicker.selectedDates.length > 0) {
-            reconfigureEndPicker(startPicker.selectedDates[0]);
-        }
-    });
-
-    // Estado inicial si ya hay fechas (ej: al volver a reservar)
-    if (startInput.value) {
-        const d = new Date(startInput.value.replace(' ', 'T'));
-        if (!isNaN(d)) reconfigureEndPicker(d);
-    }
 }
 
-function reconfigureEndPicker(startDate) {
-    const type = document.getElementById('res-type').value;
-    const endInput = document.getElementById('res-end');
+function reconfigureEndPicker(startDate, form) {
+    const typeSelect = form.querySelector('#res-type') || form.querySelector('.res-type');
+    const endInput = form.querySelector('.res-end');
+    const endPicker = form.endPicker;
     
-    if (!endPicker) return;
+    if (!endPicker || !typeSelect) return;
 
+    const type = typeSelect.value;
     let endDate = new Date(startDate);
 
     if (type === 'hora') {
@@ -1044,8 +1127,11 @@ function reconfigureEndPicker(startDate) {
         endPicker.set("minDate", startDate);
         endPicker.set("maxDate", maxDate);
         endInput.readOnly = false;
-        endInput.style.opacity = "1";
-        endInput.style.cursor = "pointer";
+        if (endInput.nextSibling && endInput.nextSibling.tagName === 'INPUT') {
+             endInput.nextSibling.readOnly = false;
+             endInput.nextSibling.style.opacity = "1";
+             endInput.nextSibling.style.cursor = "pointer";
+        }
     } else {
         // Duraciones fijas: bloquear elección y calcular automáticamente
         if (type === 'dia') endDate.setDate(startDate.getDate() + 1);
@@ -1059,16 +1145,15 @@ function reconfigureEndPicker(startDate) {
         
         // Visualmente indicar que es automático
         endInput.readOnly = true;
-        endInput.style.opacity = "0.7";
-        endInput.style.cursor = "not-allowed";
+        if (endInput.nextSibling && endInput.nextSibling.tagName === 'INPUT') {
+            endInput.nextSibling.readOnly = true;
+            endInput.nextSibling.style.opacity = "0.7";
+            endInput.nextSibling.style.cursor = "not-allowed";
+        }
         
-        updateReservationCost();
+        updateReservationCost(form);
     }
 }
-
-=======
-// --- ACTUALIZAR CARGA DE VEHÍCULOS EN SELECTS ---
->>>>>>> c16f460e87ef5e7393530e93e97975acd7a65c03
 async function loadReservations() {
     const resV = await fetch(`${API_BASE}/user/vehicles`, { headers: { 'Authorization': `Bearer ${token}` } });
     const vehicles = await resV.json();
@@ -1110,22 +1195,20 @@ async function loadReservations() {
                 const isCancelled = r.estado_reserva === 'Cancelada';
                 const cardColor = isCancelled ? '#666' : (r.estado_pago === 'Pagado' ? 'var(--secondary)' : '#f59e0b');
                 historyList.innerHTML += `
-                    <div class="card" style="border-left: 4px solid ${cardColor}; opacity: ${isCancelled ? '0.6' : '1'}; margin-bottom: 0;">
+                    <div class="card" style="border-left: 4px solid ${cardColor}; opacity: ${isCancelled ? '0.6' : '1'}; margin-bottom: 0; padding: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
-                                <div style="font-weight: 800; font-size: 1.1rem; color: var(--dorado); letter-spacing: 1px">${r.patente} ${isCancelled ? '[CANCELADA]' : ''}</div>
-                                <div style="font-size: 0.7rem; color: #888; font-weight: 800; text-transform: uppercase;">PLAN: ${r.tipo_estadia || 'hora'}</div>
-                                <div style="font-size: 0.85rem; color: #555; margin-top: 8px; font-weight: 600">DESDE: ${formatDate(r.fecha_inicio)}</div>
-                                <div style="font-size: 0.85rem; color: #555; font-weight: 600">HASTA: ${formatDate(r.fecha_fin)}</div>
-                                <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 10px; font-size: 1.1rem; color: ${cardColor}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
+                                <div style="font-weight: 800; font-size: 0.95rem; color: var(--dorado); letter-spacing: 1px">${r.patente} ${isCancelled ? '[CANCELADA]' : ''}</div>
+                                <div style="font-size: 0.6rem; color: #888; font-weight: 800; text-transform: uppercase; margin-top: 2px;">PLAN: ${r.tipo_estadia || 'hora'}</div>
+                                <div style="font-size: 0.75rem; color: #666; margin-top: 8px; font-weight: 600">INICIO: ${formatDate(r.fecha_inicio)}</div>
+                                <div style="font-size: 0.75rem; color: #666; font-weight: 600">FIN: ${formatDate(r.fecha_fin)}</div>
+                                <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 8px; font-size: 1rem; color: ${cardColor}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 8px;">
-                                <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="showReservationInfo('${r.sucursal_nombre}', '${r.sucursal_info}')"><i class="fas fa-info-circle"></i> Info</button>
-                            </div>
+                            <button class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 0.65rem;" onclick="showReservationInfo('${r.sucursal_nombre}', '${r.sucursal_info}')"><i class="fas fa-info-circle"></i> INFO</button>
                         </div>
-                        <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #222; padding-top: 15px;">
-                            <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;" onclick="repeatReservation(${r.id})"><i class="fas fa-rotate"></i> Volver a reservar</button>
-                            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; color: var(--danger); border-color: var(--danger);" onclick="complainReservation(${r.id})"><i class="fas fa-circle-exclamation"></i> Reclamo</button>
+                        <div style="display: flex; gap: 8px; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px;">
+                            <button class="btn btn-outline btn-sm" style="flex: 1; font-size: 0.65rem;" onclick="repeatReservation(${r.id})"><i class="fas fa-rotate"></i> REPETIR</button>
+                            <button class="btn btn-outline btn-sm" style="flex: 1; font-size: 0.65rem; color: var(--danger); border-color: var(--danger);" onclick="complainReservation(${r.id})"><i class="fas fa-circle-exclamation"></i> RECLAMO</button>
                         </div>
                     </div>`;
             });
@@ -1136,24 +1219,24 @@ async function loadReservations() {
             const isPaid = r.estado_pago === 'Pagado';
             
             activeList.innerHTML += `
-                <div class="card" style="border-left: 4px solid ${cardColor}; margin-bottom: 0;">
+                <div class="card" style="border-left: 4px solid ${cardColor}; margin-bottom: 0; padding: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
-                            <div style="font-weight: 800; font-size: 1.1rem; color: var(--dorado); letter-spacing: 1px">${r.patente}</div>
-                            <div style="font-size: 0.7rem; color: #888; font-weight: 800; text-transform: uppercase;">PLAN: ${r.tipo_estadia || 'hora'}</div>
-                            <div style="font-size: 0.85rem; color: #555; margin-top: 8px; font-weight: 600">DESDE: ${formatDate(r.fecha_inicio)}</div>
-                            <div style="font-size: 0.85rem; color: #555; font-weight: 600">HASTA: ${formatDate(r.fecha_fin)}</div>
-                            <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 10px; font-size: 1.1rem; color: ${cardColor}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: var(--dorado); letter-spacing: 1px">${r.patente}</div>
+                            <div style="font-size: 0.6rem; color: #888; font-weight: 800; text-transform: uppercase; margin-top: 2px;">PLAN: ${r.tipo_estadia || 'hora'}</div>
+                            <div style="font-size: 0.75rem; color: #666; margin-top: 8px; font-weight: 600">INICIO: ${formatDate(r.fecha_inicio)}</div>
+                            <div style="font-size: 0.75rem; color: #666; font-weight: 600">FIN: ${formatDate(r.fecha_fin)}</div>
+                            <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 8px; font-size: 1rem; color: ${cardColor}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
                         </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="showReservationInfo('${r.sucursal_nombre}', '${r.sucursal_info}')"><i class="fas fa-info-circle"></i> Info</button>
-                            <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="showDigitalPass(${r.id}, '${r.patente}', '${r.fecha_inicio}', '${r.fecha_fin}')"><i class="fas fa-share-nodes"></i> Pase</button>
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <button class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 0.65rem;" onclick="showReservationInfo('${r.sucursal_nombre}', '${r.sucursal_info}')"><i class="fas fa-info-circle"></i> INFO</button>
+                            <button class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 0.65rem;" onclick="showDigitalPass(${r.id}, '${r.patente}', '${r.fecha_inicio}', '${r.fecha_fin}')"><i class="fas fa-share-nodes"></i> PASE</button>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #222; padding-top: 15px;">
-                        ${!isPaid ? `<button class="btn btn-primary" style="flex: 1.5; font-size: 0.75rem;" onclick="payReservation(${r.id}, '${r.patente}')"><i class="fab fa-cc-mastercard"></i> Pagar</button>` : ''}
-                        <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;" onclick="modifyReservation(${r.id}, '${r.fecha_inicio}')"><i class="fas fa-pen-to-square"></i> Modificar</button>
-                        <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem; color: var(--danger); border-color: var(--danger);" onclick="cancelReservation(${r.id})"><i class="fas fa-xmark"></i> Cancelar</button>
+                    <div style="display: flex; gap: 8px; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px;">
+                        ${!isPaid ? `<button class="btn btn-primary btn-sm" style="flex: 1.2; font-size: 0.65rem;" onclick="payReservation(${r.id}, '${r.patente}')"><i class="fab fa-cc-mastercard"></i> PAGAR</button>` : ''}
+                        <button class="btn btn-outline btn-sm" style="flex: 1; font-size: 0.65rem;" onclick="modifyReservation(${r.id}, '${r.fecha_inicio}')"><i class="fas fa-pen-to-square"></i> MODIF.</button>
+                        <button class="btn btn-outline btn-sm" style="flex: 1; font-size: 0.65rem; color: var(--danger); border-color: var(--danger);" onclick="cancelReservation(${r.id})"><i class="fas fa-xmark"></i> CANCELAR</button>
                     </div>
                 </div>`;
         });
@@ -1220,7 +1303,7 @@ async function sharePassContent() {
     const originalContent = btn.innerHTML;
 
     try {
-        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> GENERANDO IMAGEN...';
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
         btn.disabled = true;
 
         // Capturar el ticket como Canvas
@@ -1359,33 +1442,16 @@ function toggleAddVehicleForm() {
 function togglePasswordForm() {
     const container = document.getElementById('password-form-container');
     if (!container) return;
-    if (container.style.maxHeight === '0px' || container.style.maxHeight === '') {
-        container.style.maxHeight = '1000px';
-        container.style.opacity = '1';
-        container.style.marginTop = '20px';
-    } else {
-        container.style.maxHeight = '0px';
-        container.style.opacity = '0';
-        container.style.marginTop = '0px';
-    }
+    container.classList.toggle('open');
 }
 
 function toggleHistory() {
     const container = document.getElementById('history-container');
-    const btn = document.getElementById('toggle-history-btn');
-    if (!container || !btn) return;
+    const chevron = document.getElementById('history-chevron');
+    if (!container || !chevron) return;
 
-    if (container.style.maxHeight === '0px' || container.style.maxHeight === '') {
-        container.style.maxHeight = '2000px';
-        container.style.opacity = '1';
-        container.style.marginTop = '20px';
-        btn.innerHTML = '<i class="fas fa-chevron-up"></i> Ocultar';
-    } else {
-        container.style.maxHeight = '0px';
-        container.style.opacity = '0';
-        container.style.marginTop = '0px';
-        btn.innerHTML = '<i class="fas fa-chevron-down"></i> Ver';
-    }
+    const isOpen = container.classList.toggle('open');
+    chevron.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
 async function changePassword(e) {

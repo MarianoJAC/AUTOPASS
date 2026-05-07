@@ -1,0 +1,102 @@
+    <!-- MODAL: LOGIN -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('loginModal')"><i class="fas fa-xmark"></i></span>
+            <h2>INICIÁ SESIÓN</h2>
+            <div id="login-error" class="error-msg"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="login-email" placeholder="ejemplo@correo.com.ar" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="login-password" placeholder="********" required>
+                    </div>
+                </div>
+                <div class="text-right mb-25">
+                    <a href="javascript:void(0)" class="forgot-link" onclick="alert('Funcionalidad en desarrollo. Por favor, contactate con soporte.')">¿Olvidaste tu contraseña?</a>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Ingresar</button>
+            </form>
+            <div class="modal-text">
+                ¿Todavía no tenés cuenta? <a href="javascript:void(0)" onclick="switchModal('loginModal', 'registerModal')" class="modal-link">Registrate acá</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRO -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content modal-content-wide">
+            <span class="close-btn" onclick="closeModal('registerModal')"><i class="fas fa-xmark"></i></span>
+            <h2>CREÁ TU CUENTA</h2>
+            <div class="text-center mb-25" style="font-size: 0.85rem; color: #666;">
+                ¿Ya tenés una cuenta? <a href="javascript:void(0)" onclick="switchModal('registerModal', 'loginModal')" class="modal-link">Iniciá sesión acá</a>
+            </div>
+            <div id="register-error" class="error-msg"></div>
+            
+            <form id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre/s</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="reg-nombre" placeholder="Tu nombre/s" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Apellido</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user-tag"></i>
+                            <input type="text" id="reg-apellido" placeholder="Tu apellido" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>DNI</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-id-card"></i>
+                            <input type="text" id="reg-dni" placeholder="12345678" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="reg-tel" placeholder="11 2233 4455" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="reg-email" placeholder="ejemplo@correo.com.ar" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="reg-password" placeholder="Clave" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar Contraseña</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-shield-halved"></i>
+                            <input type="password" id="reg-password-confirm" placeholder="Repetir clave" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Finalizar Registro</button>
+            </form>
+        </div>
+    </div>

@@ -46,6 +46,7 @@ class Reservation(Base):
     tipo_estadia = Column(String, default="hora") # 'hora', 'dia', 'semana', 'quincena', 'mes'
     sucursal_nombre = Column(String, nullable=True)
     sucursal_info = Column(String, nullable=True)
+    cliente_nombre = Column(String, nullable=True)
 
     user = relationship("User", back_populates="reservations")
     access_logs = relationship("AccessLog", back_populates="reservation")
