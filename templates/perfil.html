@@ -20,10 +20,10 @@
             <span>AUTOPASS</span>
         </div>
         <nav class="nav-group">
-            <div class="nav-item active" onclick="showSection('inicio', this)"><i class="fas fa-house-user"></i> <span class="nav-text">Inicio de Usuario</span></div>
+            <div class="nav-item active" onclick="showSection('inicio', this)"><i class="fas fa-house-user"></i> <span class="nav-text">Inicio</span></div>
             <div class="nav-item" onclick="showSection('vehiculos', this)"><i class="fas fa-car-side"></i> <span class="nav-text">Mis Vehículos</span></div>
             <div class="nav-item" onclick="showSection('reservas', this)"><i class="fas fa-calendar-check"></i> <span class="nav-text">Mis Reservas</span></div>
-            <div class="nav-item" onclick="showSection('pagos', this)"><i class="fas fa-receipt"></i> <span class="nav-text">Historial de Pagos</span></div>
+            <div class="nav-item" onclick="showSection('perfil', this)"><i class="fas fa-user-gear"></i> <span class="nav-text">Mi Cuenta</span></div>
         </nav>
         <div class="sidebar-footer" onclick="logout()">
             <i class="fas fa-right-from-bracket"></i> <span>Cerrar Sesión</span>
@@ -37,6 +37,11 @@
                 <h1 id="user-name" style="margin: 5px 0 0; font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem;">Hola, Cargando...</h1>
             </div>
             <div class="header-right" style="display: flex; align-items: center; gap: 20px;">
+                <div class="balance-badge" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.2); padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-wallet" style="color: #2ecc71"></i>
+                    <span id="balance-val" style="font-family: var(--font-mono); font-weight: 800; color: #2ecc71;">$0.00</span>
+                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #888;">Mi Saldo</span>
+                </div>
                 <div class="points-badge" style="background: rgba(197, 160, 89, 0.1); border: 1px solid var(--border); padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 10px;">
                     <i class="fas fa-star" style="color: var(--dorado)"></i>
                     <span id="points-val" style="font-family: var(--font-mono); font-weight: 800; color: var(--dorado);">0</span>
@@ -49,56 +54,34 @@
             <div class="content-wrapper">
                 <!-- SECCIÓN: INICIO -->
                 <div id="section-inicio" class="profile-section active">
-                    <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
-                        <div class="welcome-msg">
-                            <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-crown" style="color: var(--dorado);"></i> Panel de Control</h1>
+                    <div class="card" style="background: linear-gradient(135deg, #C5A059 0%, #a68545 100%); cursor: pointer; margin-bottom: 30px;" onclick="showSection('reservas', document.querySelectorAll('.nav-item')[2])">
+                        <div style="padding: 20px; color: var(--negro); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h1 style="font-family: 'Montserrat'; font-weight: 900; margin: 0; font-size: 2rem;">RESERVAR AHORA</h1>
+                                <p style="margin: 5px 0 0; font-weight: 700; opacity: 0.8;">Asegurá tu lugar en un clic</p>
+                            </div>
+                            <i class="fas fa-calendar-plus" style="font-size: 4rem; opacity: 0.2;"></i>
                         </div>
                     </div>
 
-                <div class="grid-stats" style="margin-bottom: 40px;">
-                    <div class="stat-card">
-                        <div class="label">Puntos Acumulados</div>
-                        <div class="value" id="stat-points">0</div>
-                        <i class="fas fa-star" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Vehículos Vinculados</div>
-                        <div class="value" id="stat-vehicles">0</div>
-                        <i class="fas fa-car" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Reservas Activas</div>
-                        <div class="value" id="stat-reservations">0</div>
-                        <i class="fas fa-calendar-check" style="position: absolute; right: 20px; top: 20px; color: rgba(197, 160, 89, 0.1); font-size: 2rem;"></i>
-                    </div>
-                </div>
-
-                <div class="grid-profile" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-id-card"></i> Información del Perfil</div>
-                        <div class="profile-info" style="display: flex; flex-direction: column; gap: 20px;">
-                            <div class="info-item" style="display: flex; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">DNI Titular</label>
-                                <span id="val-dni" style="font-weight: 600;">---</span>
-                            </div>
-                            <div class="info-item" style="display: flex; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Correo Electrónico</label>
-                                <span id="val-email" style="font-weight: 600;">---</span>
-                            </div>
-                            <div class="info-item" style="display: flex; justify-content: space-between;">
-                                <label style="color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Teléfono</label>
-                                <span id="val-tel" style="font-weight: 600;">---</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Actividad en Tiempo Real</div>
+                    <div class="card" style="margin-bottom: 30px;">
+                        <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Mi estacionamiento actual</div>
                         <div id="active-stays-list">
                             <div style="text-align: center; padding: 20px; color: #555;">
                                 <i class="fas fa-parking" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
                                 <p style="font-weight: 600; font-size: 0.85rem;">No se registran vehículos en el predio actualmente.</p>
                             </div>
                         </div>
+                    </div>
+
+                <div class="grid-stats" style="margin-bottom: 40px;">
+                    <div class="stat-card">
+                        <div class="label">Vehículos Vinculados</div>
+                        <div class="value" id="stat-vehicles">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Reservas Activas</div>
+                        <div class="value" id="stat-reservations">0</div>
                     </div>
                 </div>
             </div>
@@ -109,28 +92,38 @@
                     <div class="welcome-msg">
                         <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-car-rear" style="color: var(--dorado);"></i> Gestion de vehiculos</h1>
                     </div>
+                    </div>
+
+                <!-- GESTIÓN DE VEHÍCULOS: LÍNEA ÚNICA PERSISTENTE -->
+                <div style="margin-bottom: 30px; background: var(--gris-card); padding: 15px 25px; border-radius: 15px; border: 1px solid var(--border-light); display: flex; align-items: center; gap: 20px; min-height: 80px; width: fit-content;">
+                    <!-- Botón Inicial (Siempre Visible) -->
+                    <button class="btn btn-primary" onclick="toggleAddVehicleForm()" style="padding: 10px 20px; font-size: 0.8rem; flex-shrink: 0;"><i class="fas fa-plus"></i> Nuevo Vehículo</button>
+
+                    <!-- Formulario Desplegable Animado -->
+                    <form id="add-vehicle-container" class="form-inline-container" onsubmit="addVehicle(event)">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label style="color: var(--dorado); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; white-space: nowrap;">Patente:</label>
+                            <input type="text" id="new-plate" placeholder="AA123BB" required style="padding: 8px 12px; font-size: 0.8rem; width: 100px; text-transform: uppercase; font-family: var(--font-mono);">
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label style="color: var(--dorado); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; white-space: nowrap;">Marca y Modelo:</label>
+                            <input type="text" id="new-model" placeholder="VW Gol" required style="padding: 8px 12px; font-size: 0.8rem; width: 180px;">
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button type="submit" class="btn btn-primary" style="padding: 8px 15px; font-size: 0.7rem;"><i class="fas fa-check"></i></button>
+                            <button type="button" class="btn btn-outline" onclick="toggleAddVehicleForm()" style="padding: 8px 12px; font-size: 0.7rem; border-color: rgba(255,255,255,0.1);"><i class="fas fa-xmark"></i></button>
+                        </div>
+                    </form>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
-                    <div class="card" style="height: fit-content;">
-                        <div class="card-title"><i class="fas fa-plus-circle"></i> Nuevo Vínculo</div>
-                        <form id="add-vehicle-form" onsubmit="addVehicle(event)" style="display: flex; flex-direction: column; gap: 20px;">
-                            <div class="form-group">
-                                <label>Patente (Dominio)</label>
-                                <input type="text" id="new-plate" placeholder="Ej: AA123BB" required style="text-transform: uppercase; font-family: var(--font-mono);">
-                            </div>
-                            <div class="form-group">
-                                <label>Marca / Modelo</label>
-                                <input type="text" id="new-model" placeholder="Ej: VW Gol Trend" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check"></i> Registrar Patente</button>
-                        </form>
+                <div class="card" style="width: fit-content; min-width: 400px; max-width: 100%;">
+                    <div class="card-title">
+                        <span><i class="fas fa-list"></i> Mis Vehículos Registrados</span>
                     </div>
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-list"></i> Vehículos Registrados</div>
-                        <div id="vehicle-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
-                            <p style="color: #444; font-weight: 600;">Cargando flota...</p>
-                        </div>
+                    <div id="vehicle-list" style="display: flex; flex-wrap: wrap; gap: 25px;">
+                        <p style="color: #444; font-weight: 600;">Cargando flota...</p>
                     </div>
                 </div>
             </div>
@@ -139,58 +132,349 @@
             <div id="section-reservas" class="profile-section">
                 <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
                     <div class="welcome-msg">
-                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-calendar-days" style="color: var(--dorado);"></i> Reservas</h1>
+                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-calendar-days" style="color: var(--dorado);"></i> Mis Reservas</h1>
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px;">
-                    <div class="card" style="height: fit-content;">
-                        <div class="card-title"><i class="fas fa-file-circle-plus"></i> Generar Solicitud</div>
+                    <div class="card" style="height: fit-content; border-top: 2px solid var(--dorado);">
+                        <div class="card-title"><i class="fas fa-file-circle-plus"></i> Nueva Reserva</div>
                         <form id="reservation-form" onsubmit="createReservation(event)" style="display: flex; flex-direction: column; gap: 20px;">
                             <div class="form-group">
-                                <label>Vehículo a Utilizar</label>
-                                <select id="res-vehicle" required>
-                                    <option value="">Cargando flota...</option>
-                                </select>
+                                <label>Sede / Estacionamiento</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-location-dot"></i>
+                                    <select id="res-sede" required style="padding-left: 45px;">
+                                        <option value="AUTOPASS Central">AUTOPASS Central (CABA)</option>
+                                        <option value="AUTOPASS Ituzaingó">AUTOPASS Ituzaingó</option>
+                                        <option value="AUTOPASS Castelar">AUTOPASS Castelar</option>
+                                        <option value="AUTOPASS Morón">AUTOPASS Morón</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label>Vehículo</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-car"></i>
+                                    <select id="res-vehicle" required style="padding-left: 45px;">
+                                        <option value="">Cargando flota...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
                                 <div class="form-group">
                                     <label><i class="fas fa-calendar-day"></i> Fecha y Hora Inicio</label>
-                                    <input type="text" id="res-start" placeholder="Seleccione fecha y hora..." required>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-clock"></i>
+                                        <input type="text" id="res-start" placeholder="Inicio..." required style="padding-left: 45px;">
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label><i class="fas fa-calendar-check"></i> Fecha y Hora Fin</label>
-                                    <input type="text" id="res-end" placeholder="Seleccione fecha y hora..." required>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-flag-checkered"></i>
+                                        <input type="text" id="res-end" placeholder="Fin..." required style="padding-left: 45px;">
+                                    </div>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check-double"></i> Confirmar Reserva</button>
+
+                            <!-- PANEL DE RESUMEN DINÁMICO -->
+                            <div id="res-summary" style="background: rgba(197, 160, 89, 0.05); padding: 15px; border-radius: 12px; border: 1px dashed var(--dorado); display: none; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="font-size: 0.8rem; color: #888; font-weight: 700;">DURACIÓN ESTIMADA:</span>
+                                    <span id="res-duration" style="font-weight: 800; color: #fff; font-size: 0.8rem;">0h 0m</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(197, 160, 89, 0.2); padding-top: 8px;">
+                                    <span style="font-size: 0.8rem; color: #888; font-weight: 700;">TOTAL A PAGAR:</span>
+                                    <span id="res-total-cost" style="font-size: 1.3rem; font-weight: 900; color: var(--dorado); font-family: var(--font-mono);">$0.00</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-weight: 800; letter-spacing: 1px;"><i class="fas fa-check-double"></i> Confirmar Reserva</button>
                         </form>
                     </div>
 
-                    <div class="card">
-                        <div class="card-title"><i class="fas fa-list-ul"></i> Historial de Reservas</div>
-                        <div id="reservation-list" style="display: flex; flex-direction: column; gap: 15px;">
-                            <p style="color: #444; font-weight: 600;">No posee reservas activas en este momento.</p>
+                    <div style="display: flex; flex-direction: column; gap: 30px;">
+                        <div class="card" style="border-top: 2px solid var(--secondary);">
+                            <div class="card-title"><i class="fas fa-calendar-check"></i> Próximas Reservas</div>
+                            <div id="reservation-list-active" style="display: flex; flex-direction: column; gap: 15px;">
+                                <p style="color: #444; font-weight: 600;">Cargando reservas...</p>
+                            </div>
+                        </div>
+
+                        <div class="card" style="opacity: 0.8;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0;">
+                                <div class="card-title" style="margin-bottom: 0;"><i class="fas fa-clock-rotate-left"></i> Historial</div>
+                                <button class="btn btn-outline" id="toggle-history-btn" onclick="toggleHistory()" style="padding: 8px 20px; font-size: 0.75rem; border-color: var(--dorado); color: var(--dorado); font-weight: 800;"><i class="fas fa-chevron-down"></i> Ver</button>
+                            </div>
+                            
+                            <div id="history-container" style="max-height: 0; opacity: 0; overflow: hidden; transition: all 0.5s ease; margin-top: 0;">
+                                <div style="display: flex; gap: 10px; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+                                    <div class="input-with-icon" style="flex: 1;">
+                                        <i class="fas fa-filter" style="font-size: 0.7rem;"></i>
+                                        <input type="text" id="history-filter-date" placeholder="Filtrar por periodo..." style="padding: 8px 12px 8px 35px; font-size: 0.75rem; background: rgba(255,255,255,0.05);">
+                                    </div>
+                                    <button class="btn btn-outline" onclick="clearHistoryFilter()" style="padding: 8px 12px; font-size: 0.7rem;" title="Limpiar filtro"><i class="fas fa-eraser"></i></button>
+                                </div>
+                                <div id="reservation-list-history" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                                    <p style="color: #444; font-weight: 600;">Cargando historial...</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SECCIÓN: PAGOS -->
-            <div id="section-pagos" class="profile-section">
+            <!-- SECCIÓN: MI CUENTA -->
+            <div id="section-perfil" class="profile-section">
                 <div class="card welcome-card" style="background: linear-gradient(135deg, #161616 0%, #0a0a0a 100%); border-left: 4px solid var(--dorado);">
                     <div class="welcome-msg">
-                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-receipt" style="color: var(--dorado);"></i> Pagos</h1>
+                        <h1 style="font-family: 'Montserrat'; letter-spacing: 2px;"><i class="fas fa-user-gear" style="color: var(--dorado);"></i> Mi Cuenta</h1>
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-money-bill-transfer"></i> Transacciones Realizadas</div>
-                    <div id="payment-list" style="display: flex; flex-direction: column; gap: 10px;">
-                        <p style="color: #444; font-weight: 600;">Cargando historial...</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px;">
+                    <!-- TARJETA: MIS DATOS -->
+                    <div class="card" style="margin: 0;">
+                        <div class="card-title"><i class="fas fa-id-card"></i> Mis Datos</div>
+                        <div id="user-data-list" style="display: flex; flex-direction: column; gap: 15px;">
+                            
+                            <!-- Item: Nombre -->
+                            <div class="profile-data-item" id="item-nombre" style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); position: relative;">
+                                <div class="display-mode" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <label style="display: block; font-size: 0.6rem; color: #666; text-transform: uppercase; font-weight: 800; margin-bottom: 5px;">Nombre/s</label>
+                                        <span id="display-nombre" style="font-weight: 600; color: #fff;">---</span>
+                                    </div>
+                                    <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.7rem; border-color: var(--border);" onclick="enterEditMode('nombre')"><i class="fas fa-pen"></i></button>
+                                </div>
+                                <div class="edit-mode" style="display: none; flex-direction: column; gap: 10px;">
+                                    <label style="display: block; font-size: 0.6rem; color: var(--dorado); text-transform: uppercase; font-weight: 800;">Editar Nombre/s</label>
+                                    <input type="text" id="input-nombre" style="padding: 8px 12px; font-size: 0.9rem; background: #111; border: 1px solid var(--dorado);">
+                                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                        <button class="btn btn-outline" style="padding: 5px 12px; font-size: 0.7rem;" onclick="exitEditMode('nombre')">Cancelar</button>
+                                        <button class="btn btn-primary" style="padding: 5px 15px; font-size: 0.7rem;" onclick="saveField('nombre')">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Item: Apellido -->
+                            <div class="profile-data-item" id="item-apellido" style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); position: relative;">
+                                <div class="display-mode" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <label style="display: block; font-size: 0.6rem; color: #666; text-transform: uppercase; font-weight: 800; margin-bottom: 5px;">Apellido</label>
+                                        <span id="display-apellido" style="font-weight: 600; color: #fff;">---</span>
+                                    </div>
+                                    <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.7rem; border-color: var(--border);" onclick="enterEditMode('apellido')"><i class="fas fa-pen"></i></button>
+                                </div>
+                                <div class="edit-mode" style="display: none; flex-direction: column; gap: 10px;">
+                                    <label style="display: block; font-size: 0.6rem; color: var(--dorado); text-transform: uppercase; font-weight: 800;">Editar Apellido</label>
+                                    <input type="text" id="input-apellido" style="padding: 8px 12px; font-size: 0.9rem; background: #111; border: 1px solid var(--dorado);">
+                                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                        <button class="btn btn-outline" style="padding: 5px 12px; font-size: 0.7rem;" onclick="exitEditMode('apellido')">Cancelar</button>
+                                        <button class="btn btn-primary" style="padding: 5px 15px; font-size: 0.7rem;" onclick="saveField('apellido')">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Item: Email -->
+                            <div class="profile-data-item" id="item-email" style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); position: relative;">
+                                <div class="display-mode" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <label style="display: block; font-size: 0.6rem; color: #666; text-transform: uppercase; font-weight: 800; margin-bottom: 5px;">Correo Electrónico</label>
+                                        <span id="display-email" style="font-weight: 600; color: #fff;">---</span>
+                                    </div>
+                                    <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.7rem; border-color: var(--border);" onclick="enterEditMode('email')"><i class="fas fa-pen"></i></button>
+                                </div>
+                                <div class="edit-mode" style="display: none; flex-direction: column; gap: 10px;">
+                                    <label style="display: block; font-size: 0.6rem; color: var(--dorado); text-transform: uppercase; font-weight: 800;">Editar Correo</label>
+                                    <input type="email" id="input-email" style="padding: 8px 12px; font-size: 0.9rem; background: #111; border: 1px solid var(--dorado);">
+                                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                        <button class="btn btn-outline" style="padding: 5px 12px; font-size: 0.7rem;" onclick="exitEditMode('email')">Cancelar</button>
+                                        <button class="btn btn-primary" style="padding: 5px 15px; font-size: 0.7rem;" onclick="saveField('email')">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Item: Teléfono -->
+                            <div class="profile-data-item" id="item-telefono" style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); position: relative;">
+                                <div class="display-mode" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <label style="display: block; font-size: 0.6rem; color: #666; text-transform: uppercase; font-weight: 800; margin-bottom: 5px;">Teléfono</label>
+                                        <span id="display-telefono" style="font-weight: 600; color: #fff;">---</span>
+                                    </div>
+                                    <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.7rem; border-color: var(--border);" onclick="enterEditMode('telefono')"><i class="fas fa-pen"></i></button>
+                                </div>
+                                <div class="edit-mode" style="display: none; flex-direction: column; gap: 10px;">
+                                    <label style="display: block; font-size: 0.6rem; color: var(--dorado); text-transform: uppercase; font-weight: 800;">Editar Teléfono</label>
+                                    <input type="tel" id="input-telefono" style="padding: 8px 12px; font-size: 0.9rem; background: #111; border: 1px solid var(--dorado);">
+                                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                        <button class="btn btn-outline" style="padding: 5px 12px; font-size: 0.7rem;" onclick="exitEditMode('telefono')">Cancelar</button>
+                                        <button class="btn btn-primary" style="padding: 5px 15px; font-size: 0.7rem;" onclick="saveField('telefono')">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Item: DNI -->
+                            <div class="profile-data-item" id="item-dni" style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); position: relative;">
+                                <div class="display-mode" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <label style="display: block; font-size: 0.6rem; color: #666; text-transform: uppercase; font-weight: 800; margin-bottom: 5px;">DNI</label>
+                                        <span id="display-dni" style="font-weight: 600; color: #fff;">---</span>
+                                    </div>
+                                    <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.7rem; border-color: var(--border);" onclick="enterEditMode('dni')"><i class="fas fa-pen"></i></button>
+                                </div>
+                                <div class="edit-mode" style="display: none; flex-direction: column; gap: 10px;">
+                                    <label style="display: block; font-size: 0.6rem; color: var(--dorado); text-transform: uppercase; font-weight: 800;">Editar DNI</label>
+                                    <input type="text" id="input-dni" style="padding: 8px 12px; font-size: 0.9rem; background: #111; border: 1px solid var(--dorado);">
+                                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                        <button class="btn btn-outline" style="padding: 5px 12px; font-size: 0.7rem;" onclick="exitEditMode('dni')">Cancelar</button>
+                                        <button class="btn btn-primary" style="padding: 5px 15px; font-size: 0.7rem;" onclick="saveField('dni')">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: SEGURIDAD (DERECHA) -->
+                    <div class="card" style="margin: 0; border-top: 2px solid var(--dorado); height: fit-content;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0;">
+                            <div class="card-title" style="margin-bottom: 0;"><i class="fas fa-shield-halved"></i> Seguridad</div>
+                            <button class="btn btn-outline" onclick="togglePasswordForm()" style="padding: 8px 15px; font-size: 0.7rem; border-color: var(--border);"><i class="fas fa-lock-open"></i> Cambiar contraseña</button>
+                        </div>
+
+                        <div id="password-form-container" class="form-vertical-container" style="max-height: 0; opacity: 0; overflow: hidden; transition: all 0.5s ease; margin-top: 0;">
+                            <form id="change-password-form" onsubmit="changePassword(event)" style="display: flex; flex-direction: column; gap: 20px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 20px;">
+                                <div class="form-group">
+                                    <label>Contraseña Actual</label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-key"></i>
+                                        <input type="password" id="current-password" placeholder="Su clave actual" required>
+                                        <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('current-password', this)"></i>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Nueva Contraseña</label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-lock"></i>
+                                            <input type="password" id="new-password" placeholder="8+ caracteres" required>
+                                            <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('new-password', this)"></i>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Confirmar Nueva</label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-shield-halved"></i>
+                                            <input type="password" id="confirm-new-password" placeholder="Repetir clave" required>
+                                            <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('confirm-new-password', this)"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="password-requirements" style="margin-top: -10px;">
+                                    <div id="req-len" class="req-item"><i class="far fa-circle"></i> 8+ caracteres</div>
+                                    <div id="req-up" class="req-item"><i class="far fa-circle"></i> Una mayúscula</div>
+                                    <div id="req-spec" class="req-item"><i class="far fa-circle"></i> Un símbolo (!@#)</div>
+                                    <div id="req-match" class="req-item"><i class="far fa-circle"></i> Coinciden</div>
+                                </div>
+
+                                <div class="strength-meter-container" style="margin-top: -10px;">
+                                    <div id="password-strength" class="strength-meter"></div>
+                                </div>
+
+                                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                                    <button type="button" class="btn btn-outline" onclick="togglePasswordForm()" style="padding: 12px 25px;">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Actualizar Contraseña</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DIGITAL PASS (VOUCHER) -->
+    <div id="passModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; padding: 0; background: transparent; border: none; box-shadow: none;">
+            <div class="digital-pass">
+                <div class="pass-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="/static/images/logo.png" style="height: 30px;">
+                        <span style="font-weight: 800; letter-spacing: 2px; font-size: 0.9rem;">TICKET AUTOPASS</span>
+                    </div>
+                    <i class="fas fa-xmark" onclick="closeModal('passModal')" style="cursor: pointer; opacity: 0.6;"></i>
+                </div>
+                
+                <div class="pass-body">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <div id="pass-qr" style="background: #fff; padding: 15px; border-radius: 15px; display: inline-block; box-shadow: 0 10px 30px rgba(0,0,0,0.5);"></div>
+                    </div>
+
+                    <div class="pass-info-grid">
+                        <div class="info-item">
+                            <label>PATENTE</label>
+                            <span id="pass-plate">---</span>
+                        </div>
+                        <div class="info-item">
+                            <label>TITULAR</label>
+                            <span id="pass-owner">---</span>
+                        </div>
+                        <div class="info-item">
+                            <label>INGRESO</label>
+                            <span id="pass-start">---</span>
+                        </div>
+                        <div class="info-item">
+                            <label>SALIDA</label>
+                            <span id="pass-end">---</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed rgba(197, 160, 89, 0.3); text-align: center;">
+                        <div style="font-size: 0.7rem; color: #888; margin-bottom: 10px;">ESCANEÉ EN TOTEM SI FALLA LA DETECCIÓN DE PATENTE</div>
+                        <div id="pass-id" style="font-family: var(--font-mono); color: var(--dorado); font-weight: 800; font-size: 0.9rem;">RES-000000</div>
+                    </div>
+                </div>
+
+                <div class="pass-footer">
+                    <button class="btn btn-primary" onclick="sharePassContent()" style="width: 100%; border-radius: 0 0 15px 15px; padding: 15px;">
+                        <i class="fas fa-share-nodes"></i> COMPARTIR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: INFO ESTACIONAMIENTO -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content" style="max-width: 450px; border-top: 3px solid var(--dorado);">
+            <span class="close-btn" onclick="closeModal('infoModal')"><i class="fas fa-xmark"></i></span>
+            
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div style="background: rgba(197, 160, 89, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                    <i class="fas fa-location-dot" style="color: var(--dorado); font-size: 1.5rem;"></i>
+                </div>
+                <h2 id="info-parking-name" style="margin: 0; letter-spacing: 1px; text-transform: uppercase; font-size: 1.2rem;">Sede Principal</h2>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;">
+                <label style="display: block; font-size: 0.6rem; color: var(--dorado); font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">Detalles de la Sede</label>
+                <p id="info-parking-desc" style="font-size: 0.9rem; line-height: 1.6; color: #ccc; margin: 0;">Cargando información...</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
+                    <i class="fas fa-phone" style="color: var(--dorado); margin-bottom: 8px; font-size: 0.8rem;"></i>
+                    <span style="display: block; font-size: 0.75rem; font-weight: 700;">Atención 24hs</span>
+                </div>
+                <div style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
+                    <i class="fas fa-shield-halved" style="color: var(--dorado); margin-bottom: 8px; font-size: 0.8rem;"></i>
+                    <span style="display: block; font-size: 0.75rem; font-weight: 700;">Zona Vigila</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="closeModal('infoModal')" style="width: 100%; margin-top: 25px; padding: 12px;">Entendido</button>
         </div>
     </div>
     </main>
@@ -199,28 +483,25 @@
 {% block extra_scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const startPicker = flatpickr("#res-start", {
+        const flatpickrConfig = {
             enableTime: true,
+            time_24hr: true,
+            altInput: true,
+            altFormat: "d/m/Y H:i",
             dateFormat: "Y-m-d H:i",
             minDate: "today",
             theme: "dark",
-            locale: {
-                firstDayOfWeek: 1
-            },
+            locale: { firstDayOfWeek: 1 }
+        };
+
+        const startPicker = flatpickr("#res-start", {
+            ...flatpickrConfig,
             onChange: function(selectedDates, dateStr, instance) {
                 endPicker.set("minDate", dateStr);
             }
         });
 
-        const endPicker = flatpickr("#res-end", {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
-            minDate: "today",
-            theme: "dark",
-            locale: {
-                firstDayOfWeek: 1
-            }
-        });
+        const endPicker = flatpickr("#res-end", flatpickrConfig);
     });
 
     async function addVehicle(e) {
@@ -244,6 +525,7 @@
     async function createReservation(e) {
         e.preventDefault();
         const payload = {
+            sucursal_nombre: document.getElementById('res-sede').value,
             patente: document.getElementById('res-vehicle').value,
             fecha_inicio: document.getElementById('res-start').value,
             fecha_fin: document.getElementById('res-end').value

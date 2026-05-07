@@ -15,6 +15,7 @@ class User(Base):
     rol = Column(String, default="user") # 'admin' o 'user'
     direccion = Column(String, nullable=True)
     puntos_acumulados = Column(Integer, default=0)
+    saldo = Column(Float, default=0.0)
 
     vehicles = relationship("Vehicle", back_populates="owner")
     reservations = relationship("Reservation", back_populates="user")
@@ -41,6 +42,8 @@ class Reservation(Base):
     mp_preference_id = Column(String, nullable=True)
     estado_pago = Column(String, default="Pendiente")
     estado_reserva = Column(String, default="Pendiente")
+    sucursal_nombre = Column(String, nullable=True)
+    sucursal_info = Column(String, nullable=True)
 
     user = relationship("User", back_populates="reservations")
     access_logs = relationship("AccessLog", back_populates="reservation")

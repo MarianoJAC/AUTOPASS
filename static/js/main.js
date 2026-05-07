@@ -1,6 +1,17 @@
 const API_BASE = '/v1';
 const token = localStorage.getItem('token');
 
+function formatDate(isoStr) {
+    if (!isoStr) return '---';
+    const d = new Date(isoStr);
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = d.getHours().toString().padStart(2, '0');
+    const mins = d.getMinutes().toString().padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${mins}`;
+}
+
 // --- LÓGICA DE SIDEBAR ---
 function toggleSidebar() {
     const layout = document.querySelector('.layout-with-sidebar');
@@ -67,6 +78,82 @@ function closeModal(id) {
 }
 function switchModal(oldId, newId) { closeModal(oldId); openModal(newId); }
 
+// --- LÓGICA DE MEJORA DE FORMULARIOS ---
+function togglePasswordVisibility(id, el) {
+    const input = document.getElementById(id);
+    if (input.type === 'password') {
+        input.type = 'text';
+        el.className = 'fas fa-eye-slash toggle-password';
+    } else {
+        input.type = 'password';
+        el.className = 'fas fa-eye toggle-password';
+    }
+}
+
+// Validación y Formateo en Tiempo Real
+document.addEventListener('DOMContentLoaded', () => {
+    const regDni = document.getElementById('reg-dni');
+    if (regDni) {
+        regDni.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length > 8) val = val.slice(0, 8);
+            e.target.value = val;
+        });
+    }
+
+    const regPass = document.getElementById('reg-password');
+    const regPassConfirm = document.getElementById('reg-password-confirm');
+    const strengthMeter = document.getElementById('password-strength');
+    
+    const reqLen = document.getElementById('req-len');
+    const reqUp = document.getElementById('req-up');
+    const reqSpec = document.getElementById('req-spec');
+    const reqMatch = document.getElementById('req-match');
+
+    if (regPass && strengthMeter) {
+        const validatePass = () => {
+            const val = regPass.value;
+            const confirmVal = regPassConfirm ? regPassConfirm.value : "";
+            
+            strengthMeter.className = 'strength-meter';
+            
+            const isLen = val.length >= 8;
+            const isUp = /[A-Z]/.test(val);
+            const isSpec = /[!@#$%^&*(),.?":{}|<>]/.test(val);
+            const isMatch = val.length > 0 && val === confirmVal;
+
+            const updateReq = (el, condition) => {
+                if (!el) return;
+                if (condition) {
+                    el.classList.add('satisfied');
+                    el.querySelector('i').className = 'fas fa-check-circle';
+                } else {
+                    el.classList.remove('satisfied');
+                    el.querySelector('i').className = 'far fa-circle';
+                }
+            };
+
+            updateReq(reqLen, isLen);
+            updateReq(reqUp, isUp);
+            updateReq(reqSpec, isSpec);
+            updateReq(reqMatch, isMatch);
+
+            if (val.length === 0) return;
+            let strength = 0;
+            if (isLen) strength++;
+            if (isUp) strength++;
+            if (isSpec) strength++;
+            
+            if (strength === 1) strengthMeter.classList.add('strength-weak');
+            if (strength === 2) strengthMeter.classList.add('strength-medium');
+            if (strength === 3) strengthMeter.classList.add('strength-strong');
+        };
+
+        regPass.addEventListener('input', validatePass);
+        if (regPassConfirm) regPassConfirm.addEventListener('input', validatePass);
+    }
+});
+
 // --- LÓGICA DE AUTENTICACIÓN ---
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
@@ -88,6 +175,7 @@ if (loginForm) {
                 localStorage.setItem('token', data.access_token);
                 localStorage.setItem('rol', data.rol);
                 localStorage.setItem('nombre', data.nombre);
+                localStorage.setItem('apellido', data.apellido);
                 window.location.href = data.rol === 'admin' ? '/dashboard' : '/perfil';
             } else {
                 errorMsg.innerText = data.detail || 'Error al iniciar sesión';
@@ -107,13 +195,20 @@ if (registerForm) {
         const errorMsg = document.getElementById('register-error');
         errorMsg.style.display = 'none';
 
-        const dni = document.getElementById('reg-dni').value;
+        const dni = document.getElementById('reg-dni').value.replace(/\D/g, '');
         const password = document.getElementById('reg-password').value;
+        const passwordConfirm = document.getElementById('reg-password-confirm').value;
         const email = document.getElementById('reg-email').value;
-        const telefono = document.getElementById('reg-tel').value;
+        const telefono = document.getElementById('reg-tel').value.replace(/\D/g, '');
 
-        if (!/^\d+$/.test(dni)) {
-            errorMsg.innerText = 'El DNI debe contener únicamente números (sin puntos)';
+        if (password !== passwordConfirm) {
+            errorMsg.innerText = 'Las contraseñas no coinciden';
+            errorMsg.style.display = 'block';
+            return;
+        }
+
+        if (dni.length < 7 || dni.length > 8) {
+            errorMsg.innerText = 'El DNI debe tener 7 u 8 números';
             errorMsg.style.display = 'block';
             return;
         }
@@ -125,15 +220,15 @@ if (registerForm) {
             return;
         }
 
-        if (!/^\d{10,}$/.test(telefono)) {
-            errorMsg.innerText = 'El teléfono debe contener código de área y número (mínimo 10 dígitos)';
+        if (telefono.length < 10) {
+            errorMsg.innerText = 'El teléfono debe tener al menos 10 dígitos (característica + número)';
             errorMsg.style.display = 'block';
             return;
         }
         
         const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
         if (!passwordRegex.test(password)) {
-            errorMsg.innerText = 'La contraseña debe tener al menos 8 caracteres, una mayúscula y un carácter especial';
+            errorMsg.innerText = 'La contraseña no cumple con los requisitos de seguridad';
             errorMsg.style.display = 'block';
             return;
         }
@@ -148,6 +243,11 @@ if (registerForm) {
         };
 
         try {
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Procesando...';
+            btn.disabled = true;
+
             const res = await fetch(`${API_BASE}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -155,16 +255,21 @@ if (registerForm) {
             });
 
             if (res.ok) {
-                alert('Registro exitoso. Ahora puede iniciar sesión.');
-                switchModal('registerModal', 'loginModal');
+                showToast('¡Registro exitoso! Bienvenido a AUTOPASS');
+                setTimeout(() => switchModal('registerModal', 'loginModal'), 1500);
             } else {
                 const data = await res.json();
                 errorMsg.innerText = data.detail || 'Error en el registro';
                 errorMsg.style.display = 'block';
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
         } catch (err) {
-            errorMsg.innerText = 'Error de conexión';
+            errorMsg.innerText = 'Error de conexión con el servidor';
             errorMsg.style.display = 'block';
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerText = 'Finalizar Registro';
+            btn.disabled = false;
         }
     };
 }
@@ -246,13 +351,6 @@ async function updateDashboard() {
                         <td><span style="color: var(--secondary)">● ACTIVO</span></td>
                     </tr>`;
             });
-        }
-
-        if (Array.isArray(logs)) {
-            const lastIn = logs.find(l => l.tipo_evento === 'ENTRADA');
-            const lastOut = logs.find(l => l.tipo_evento === 'SALIDA');
-            if (lastIn && document.getElementById('plate-entry')) document.getElementById('plate-entry').innerText = lastIn.patente_detectada;
-            if (lastOut && document.getElementById('plate-exit')) document.getElementById('plate-exit').innerText = lastOut.patente_detectada;
         }
 
         const resOcc = await fetch(`${API_BASE}/parking/current-occupancy`);
@@ -512,19 +610,162 @@ function showSection(sectionId, el) {
     if (sectionEl) sectionEl.classList.add('active');
     
     if (sectionId === 'reservas') loadReservations();
-    if (sectionId === 'pagos') loadPaymentHistory();
+    if (sectionId === 'inicio') loadProfile();
 }
 
 async function loadProfile() {
     const res = await fetch(`${API_BASE}/user/me`, { headers: { 'Authorization': `Bearer ${token}` } });
     if (!res.ok) return logout();
     const user = await res.json();
+    
+    // Actualizar localStorage con datos frescos
+    localStorage.setItem('nombre', user.nombre);
+    localStorage.setItem('apellido', user.apellido);
+    
     document.getElementById('user-name').innerText = `Hola, ${user.nombre}`;
-    const dni = document.getElementById('val-dni'); if (dni) dni.innerText = user.dni;
-    const email = document.getElementById('val-email'); if (email) email.innerText = user.email;
-    const tel = document.getElementById('val-tel'); if (tel) tel.innerText = user.telefono || 'No registrado';
     const pts = document.getElementById('points-val'); if (pts) pts.innerText = user.puntos_acumulados || 0;
-    const statPts = document.getElementById('stat-points'); if (statPts) statPts.innerText = user.puntos_acumulados || 0;
+    
+    const balance = document.getElementById('balance-val'); if (balance) balance.innerText = `$${(user.saldo || 0).toFixed(2)}`;
+
+    // Poblar visualización de datos en sección Mi Cuenta
+    const dispNombre = document.getElementById('display-nombre'); if (dispNombre) dispNombre.innerText = user.nombre;
+    const dispApellido = document.getElementById('display-apellido'); if (dispApellido) dispApellido.innerText = user.apellido;
+    const dispEmail = document.getElementById('display-email'); if (dispEmail) dispEmail.innerText = user.email;
+    
+    // Normalizar Teléfono (XX XXXX XXXX)
+    const dispTel = document.getElementById('display-telefono'); 
+    if (dispTel) {
+        let tel = user.telefono || '';
+        if (tel.length >= 10) {
+            dispTel.innerText = tel.replace(/(\d{2})(\d{4})(\d+)/, "$1 $2 $3");
+        } else {
+            dispTel.innerText = tel || 'No registrado';
+        }
+    }
+    
+    // Normalizar DNI con puntos para visualización
+    const dispDni = document.getElementById('display-dni');
+    if (dispDni && user.dni) {
+        let dniStr = user.dni.toString();
+        if (dniStr.length === 8) {
+            dispDni.innerText = dniStr.replace(/(\d{2})(\d{3})(\d{3})/, "$1.$2.$3");
+        } else if (dniStr.length === 7) {
+            dispDni.innerText = dniStr.replace(/(\d{1})(\d{3})(\d{3})/, "$1.$2.$3");
+        } else {
+            dispDni.innerText = dniStr;
+        }
+    }
+
+    // Inicializar validación de cambio de contraseña si estamos en la sección de perfil
+    initPasswordValidation('new-password', 'confirm-new-password');
+}
+
+function initPasswordValidation(passId, confirmId) {
+    const regPass = document.getElementById(passId);
+    const regPassConfirm = document.getElementById(confirmId);
+    const strengthMeter = document.getElementById('password-strength');
+    
+    const reqLen = document.getElementById('req-len');
+    const reqUp = document.getElementById('req-up');
+    const reqSpec = document.getElementById('req-spec');
+    const reqMatch = document.getElementById('req-match');
+
+    if (regPass && strengthMeter) {
+        const validatePass = () => {
+            const val = regPass.value;
+            const confirmVal = regPassConfirm ? regPassConfirm.value : "";
+            
+            strengthMeter.className = 'strength-meter';
+            
+            const isLen = val.length >= 8;
+            const isUp = /[A-Z]/.test(val);
+            const isSpec = /[!@#$%^&*(),.?":{}|<>]/.test(val);
+            const isMatch = val.length > 0 && val === confirmVal;
+
+            const updateReq = (el, condition) => {
+                if (!el) return;
+                if (condition) {
+                    el.classList.add('satisfied');
+                    el.querySelector('i').className = 'fas fa-check-circle';
+                } else {
+                    el.classList.remove('satisfied');
+                    el.querySelector('i').className = 'far fa-circle';
+                }
+            };
+
+            updateReq(reqLen, isLen);
+            updateReq(reqUp, isUp);
+            updateReq(reqSpec, isSpec);
+            updateReq(reqMatch, isMatch);
+
+            if (val.length === 0) return;
+            let strength = 0;
+            if (isLen) strength++;
+            if (isUp) strength++;
+            if (isSpec) strength++;
+            
+            if (strength === 1) strengthMeter.classList.add('strength-weak');
+            if (strength === 2) strengthMeter.classList.add('strength-medium');
+            if (strength === 3) strengthMeter.classList.add('strength-strong');
+        };
+
+        regPass.addEventListener('input', validatePass);
+        if (regPassConfirm) regPassConfirm.addEventListener('input', validatePass);
+    }
+}
+
+function enterEditMode(field) {
+    const item = document.getElementById(`item-${field}`);
+    const display = item.querySelector('.display-mode');
+    const edit = item.querySelector('.edit-mode');
+    const input = document.getElementById(`input-${field}`);
+    const displaySpan = document.getElementById(`display-${field}`);
+
+    // Poblar input con el valor actual (limpio)
+    input.value = displaySpan.innerText.replace(/\./g, '').replace(/\s/g, '');
+    
+    display.style.display = 'none';
+    edit.style.display = 'flex';
+    input.focus();
+}
+
+function exitEditMode(field) {
+    const item = document.getElementById(`item-${field}`);
+    const display = item.querySelector('.display-mode');
+    const edit = item.querySelector('.edit-mode');
+    
+    display.style.display = 'flex';
+    edit.style.display = 'none';
+}
+
+async function saveField(field) {
+    const labels = { 'nombre': 'Nombre/s', 'apellido': 'Apellido', 'email': 'Correo Electrónico', 'telefono': 'Teléfono', 'dni': 'DNI' };
+    const newValue = document.getElementById(`input-${field}`).value;
+
+    const payload = {};
+    payload[field] = newValue;
+
+    try {
+        const res = await fetch(`${API_BASE}/user/me`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            showToast(`${labels[field]} actualizado`);
+            exitEditMode(field);
+            loadProfile();
+        } else {
+            const d = await res.json();
+            alert(d.detail || 'Error al actualizar');
+        }
+    } catch (err) {
+        alert('Error de conexión al guardar');
+    }
 }
 
 async function loadVehicles() {
@@ -536,10 +777,38 @@ async function loadVehicles() {
     if (!list) return;
     list.innerHTML = vehicles.length ? '' : '<p style="color: #444; font-weight: 600;">No tienes vehículos registrados.</p>';
     vehicles.forEach(v => {
-        list.innerHTML += `<div class="vehicle-item" style="display: flex; justify-content: space-between; align-items: center; padding: 18px; background: #000; border-radius: 10px; margin-bottom: 12px; border: 1px solid #222;">
-            <div><span class="plate-badge">${v.patente}</span> <b style="margin-left:15px">${v.marca_modelo}</b></div>
-        </div>`;
+        list.innerHTML += `
+            <div class="vehicle-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
+                    <span class="plate-badge" style="letter-spacing: 2px;">${v.patente}</span>
+                    <button class="btn btn-outline delete-vehicle-btn" style="padding: 5px 10px; font-size: 0.7rem; color: var(--danger); border-color: var(--danger); background: rgba(239, 68, 68, 0.05);" onclick="deleteVehicle('${v.patente}')"><i class="fas fa-xmark"></i></button>
+                </div>
+                
+                <div class="vehicle-card-divider"></div>
+
+                <div style="font-weight: 700; color: #fff; font-size: 1rem; display: flex; align-items: center; gap: 12px; position: relative; z-index: 2;">
+                    <div style="background: rgba(197, 160, 89, 0.1); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas fa-car" style="color: var(--dorado); font-size: 0.9rem;"></i>
+                    </div>
+                    <span>${v.marca_modelo}</span>
+                </div>
+            </div>`;
     });
+}
+
+async function deleteVehicle(plate) {
+    if (!confirm(`¿Está seguro de que desea eliminar el vehículo con patente ${plate}?`)) return;
+    const res = await fetch(`${API_BASE}/user/vehicles/${plate}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+        showToast('Vehículo eliminado con éxito');
+        loadVehicles();
+    } else {
+        const d = await res.json();
+        alert(d.detail || 'Error al eliminar vehículo');
+    }
 }
 
 async function loadActiveStays() {
@@ -555,12 +824,26 @@ async function loadActiveStays() {
                     <div style="font-weight: 800; font-size: 1.2rem; color: var(--dorado); letter-spacing: 1px"><i class="fas fa-location-dot"></i> ${s.patente}</div>
                     <div style="font-size: 0.85rem; color: #555; margin-top: 5px; font-weight: 600"><i class="fas fa-calendar-day"></i> INGRESÓ: ${s.ingreso.replace('T', ' ').substring(0, 16)}</div>
                     <div style="font-family: 'Montserrat'; font-size: 2.2rem; font-weight: 800; color: var(--danger); margin: 15px 0;">$${s.deuda}</div>
-                    <button class="btn btn-primary" style="padding: 10px 20px; font-size: 0.75rem"><i class="fab fa-cc-mastercard"></i> Pagar con Mercado Pago</button>
+                    <button class="btn btn-primary" style="padding: 10px 20px; font-size: 0.75rem" onclick="payWithMP('${s.patente}')"><i class="fab fa-cc-mastercard"></i> Pagar con Mercado Pago</button>
                 </div>`;
         });
     } else {
-        list.innerHTML = '<p style="color: #444; font-weight: 600;">No se registran vehículos en el predio actualmente.</p>';
+        list.innerHTML = '<div style="text-align: center; padding: 20px; color: #555;"><i class="fas fa-parking" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i><p style="font-weight: 600; font-size: 0.85rem;">No se registran vehículos en el predio actualmente.</p></div>';
     }
+}
+
+async function payWithMP(plate) {
+    alert(`Simulando integración con Mercado Pago para ${plate}. El sistema procesará el pago automáticamente.`);
+    await fetch(`${API_BASE}/access/pay-stay?plate=${plate}`, { method: 'POST', headers: {'Authorization': `Bearer ${token}`} });
+    showToast('Pago exitoso');
+    loadActiveStays();
+    loadProfile();
+}
+
+function showReservationInfo(nombre, info) {
+    document.getElementById('info-parking-name').innerText = nombre || 'Sede AUTOPASS';
+    document.getElementById('info-parking-desc').innerText = info || 'No hay información adicional disponible para esta sede.';
+    openModal('infoModal');
 }
 
 async function loadReservations() {
@@ -574,59 +857,295 @@ async function loadReservations() {
         });
     }
 
+    // --- LÓGICA DE CALCULADORA DE COSTO ---
+    let hourlyRate = 1500; // Valor por defecto actualizado a 1500
+    try {
+        const resSettings = await fetch(`${API_BASE}/settings/prices`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (resSettings.ok) {
+            const settings = await resSettings.json();
+            hourlyRate = parseFloat(settings.precio_hora) || 1500;
+            console.log("Tarifa actualizada desde DB:", hourlyRate);
+        }
+    } catch (e) { console.error("Error fetching rate", e); }
+
+    const updateCost = () => {
+        // Obtenemos los valores de los inputs originales de flatpickr
+        const startVal = document.getElementById('res-start').value;
+        const endVal = document.getElementById('res-end').value;
+        const summary = document.getElementById('res-summary');
+        
+        if (startVal && endVal) {
+            const start = new Date(startVal.replace(' ', 'T'));
+            const end = new Date(endVal.replace(' ', 'T'));
+            const diffMs = end - start;
+            
+            if (diffMs > 0) {
+                const diffHrs = diffMs / 3600000;
+                // Cálculo: Bloques de hora (redondeo hacia arriba)
+                const hoursToCharge = Math.ceil(diffHrs);
+                const total = hoursToCharge * hourlyRate;
+                
+                const h = Math.floor(diffHrs);
+                const m = Math.round((diffHrs % 1) * 60);
+                
+                document.getElementById('res-duration').innerText = `${h}h ${m}m`;
+                document.getElementById('res-total-cost').innerText = `$${total.toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+                summary.style.display = 'flex';
+            } else {
+                summary.style.display = 'none';
+            }
+        } else {
+            summary.style.display = 'none';
+        }
+    };
+
+    const resStart = document.getElementById('res-start');
+    const resEnd = document.getElementById('res-end');
+    if (resStart && resEnd) {
+        resStart.addEventListener('change', updateCost);
+        resEnd.addEventListener('change', updateCost);
+    }
+
     const resR = await fetch(`${API_BASE}/user/reservations`, { headers: { 'Authorization': `Bearer ${token}` } });
     const reservations = await resR.json();
-    const list = document.getElementById('reservation-list');
+    const activeList = document.getElementById('reservation-list-active');
+    const historyList = document.getElementById('reservation-list-history');
     const statReservations = document.getElementById('stat-reservations');
-    if (statReservations) statReservations.innerText = reservations.length;
-    if (list) {
-        list.innerHTML = reservations.length ? '' : '<p style="color: #444; font-weight: 600;">No tienes reservas activas.</p>';
-        reservations.forEach(r => {
-            list.innerHTML += `
-                <div class="card" style="border-left: 4px solid ${r.estado_pago === 'Pagado' ? 'var(--secondary)' : '#f59e0b'}">
-                    <div style="font-weight: 800; font-size: 1.1rem; color: var(--dorado); letter-spacing: 1px">${r.patente}</div>
-                    <div style="font-size: 0.85rem; color: #555; margin-top: 8px; font-weight: 600">DESDE: ${r.fecha_inicio.replace('T', ' ').substring(0, 16)}</div>
-                    <div style="font-size: 0.85rem; color: #555; font-weight: 600">HASTA: ${r.fecha_fin.replace('T', ' ').substring(0, 16)}</div>
-                    <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 15px; font-size: 1.2rem; color: ${r.estado_pago === 'Pagado' ? 'var(--secondary)' : '#f59e0b'}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
-                </div>`;
-        });
-    }
-}
+    
+    if (statReservations) statReservations.innerText = reservations.filter(r => r.estado_reserva === 'Pendiente').length;
+    
+    if (activeList && historyList) {
+        activeList.innerHTML = '';
+        historyList.innerHTML = '';
 
-async function loadPaymentHistory() {
-    const res = await fetch(`${API_BASE}/user/payment-history`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const payments = await res.json();
-    const list = document.getElementById('payment-list');
-    if (!list) return;
-    if (payments.length) {
-        list.innerHTML = '';
-        payments.forEach(p => {
-            const fecha = p.fecha_hora.replace('T', ' ').substring(0, 19);
-            list.innerHTML += `
-                <div class="vehicle-item" style="border-left: 4px solid var(--secondary); display: flex; justify-content: space-between; align-items: center; padding: 18px; background: #000; border-radius: 10px; margin-bottom: 12px; border: 1px solid #222;">
-                    <div style="flex: 1">
-                        <span class="plate-badge">${p.patente_detectada}</span>
-                        <span style="margin-left: 15px; font-size: 0.9rem; color: #888"><i class="fas fa-clock" style="font-size: 0.8rem;"></i> ${fecha}</span>
+        const activeItems = reservations.filter(r => r.estado_reserva === 'Pendiente');
+        const historyItems = reservations.filter(r => r.estado_reserva !== 'Pendiente');
+
+        if (activeItems.length === 0) activeList.innerHTML = '<p style="color: #444; font-weight: 600;">No tienes próximas reservas.</p>';
+        
+        window.renderHistory = (items) => {
+            historyList.innerHTML = '';
+            if (items.length === 0) {
+                historyList.innerHTML = '<p style="color: #444; font-weight: 600;">No se encontraron registros para este periodo.</p>';
+                return;
+            }
+            items.forEach(r => {
+                const isCancelled = r.estado_reserva === 'Cancelada';
+                const cardColor = isCancelled ? '#666' : (r.estado_pago === 'Pagado' ? 'var(--secondary)' : '#f59e0b');
+                historyList.innerHTML += `
+                    <div class="card" style="border-left: 4px solid ${cardColor}; opacity: ${isCancelled ? '0.6' : '1'}; margin-bottom: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 1.1rem; color: var(--dorado); letter-spacing: 1px">${r.patente} ${isCancelled ? '[CANCELADA]' : ''}</div>
+                                <div style="font-size: 0.85rem; color: #555; margin-top: 8px; font-weight: 600">DESDE: ${formatDate(r.fecha_inicio)}</div>
+                                <div style="font-size: 0.85rem; color: #555; font-weight: 600">HASTA: ${formatDate(r.fecha_fin)}</div>
+                                <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 10px; font-size: 1.1rem; color: ${cardColor}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="showReservationInfo('${r.sucursal_nombre}', '${r.sucursal_info}')"><i class="fas fa-info-circle"></i> Info</button>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #222; padding-top: 15px;">
+                            <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;" onclick="repeatReservation(${r.id})"><i class="fas fa-rotate"></i> Volver a reservar</button>
+                            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; color: var(--danger); border-color: var(--danger);" onclick="complainReservation(${r.id})"><i class="fas fa-circle-exclamation"></i> Reclamo</button>
+                        </div>
+                    </div>`;
+            });
+        };
+
+        activeItems.forEach(r => {
+            const cardColor = (r.estado_pago === 'Pagado' ? 'var(--secondary)' : '#f59e0b');
+            activeList.innerHTML += `
+                <div class="card" style="border-left: 4px solid ${cardColor}; margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 1.1rem; color: var(--dorado); letter-spacing: 1px">${r.patente}</div>
+                            <div style="font-size: 0.85rem; color: #555; margin-top: 8px; font-weight: 600">DESDE: ${formatDate(r.fecha_inicio)}</div>
+                            <div style="font-size: 0.85rem; color: #555; font-weight: 600">HASTA: ${formatDate(r.fecha_fin)}</div>
+                            <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 10px; font-size: 1.1rem; color: ${cardColor}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="showReservationInfo('${r.sucursal_nombre}', '${r.sucursal_info}')"><i class="fas fa-info-circle"></i> Info</button>
+                            <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="showDigitalPass(${r.id}, '${r.patente}', '${r.fecha_inicio}', '${r.fecha_fin}')"><i class="fas fa-share-nodes"></i> Pase</button>
+                        </div>
                     </div>
-                    <div style="font-family: 'Montserrat'; font-weight: 800; font-size: 1.2rem; color: var(--secondary)">$${p.costo_estadia.toFixed(2)}</div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #222; padding-top: 15px;">
+                        <button class="btn btn-primary" style="flex: 1; font-size: 0.75rem;" onclick="repeatReservation(${r.id})"><i class="fas fa-rotate"></i> Repetir</button>
+                        <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;" onclick="modifyReservation(${r.id}, '${r.fecha_inicio}')"><i class="fas fa-pen-to-square"></i> Modificar</button>
+                        <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem; color: var(--danger); border-color: var(--danger);" onclick="cancelReservation(${r.id})"><i class="fas fa-xmark"></i> Cancelar</button>
+                    </div>
                 </div>`;
         });
-    } else {
-        list.innerHTML = '<p style="color: #444; font-weight: 600;">Aún no registra transacciones pagadas.</p>';
+
+        renderHistory(historyItems);
+
+        window.historyItemsData = historyItems;
+        flatpickr("#history-filter-date", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            theme: "dark",
+            onChange: function(selectedDates) {
+                if (selectedDates.length === 2) {
+                    const start = selectedDates[0];
+                    const end = selectedDates[1];
+                    end.setHours(23, 59, 59);
+                    const filtered = window.historyItemsData.filter(r => {
+                        const d = new Date(r.fecha_inicio);
+                        return d >= start && d <= end;
+                    });
+                    renderHistory(filtered);
+                }
+            }
+        });
     }
 }
 
-// --- LÓGICA DE FORMULARIO DE CONTACTO ---
+function clearHistoryFilter() {
+    const input = document.getElementById('history-filter-date');
+    if (input && input._flatpickr) input._flatpickr.clear();
+    if (window.historyItemsData) renderHistory(window.historyItemsData);
+}
+
+function showDigitalPass(resId, plate, start, end) {
+    const modal = document.getElementById('passModal');
+    const qrContainer = document.getElementById('pass-qr');
+    qrContainer.innerHTML = '';
+    
+    new QRCode(qrContainer, {
+        text: `AUTOPASS-${resId}-${plate}`,
+        width: 160,
+        height: 160,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    // Obtener nombre completo desde localStorage
+    const nombre = localStorage.getItem('nombre') || 'Usuario';
+    const apellido = localStorage.getItem('apellido') || '';
+    
+    document.getElementById('pass-plate').innerText = plate;
+    document.getElementById('pass-owner').innerText = `${nombre} ${apellido}`.trim();
+    document.getElementById('pass-start').innerText = formatDate(start);
+    document.getElementById('pass-end').innerText = formatDate(end);
+    document.getElementById('pass-id').innerText = `RES-${resId.toString().padStart(6, '0')}`;
+
+    openModal('passModal');
+}
+
+async function sharePassContent() {
+    const ticketEl = document.querySelector('.digital-pass');
+    const btn = document.querySelector('.pass-footer button');
+    const originalContent = btn.innerHTML;
+
+    try {
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> GENERANDO IMAGEN...';
+        btn.disabled = true;
+
+        // Capturar el ticket como Canvas
+        const canvas = await html2canvas(ticketEl, {
+            scale: 2, // Mayor calidad
+            backgroundColor: '#0a0a0a',
+            logging: false,
+            useCORS: true
+        });
+
+        // Convertir Canvas a Blob
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const file = new File([blob], 'ticket-autopass.png', { type: 'image/png' });
+
+        // Intentar compartir el archivo
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: 'Ticket AUTOPASS',
+                text: 'Presenté este código al ingresar.'
+            });
+        } else {
+            // Fallback: Descarga directa si no soporta compartir archivos
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'ticket-autopass.png';
+            link.click();
+            showToast('Imagen descargada (Compartir no soportado)');
+        }
+    } catch (err) {
+        console.error('Error compartiendo ticket:', err);
+        showToast('Error al generar la imagen');
+    } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }
+}
+
+async function repeatReservation(id) {
+    const res = await fetch(`${API_BASE}/user/reservations/${id}/repeat`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+    const d = await res.json();
+    if (res.ok) {
+        const select = document.getElementById('res-vehicle');
+        if (select) select.value = d.data.patente;
+        showToast('Datos de vehículo cargados. Seleccione las nuevas fechas.');
+        document.getElementById('res-start').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+async function cancelReservation(id) {
+    if (!confirm('¿Desea cancelar esta reserva?')) return;
+    const res = await fetch(`${API_BASE}/user/reservations/${id}/cancel`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+    if (res.ok) {
+        showToast('Reserva cancelada');
+        loadReservations();
+        loadProfile();
+    } else {
+        const d = await res.json();
+        alert(d.detail);
+    }
+}
+
+async function modifyReservation(id, currentStart) {
+    const startDt = new Date(currentStart);
+    const now = new Date();
+    if ((startDt - now) < 7200000) return alert('Solo con más de 2 horas de anticipación.');
+    
+    const newStart = prompt('Nueva fecha inicio (AAAA-MM-DD HH:MM):');
+    if (!newStart) return;
+    const newEnd = prompt('Nueva fecha fin (AAAA-MM-DD HH:MM):');
+    if (!newEnd) return;
+
+    const res = await fetch(`${API_BASE}/user/reservations/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ fecha_inicio: newStart.replace(' ', 'T'), fecha_fin: newEnd.replace(' ', 'T') })
+    });
+
+    if (res.ok) {
+        showToast('Reserva modificada');
+        loadReservations();
+    } else {
+        const d = await res.json();
+        alert(d.detail);
+    }
+}
+
+async function complainReservation(id) {
+    const msg = prompt('Motivo del reclamo:');
+    if (!msg) return;
+    const res = await fetch(`${API_BASE}/user/reservations/${id}/complain?message=${encodeURIComponent(msg)}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) showToast('Reclamo enviado');
+}
+
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
     contactForm.onsubmit = (e) => {
         e.preventDefault();
-        alert('Gracias por comunicarse con AUTOPASS. Su mensaje ha sido enviado con éxito.');
+        alert('Gracias por comunicarse con AUTOPASS.');
         e.target.reset();
     };
 }
 
-// --- NOTIFICACIONES TOAST ---
 function showToast(msg) {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -635,4 +1154,78 @@ function showToast(msg) {
     t.innerText = msg;
     container.appendChild(t);
     setTimeout(() => t.remove(), 3000);
+}
+
+let currentSlideIndex = 0;
+function showSlides() {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.dot');
+    if (slides.length === 0) return;
+    slides.forEach(s => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+    currentSlideIndex++;
+    if (currentSlideIndex > slides.length) currentSlideIndex = 1;
+    slides[currentSlideIndex-1].classList.add('active');
+    dots[currentSlideIndex-1].classList.add('active');
+    setTimeout(showSlides, 5000);
+}
+
+function toggleAddVehicleForm() {
+    const formContainer = document.getElementById('add-vehicle-container');
+    if (formContainer) formContainer.classList.toggle('active');
+}
+
+function togglePasswordForm() {
+    const container = document.getElementById('password-form-container');
+    if (!container) return;
+    if (container.style.maxHeight === '0px' || container.style.maxHeight === '') {
+        container.style.maxHeight = '1000px';
+        container.style.opacity = '1';
+        container.style.marginTop = '20px';
+    } else {
+        container.style.maxHeight = '0px';
+        container.style.opacity = '0';
+        container.style.marginTop = '0px';
+    }
+}
+
+function toggleHistory() {
+    const container = document.getElementById('history-container');
+    const btn = document.getElementById('toggle-history-btn');
+    if (!container || !btn) return;
+
+    if (container.style.maxHeight === '0px' || container.style.maxHeight === '') {
+        container.style.maxHeight = '2000px';
+        container.style.opacity = '1';
+        container.style.marginTop = '20px';
+        btn.innerHTML = '<i class="fas fa-chevron-up"></i> Ocultar';
+    } else {
+        container.style.maxHeight = '0px';
+        container.style.opacity = '0';
+        container.style.marginTop = '0px';
+        btn.innerHTML = '<i class="fas fa-chevron-down"></i> Ver';
+    }
+}
+
+async function changePassword(e) {
+    e.preventDefault();
+    const current = document.getElementById('current-password').value;
+    const newPass = document.getElementById('new-password').value;
+    const confirm = document.getElementById('confirm-new-password').value;
+    if (newPass !== confirm) return alert('Las contraseñas no coinciden');
+
+    const res = await fetch(`${API_BASE}/user/change-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ old_password: current, new_password: newPass })
+    });
+
+    if (res.ok) {
+        showToast('Contraseña actualizada');
+        togglePasswordForm();
+        e.target.reset();
+    } else {
+        const d = await res.json();
+        alert(d.detail || 'Error al cambiar contraseña');
+    }
 }

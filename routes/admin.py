@@ -15,7 +15,7 @@ def list_users(db: Session = Depends(get_db), admin: models.User = Depends(get_a
     return db.query(models.User).all()
 
 @router.get("/settings/prices")
-def get_prices(db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+def get_prices(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     return {p.clave: p.valor for p in db.query(models.Settings).all()}
 
 @router.post("/settings/prices")

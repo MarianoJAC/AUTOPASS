@@ -231,43 +231,4 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-    // Lógica del Carrusel (Integrada temporalmente o para ser movida a main.js)
-    const imagenesCarrusel = [
-        { src: '/static/images/INICIO/estacionamiento1.webp', leyenda: 'SEGURIDAD 24 HORAS' },
-        { src: '/static/images/INICIO/estacionamiento2.webp', leyenda: 'ACCESO INTELIGENTE' },
-        { src: '/static/images/INICIO/estacionamiento3.webp', leyenda: 'PAGOS DIGITALES' },
-        { src: '/static/images/INICIO/estacionamiento4.webp', leyenda: 'GESTIÓN EN TIEMPO REAL' },
-        { src: '/static/images/INICIO/trafico1.webp', leyenda: 'SIN DEMORAS' },
-        { src: '/static/images/INICIO/trafico2.webp', leyenda: 'EL FUTURO ES HOY' },
-        { src: '/static/images/INICIO/trafico3.webp', leyenda: 'TU LUGAR ASEGURADO' }
-    ];
-
-    let slideActual = 0;
-    const contenedor = document.getElementById('contenedorCarrusel');
-
-    function inicializarCarrusel() {
-        if (!contenedor) return;
-        imagenesCarrusel.forEach((img, index) => {
-            const div = document.createElement('div');
-            div.className = `item-carrusel ${index === 0 ? 'activo' : ''}`;
-            div.style.backgroundImage = `url('${img.src}')`;
-            div.innerHTML = `<div class="leyenda-carrusel">${img.leyenda}</div>`;
-            contenedor.appendChild(div);
-        });
-        
-        setInterval(() => MoverCarrusel(1), 5000);
-    }
-
-    function MoverCarrusel(direccion) {
-        const items = document.querySelectorAll('.item-carrusel');
-        if (items.length === 0) return;
-        
-        items[slideActual].classList.remove('activo');
-        slideActual = (slideActual + direccion + items.length) % items.length;
-        items[slideActual].classList.add('activo');
-    }
-
-    document.addEventListener('DOMContentLoaded', inicializarCarrusel);
-</script>
 {% endblock %}
