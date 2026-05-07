@@ -15,10 +15,12 @@
         <div class="sidebar-toggle" onclick="toggleSidebar()">
             <i class="fas fa-chevron-left"></i>
         </div>
-        <div class="logo">
-            <img src="/static/images/logo.png" alt="Logo" style="height: 40px;">
-            <span>AUTOPASS</span>
-        </div>
+        <a href="/" style="text-decoration: none; color: inherit; display: block;">
+            <div class="logo">
+                <img src="/static/images/logo.png" alt="Logo" style="height: 40px;">
+                <span>AUTOPASS</span>
+            </div>
+        </a>
         <nav class="nav-group">
             <div class="nav-item active" onclick="showSection('inicio', this)"><i class="fas fa-house-user"></i> <span class="nav-text">Inicio</span></div>
             <div class="nav-item" onclick="showSection('vehiculos', this)"><i class="fas fa-car-side"></i> <span class="nav-text">Mis Vehículos</span></div>
@@ -158,6 +160,19 @@
                                     <i class="fas fa-car"></i>
                                     <select id="res-vehicle" required style="padding-left: 45px;">
                                         <option value="">Cargando flota...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo de Estadía</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-clock"></i>
+                                    <select id="res-type" required style="padding-left: 45px;" onchange="updateReservationCost()">
+                                        <option value="hora" selected>Por Hora</option>
+                                        <option value="dia">Por Día</option>
+                                        <option value="semana">Por Semana</option>
+                                        <option value="quincena">Por Quincena</option>
+                                        <option value="mes">Mensual</option>
                                     </select>
                                 </div>
                             </div>
@@ -483,25 +498,10 @@
 {% block extra_scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const flatpickrConfig = {
-            enableTime: true,
-            time_24hr: true,
-            altInput: true,
-            altFormat: "d/m/Y H:i",
-            dateFormat: "Y-m-d H:i",
-            minDate: "today",
-            theme: "dark",
-            locale: { firstDayOfWeek: 1 }
-        };
-
-        const startPicker = flatpickr("#res-start", {
-            ...flatpickrConfig,
-            onChange: function(selectedDates, dateStr, instance) {
-                endPicker.set("minDate", dateStr);
-            }
-        });
-
-        const endPicker = flatpickr("#res-end", flatpickrConfig);
+        // Inicializar los pickers con la lógica global de main.js
+        if (typeof initReservationPickers === 'function') {
+            initReservationPickers();
+        }
     });
 
     async function addVehicle(e) {
@@ -527,6 +527,7 @@
         const payload = {
             sucursal_nombre: document.getElementById('res-sede').value,
             patente: document.getElementById('res-vehicle').value,
+            tipo_estadia: document.getElementById('res-type').value,
             fecha_inicio: document.getElementById('res-start').value,
             fecha_fin: document.getElementById('res-end').value
         };

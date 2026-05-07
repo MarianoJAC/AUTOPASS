@@ -27,6 +27,36 @@ function toggleSidebar() {
     localStorage.setItem('sidebarCollapsed', isCollapsed);
 }
 
+// --- ACTUALIZAR NAVEGACION PARA USUARIOS LOGEADOS ---
+function actualizarNavegacionAutenticada() {
+    const nav = document.getElementById('main-nav');
+    const tokenLocal = localStorage.getItem('token');
+    const rol = localStorage.getItem('rol');
+
+    if (!nav) return;
+
+    if (tokenLocal) {
+        const linkDestino = rol === 'admin' ? '/dashboard' : '/perfil';
+        const textoDestino = rol === 'admin' ? 'Panel Control' : 'Mi Perfil';
+
+        nav.innerHTML = `
+            <a href="/">Inicio</a>
+            <a href="/#features">Servicios</a>
+            <a href="/contacto">Contacto</a>
+            <a href="${linkDestino}" style="border: 1px solid var(--dorado); padding: 8px 20px; border-radius: 50px; color: var(--dorado) !important; margin-left: 20px;">${textoDestino}</a>
+            <a href="javascript:void(0)" onclick="logout()" style="color: var(--danger) !important; opacity: 0.8; margin-left: 20px;">Cerrar Sesión</a>
+        `;
+    } else {
+        nav.innerHTML = `
+            <a href="/">Inicio</a>
+            <a href="/#features">Servicios</a>
+            <a href="/contacto">Contacto</a>
+            <a href="javascript:void(0)" onclick="openModal('loginModal')">Iniciá Sesión</a>
+            <a href="javascript:void(0)" onclick="openModal('registerModal')">Creá tu Cuenta</a>
+        `;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Restaurar estado del sidebar
     if (localStorage.getItem('sidebarCollapsed') === 'true') {
@@ -39,6 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (toggleIcon) toggleIcon.className = 'fas fa-chevron-right';
         }
     }
+    
+    // --- ACTUALIZAR NAVEGACIÓN ---
+    actualizarNavegacionAutenticada();
     
     // --- CONFIGURACIÓN DEL MAPA (INDEX) ---
     const mapEl = document.getElementById('map');
@@ -63,7 +96,16 @@ document.addEventListener('DOMContentLoaded', () => {
         loadProfile();
         loadVehicles();
         loadActiveStays();
+        actualizarPreciosGlobales();
         setInterval(loadActiveStays, 30000);
+
+        // Listeners para la calculadora de reservas
+        const resStart = document.getElementById('res-start');
+        const resEnd = document.getElementById('res-end');
+        const resType = document.getElementById('res-type');
+        if (resStart) resStart.addEventListener('change', updateReservationCost);
+        if (resEnd) resEnd.addEventListener('change', updateReservationCost);
+        if (resType) resType.addEventListener('change', updateReservationCost);
     }
 
     // --- INICIALIZACIÓN DEL CARRUSEL (HOME) ---
@@ -74,13 +116,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- LÓGICA DEL CARRUSEL DE INICIO ---
 const DatosCarrusel = [
-    { imagen: '/images/INICIO/trafico1.webp', leyenda: '¿no te agota tanto embotellamiento en Buenos Aires?' },
-    { imagen: '/images/INICIO/trafico2.webp', leyenda: '¿Sentís que el tráfico continuo te consume la energía?' },
-    { imagen: '/images/INICIO/trafico3.webp', leyenda: '¿no es agotador perder horas en la autopista?' },
-    { imagen: '/images/INICIO/estacionamiento1.webp', leyenda: '¿no te agota buscar lugar en la calle siempre?' },
-    { imagen: '/images/INICIO/estacionamiento2.webp', leyenda: '¿no te frustra llegar y que no haya lugar?' },
-    { imagen: '/images/INICIO/estacionamiento3.webp', leyenda: 'AUTOPASS elimina el estres del estacionamiento en la ciudad.' },
-    { imagen: '/images/INICIO/estacionamiento4.webp', leyenda: 'reserva tu cochera online en segundos con AUTOPASS.' }
+    { imagen: '/static/images/INICIO/trafico1.webp', leyenda: '¿No te agota tanto embotellamiento en Buenos Aires?' },
+    { imagen: '/static/images/INICIO/trafico2.webp', leyenda: '¿Sentís que el tráfico continuo te consume la energía?' },
+    { imagen: '/static/images/INICIO/trafico3.webp', leyenda: '¿No es agotador perder horas en la autopista?' },
+    { imagen: '/static/images/INICIO/estacionamiento1.webp', leyenda: '¿No te agota buscar lugar en la calle siempre?' },
+    { imagen: '/static/images/INICIO/estacionamiento2.webp', leyenda: '¿No te frustra llegar y que no haya lugar?' },
+    { imagen: '/static/images/INICIO/estacionamiento3.webp', leyenda: 'AUTOPASS elimina el estres del estacionamiento en la ciudad.' },
+    { imagen: '/static/images/INICIO/estacionamiento4.webp', leyenda: 'Reserva tu cochera online en segundos con AUTOPASS.' }
 ];
 
 let IndiceCarruselActual = 0;
@@ -88,6 +130,7 @@ let IntervaloCarrusel = null;
 
 function InicializarCarrusel() {
     const Contenedor = document.getElementById('contenedorCarrusel');
+    const LeyendaHero = document.getElementById('leyendaHero');
     if (!Contenedor) return;
 
     // GENERAR ITEMS
@@ -95,10 +138,11 @@ function InicializarCarrusel() {
         const Item = document.createElement('div');
         Item.className = `item-carrusel ${i === 0 ? 'activo' : ''}`;
         Item.style.backgroundImage = `url('${dato.imagen}')`;
-        // ELIMINAMOS text-transform: uppercase DE LA LEYENDA EN CSS PARA RESPETAR ESTE FORMATO
-        Item.innerHTML = `<div class="leyenda-carrusel">${dato.leyenda}</div>`;
         Contenedor.appendChild(Item);
     });
+
+    // Poner la primera leyenda
+    if (LeyendaHero) LeyendaHero.innerText = DatosCarrusel[0].leyenda;
 
     // ROTACION AUTOMATICA
     IniciarTemporizadorCarrusel();
@@ -111,6 +155,7 @@ function IniciarTemporizadorCarrusel() {
 
 function RotarCarrusel(Direccion) {
     const Items = document.querySelectorAll('.item-carrusel');
+    const LeyendaHero = document.getElementById('leyendaHero');
     if (Items.length === 0) return;
 
     Items[IndiceCarruselActual].classList.remove('activo');
@@ -121,6 +166,15 @@ function RotarCarrusel(Direccion) {
     if (IndiceCarruselActual < 0) IndiceCarruselActual = Items.length - 1;
     
     Items[IndiceCarruselActual].classList.add('activo');
+
+    // ACTUALIZAR LEYENDA EN HERO
+    if (LeyendaHero) {
+        LeyendaHero.style.opacity = '0';
+        setTimeout(() => {
+            LeyendaHero.innerText = DatosCarrusel[IndiceCarruselActual].leyenda;
+            LeyendaHero.style.opacity = '1';
+        }, 500);
+    }
 }
 
 function MoverCarrusel(Direccion) {
@@ -907,6 +961,168 @@ function showReservationInfo(nombre, info) {
     openModal('infoModal');
 }
 
+async function payReservation(resId, plate) {
+    alert(`Simulando integración con Mercado Pago para la reserva ${resId} de la patente ${plate}. El sistema procesará el pago automáticamente.`);
+    // Asumimos un endpoint para pagar reserva o usamos el genérico de estadía si aplica.
+    // Para simplificar, usamos la lógica de payWithMP adaptada o llamamos al endpoint de usuario/pagar
+    const res = await fetch(`${API_BASE}/user/pay-reservation?res_id=${resId}`, { 
+        method: 'POST', 
+        headers: {'Authorization': `Bearer ${token}`} 
+    });
+    
+    if (res.ok) {
+        showToast('Pago de reserva exitoso');
+        loadReservations();
+        loadProfile();
+    } else {
+        const d = await res.json();
+        alert(d.detail || 'Error al procesar el pago');
+    }
+}
+
+// --- LÓGICA DE CALCULADORA DE COSTO RESERVAS ---
+let preciosGlobales = { precio_hora: 1500, precio_dia: 12000, precio_semana: 60000, precio_quincena: 100000, precio_mes: 180000 };
+
+async function actualizarPreciosGlobales() {
+    try {
+        const res = await fetch(`${API_BASE}/settings/prices`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (res.ok) {
+            preciosGlobales = await res.json();
+        }
+    } catch (e) { console.error("Error al cargar tarifas:", e); }
+}
+
+function updateReservationCost() {
+    const startVal = document.getElementById('res-start').value;
+    const endVal = document.getElementById('res-end').value;
+    const type = document.getElementById('res-type').value;
+    const summary = document.getElementById('res-summary');
+    
+    if (startVal && endVal) {
+        const start = new Date(startVal.replace(' ', 'T'));
+        const end = new Date(endVal.replace(' ', 'T'));
+        const diffMs = end - start;
+        
+        if (diffMs > 0) {
+            const diffHrs = diffMs / 3600000;
+            let total = 0;
+            let durationTxt = "";
+
+            if (type === 'hora') {
+                const units = Math.ceil(diffHrs);
+                total = units * (preciosGlobales.precio_hora || 1500);
+                durationTxt = `${Math.floor(diffHrs)}h ${Math.round((diffHrs % 1) * 60)}m`;
+            } else if (type === 'dia') {
+                const units = Math.ceil(diffHrs / 24);
+                total = units * (preciosGlobales.precio_dia || 12000);
+                durationTxt = `${units} ${units === 1 ? 'Día' : 'Días'}`;
+            } else if (type === 'semana') {
+                const units = Math.ceil(diffHrs / (24 * 7));
+                total = units * (preciosGlobales.precio_semana || 60000);
+                durationTxt = `${units} ${units === 1 ? 'Semana' : 'Semanas'}`;
+            } else if (type === 'quincena') {
+                const units = Math.ceil(diffHrs / (24 * 15));
+                total = units * (preciosGlobales.precio_quincena || 100000);
+                durationTxt = `${units} ${units === 1 ? 'Quincena' : 'Quincenas'}`;
+            } else if (type === 'mes') {
+                const units = Math.ceil(diffHrs / (24 * 30));
+                total = units * (preciosGlobales.precio_mes || 180000);
+                durationTxt = `${units} ${units === 1 ? 'Mes' : 'Meses'}`;
+            }
+            
+            if (document.getElementById('res-duration')) document.getElementById('res-duration').innerText = durationTxt;
+            if (document.getElementById('res-total-cost')) document.getElementById('res-total-cost').innerText = `$${total.toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+            if (summary) summary.style.display = 'flex';
+        } else {
+            if (summary) summary.style.display = 'none';
+        }
+    } else {
+        if (summary) summary.style.display = 'none';
+    }
+}
+
+// --- LÓGICA DE SELECTORES DE RESERVA DINÁMICOS ---
+let startPicker, endPicker;
+
+function initReservationPickers() {
+    const startInput = document.getElementById('res-start');
+    const endInput = document.getElementById('res-end');
+    const typeSelect = document.getElementById('res-type');
+    
+    if (!startInput || !endInput) return;
+
+    const configBase = {
+        enableTime: true,
+        time_24hr: true,
+        altInput: true,
+        altFormat: "d/m/Y H:i",
+        dateFormat: "Y-m-d H:i",
+        minDate: "today",
+        theme: "dark",
+        locale: { firstDayOfWeek: 1 }
+    };
+
+    startPicker = flatpickr(startInput, {
+        ...configBase,
+        onChange: function(selectedDates, dateStr) {
+            if (selectedDates.length > 0) {
+                reconfigureEndPicker(selectedDates[0]);
+            }
+        }
+    });
+
+    endPicker = flatpickr(endInput, configBase);
+
+    // Reconfigurar al cambiar el tipo
+    typeSelect.addEventListener('change', () => {
+        if (startPicker.selectedDates.length > 0) {
+            reconfigureEndPicker(startPicker.selectedDates[0]);
+        }
+    });
+
+    // Estado inicial si ya hay fechas (ej: al volver a reservar)
+    if (startInput.value) {
+        const d = new Date(startInput.value.replace(' ', 'T'));
+        if (!isNaN(d)) reconfigureEndPicker(d);
+    }
+}
+
+function reconfigureEndPicker(startDate) {
+    const type = document.getElementById('res-type').value;
+    const endInput = document.getElementById('res-end');
+    
+    if (!endPicker) return;
+
+    let endDate = new Date(startDate);
+
+    if (type === 'hora') {
+        // Permitir elegir, pero máximo 24hs
+        const maxDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+        endPicker.set("minDate", startDate);
+        endPicker.set("maxDate", maxDate);
+        endInput.readOnly = false;
+        endInput.style.opacity = "1";
+        endInput.style.cursor = "pointer";
+    } else {
+        // Duraciones fijas: bloquear elección y calcular automáticamente
+        if (type === 'dia') endDate.setDate(startDate.getDate() + 1);
+        else if (type === 'semana') endDate.setDate(startDate.getDate() + 7);
+        else if (type === 'quincena') endDate.setDate(startDate.getDate() + 15);
+        else if (type === 'mes') endDate.setMonth(startDate.getMonth() + 1);
+
+        endPicker.setDate(endDate);
+        endPicker.set("minDate", endDate);
+        endPicker.set("maxDate", endDate);
+        
+        // Visualmente indicar que es automático
+        endInput.readOnly = true;
+        endInput.style.opacity = "0.7";
+        endInput.style.cursor = "not-allowed";
+        
+        updateReservationCost();
+    }
+}
+
 async function loadReservations() {
     const resV = await fetch(`${API_BASE}/user/vehicles`, { headers: { 'Authorization': `Bearer ${token}` } });
     const vehicles = await resV.json();
@@ -918,54 +1134,7 @@ async function loadReservations() {
         });
     }
 
-    // --- LÓGICA DE CALCULADORA DE COSTO ---
-    let hourlyRate = 1500; // Valor por defecto actualizado a 1500
-    try {
-        const resSettings = await fetch(`${API_BASE}/settings/prices`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (resSettings.ok) {
-            const settings = await resSettings.json();
-            hourlyRate = parseFloat(settings.precio_hora) || 1500;
-            console.log("Tarifa actualizada desde DB:", hourlyRate);
-        }
-    } catch (e) { console.error("Error fetching rate", e); }
-
-    const updateCost = () => {
-        // Obtenemos los valores de los inputs originales de flatpickr
-        const startVal = document.getElementById('res-start').value;
-        const endVal = document.getElementById('res-end').value;
-        const summary = document.getElementById('res-summary');
-        
-        if (startVal && endVal) {
-            const start = new Date(startVal.replace(' ', 'T'));
-            const end = new Date(endVal.replace(' ', 'T'));
-            const diffMs = end - start;
-            
-            if (diffMs > 0) {
-                const diffHrs = diffMs / 3600000;
-                // Cálculo: Bloques de hora (redondeo hacia arriba)
-                const hoursToCharge = Math.ceil(diffHrs);
-                const total = hoursToCharge * hourlyRate;
-                
-                const h = Math.floor(diffHrs);
-                const m = Math.round((diffHrs % 1) * 60);
-                
-                document.getElementById('res-duration').innerText = `${h}h ${m}m`;
-                document.getElementById('res-total-cost').innerText = `$${total.toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
-                summary.style.display = 'flex';
-            } else {
-                summary.style.display = 'none';
-            }
-        } else {
-            summary.style.display = 'none';
-        }
-    };
-
-    const resStart = document.getElementById('res-start');
-    const resEnd = document.getElementById('res-end');
-    if (resStart && resEnd) {
-        resStart.addEventListener('change', updateCost);
-        resEnd.addEventListener('change', updateCost);
-    }
+    await actualizarPreciosGlobales();
 
     const resR = await fetch(`${API_BASE}/user/reservations`, { headers: { 'Authorization': `Bearer ${token}` } });
     const reservations = await resR.json();
@@ -998,6 +1167,7 @@ async function loadReservations() {
                         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
                                 <div style="font-weight: 800; font-size: 1.1rem; color: var(--dorado); letter-spacing: 1px">${r.patente} ${isCancelled ? '[CANCELADA]' : ''}</div>
+                                <div style="font-size: 0.7rem; color: #888; font-weight: 800; text-transform: uppercase;">PLAN: ${r.tipo_estadia || 'hora'}</div>
                                 <div style="font-size: 0.85rem; color: #555; margin-top: 8px; font-weight: 600">DESDE: ${formatDate(r.fecha_inicio)}</div>
                                 <div style="font-size: 0.85rem; color: #555; font-weight: 600">HASTA: ${formatDate(r.fecha_fin)}</div>
                                 <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 10px; font-size: 1.1rem; color: ${cardColor}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
@@ -1016,11 +1186,14 @@ async function loadReservations() {
 
         activeItems.forEach(r => {
             const cardColor = (r.estado_pago === 'Pagado' ? 'var(--secondary)' : '#f59e0b');
+            const isPaid = r.estado_pago === 'Pagado';
+            
             activeList.innerHTML += `
                 <div class="card" style="border-left: 4px solid ${cardColor}; margin-bottom: 0;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
                             <div style="font-weight: 800; font-size: 1.1rem; color: var(--dorado); letter-spacing: 1px">${r.patente}</div>
+                            <div style="font-size: 0.7rem; color: #888; font-weight: 800; text-transform: uppercase;">PLAN: ${r.tipo_estadia || 'hora'}</div>
                             <div style="font-size: 0.85rem; color: #555; margin-top: 8px; font-weight: 600">DESDE: ${formatDate(r.fecha_inicio)}</div>
                             <div style="font-size: 0.85rem; color: #555; font-weight: 600">HASTA: ${formatDate(r.fecha_fin)}</div>
                             <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 10px; font-size: 1.1rem; color: ${cardColor}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
@@ -1031,7 +1204,7 @@ async function loadReservations() {
                         </div>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #222; padding-top: 15px;">
-                        <button class="btn btn-primary" style="flex: 1; font-size: 0.75rem;" onclick="repeatReservation(${r.id})"><i class="fas fa-rotate"></i> Repetir</button>
+                        ${!isPaid ? `<button class="btn btn-primary" style="flex: 1.5; font-size: 0.75rem;" onclick="payReservation(${r.id}, '${r.patente}')"><i class="fab fa-cc-mastercard"></i> Pagar</button>` : ''}
                         <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;" onclick="modifyReservation(${r.id}, '${r.fecha_inicio}')"><i class="fas fa-pen-to-square"></i> Modificar</button>
                         <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem; color: var(--danger); border-color: var(--danger);" onclick="cancelReservation(${r.id})"><i class="fas fa-xmark"></i> Cancelar</button>
                     </div>

@@ -10,10 +10,10 @@
             <img src="/static/images/logo.png" alt="Logo" style="height: 65px;">
             <div class="logo-text">AUTOPASS</div>
         </a>
-        <nav>
+        <nav id="main-nav">
             <a href="/">Inicio</a>
             <a href="/#features">Servicios</a>
-            <a href="javascript:void(0)" id="nav-login" onclick="openModal('loginModal')">Iniciar Sesión</a>
+            <a href="javascript:void(0)" id="nav-login" onclick="openModal('loginModal')">Iniciá Sesión</a>
             <a href="javascript:void(0)" id="nav-profile" href="/perfil" style="display: none;">Mi Perfil</a>
         </nav>
     </header>
@@ -110,11 +110,11 @@
         </div>
     </footer>
 
-    <!-- MODAL: LOGIN (Copiado del index para consistencia ya que no hay fragmentos) -->
+    <!-- MODAL: LOGIN -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('loginModal')"><i class="fas fa-xmark"></i></span>
-            <h2>INICIAR SESIÓN</h2>
+            <h2>INICIÁ SESIÓN</h2>
             <div id="login-error" class="error-msg"></div>
             <form id="loginForm">
                 <div class="form-group">
@@ -126,12 +126,12 @@
                     <input type="password" id="login-password" placeholder="********" required>
                 </div>
                 <div style="text-align: right; margin-top: -15px; margin-bottom: 20px;">
-                    <a href="javascript:void(0)" style="color: var(--dorado); text-decoration: none; font-size: 0.75rem; font-weight: 600; opacity: 0.8;" onclick="alert('Funcionalidad en desarrollo. Por favor, contacte a soporte.')">¿Olvidó su contraseña?</a>
+                    <a href="javascript:void(0)" style="color: var(--dorado); text-decoration: none; font-size: 0.75rem; font-weight: 600; opacity: 0.8;" onclick="alert('Funcionalidad en desarrollo. Por favor, contactate con soporte.')">¿Olvidaste tu contraseña?</a>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Ingresar</button>
             </form>
             <div style="text-align: center; margin-top: 25px; font-size: 0.85rem; color: #666;">
-                ¿Aún no posee cuenta? <a href="javascript:void(0)" onclick="switchModal('loginModal', 'registerModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Regístrese aquí</a>
+                ¿Todavía no tenés cuenta? <a href="javascript:void(0)" onclick="switchModal('loginModal', 'registerModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Registrate acá</a>
             </div>
         </div>
     </div>
@@ -140,27 +140,33 @@
     <div id="registerModal" class="modal">
         <div class="modal-content" style="max-width: 550px;">
             <span class="close-btn" onclick="closeModal('registerModal')"><i class="fas fa-xmark"></i></span>
-            <h2>CREAR CUENTA</h2>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="background: rgba(197, 160, 89, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; border: 1px solid var(--border);">
+                    <i class="fas fa-user-plus" style="color: var(--dorado); font-size: 1.5rem;"></i>
+                </div>
+                <h2 style="margin: 0; letter-spacing: 2px;">CREÁ TU CUENTA</h2>
+            </div>
             <div id="register-error" class="error-msg"></div>
+            
             <form id="registerForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group">
-                        <label>Nombre</label>
-                        <input type="text" id="reg-nombre" placeholder="Su nombre" required>
+                        <label>Nombre/s</label>
+                        <input type="text" id="reg-nombre" placeholder="Tu nombre/s" required>
                     </div>
                     <div class="form-group">
                         <label>Apellido</label>
-                        <input type="text" id="reg-apellido" placeholder="Su apellido" required>
+                        <input type="text" id="reg-apellido" placeholder="Tu apellido" required>
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group">
                         <label>DNI</label>
-                        <input type="text" id="reg-dni" placeholder="Número de documento" required>
+                        <input type="text" id="reg-dni" placeholder="12345678" required>
                     </div>
                     <div class="form-group">
                         <label>Teléfono</label>
-                        <input type="tel" id="reg-tel" placeholder="Número de contacto" required>
+                        <input type="tel" id="reg-tel" placeholder="11 2233 4455" required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -171,10 +177,10 @@
                     <label>Contraseña</label>
                     <input type="password" id="reg-password" placeholder="Mínimo 8 caracteres" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Finalizar Registro</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 15px;">Finalizar Registro</button>
             </form>
             <div style="text-align: center; margin-top: 25px; font-size: 0.85rem; color: #666;">
-                ¿Ya posee una cuenta? <a href="javascript:void(0)" onclick="switchModal('registerModal', 'loginModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Inicie sesión aquí</a>
+                ¿Ya tenés una cuenta? <a href="javascript:void(0)" onclick="switchModal('registerModal', 'loginModal')" style="color: var(--dorado); text-decoration: none; font-weight: 700;">Iniciá sesión acá</a>
             </div>
         </div>
     </div>
@@ -182,20 +188,11 @@
 
 {% block extra_scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        if (localStorage.getItem('token')) {
-            document.getElementById('nav-login').style.display = 'none';
-            const profileLink = document.getElementById('nav-profile');
-            profileLink.style.display = 'inline-block';
-            profileLink.href = localStorage.getItem('rol') === 'admin' ? '/dashboard' : '/perfil';
-        }
-    });
-
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         contactForm.onsubmit = (e) => {
             e.preventDefault();
-            alert('Gracias por comunicarse con AUTOPASS. Su mensaje ha sido enviado con éxito y un asesor lo contactará a la brevedad.');
+            alert('Gracias por comunicarte con AUTOPASS. Tu mensaje ha sido enviado con éxito y un asesor te contactará a la brevedad.');
             e.target.reset();
         };
     }

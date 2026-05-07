@@ -15,7 +15,6 @@ class User(Base):
     direccion = Column(String, nullable=True)
     password_hash = Column(String)
     rol = Column(String, default="user") # 'admin' o 'user'
-    direccion = Column(String, nullable=True)
     puntos_acumulados = Column(Integer, default=0)
     saldo = Column(Float, default=0.0)
 
@@ -44,6 +43,7 @@ class Reservation(Base):
     mp_preference_id = Column(String, nullable=True)
     estado_pago = Column(String, default="Pendiente")
     estado_reserva = Column(String, default="Pendiente")
+    tipo_estadia = Column(String, default="hora") # 'hora', 'dia', 'semana', 'quincena', 'mes'
     sucursal_nombre = Column(String, nullable=True)
     sucursal_info = Column(String, nullable=True)
 

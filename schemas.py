@@ -66,6 +66,10 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
+class UserChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -91,6 +95,7 @@ class UserReservationCreate(BaseModel):
     fecha_inicio: str
     fecha_fin: str
     sucursal_nombre: Optional[str] = "AUTOPASS Central"
+    tipo_estadia: Optional[str] = "hora"
 
 class ReservationUpdate(BaseModel):
     fecha_inicio: Optional[str] = None
@@ -105,6 +110,7 @@ class UserReservationResponse(BaseModel):
     estado_pago: str
     estado_reserva: str
     monto_total: float
+    tipo_estadia: Optional[str] = "hora"
     sucursal_nombre: Optional[str] = None
     sucursal_info: Optional[str] = None
 

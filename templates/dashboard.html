@@ -21,10 +21,12 @@
         <div class="sidebar-toggle" onclick="toggleSidebar()">
             <i class="fas fa-chevron-left"></i>
         </div>
-        <div class="logo">
-            <img src="/static/images/logo.png" alt="Logo" style="height: 40px;">
-            <span>AUTOPASS</span>
-        </div>
+        <a href="/" style="text-decoration: none; color: inherit; display: block;">
+            <div class="logo">
+                <img src="/static/images/logo.png" alt="Logo" style="height: 40px;">
+                <span>AUTOPASS</span>
+            </div>
+        </a>
         <nav class="nav-group">
             <div class="nav-item active" onclick="switchTab('live', this)"><i class="fas fa-video"></i> <span class="nav-text">Monitoreo en Vivo</span></div>
             <div class="nav-item" onclick="switchTab('occupancy', this)"><i class="fas fa-car"></i> <span class="nav-text">Ocupación Actual</span></div>

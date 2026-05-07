@@ -93,11 +93,24 @@ def create_user_reservation(res: schemas.UserReservationCreate, db: Session = De
     end = datetime.datetime.fromisoformat(res.fecha_fin)
     duration_hours = (end - start).total_seconds() / 3600
     if duration_hours <= 0: raise HTTPException(status_code=400, detail="La fecha de fin debe ser posterior a la de inicio")
-    
-    # USAMOS EL SERVICIO PARA LA TARIFA
-    precio_hora = BillingService.get_hourly_rate(db)
-    monto = max(precio_hora, round(duration_hours * precio_hora, 2))
-    
+
+    # USAMOS EL SERVICIO PARA LA TARIFA SEGÚN TIPO
+    import math
+    rate = BillingService.get_rate(db, res.tipo_estadia)
+
+    if res.tipo_estadia == "hora":
+        monto = math.ceil(duration_hours) * rate
+    elif res.tipo_estadia == "dia":
+        monto = math.ceil(duration_hours / 24) * rate
+    elif res.tipo_estadia == "semana":
+        monto = math.ceil(duration_hours / (24 * 7)) * rate
+    elif res.tipo_estadia == "quincena":
+        monto = math.ceil(duration_hours / (24 * 15)) * rate
+    elif res.tipo_estadia == "mes":
+        monto = math.ceil(duration_hours / (24 * 30)) * rate
+    else:
+        monto = math.ceil(duration_hours) * rate
+
     estado_pago = "Pendiente"
     if current_user.saldo >= monto:
         current_user.saldo -= monto
@@ -120,6 +133,7 @@ def create_user_reservation(res: schemas.UserReservationCreate, db: Session = De
         monto_total=monto, 
         estado_pago=estado_pago, 
         estado_reserva="Pendiente",
+        tipo_estadia=res.tipo_estadia,
         sucursal_nombre=res.sucursal_nombre,
         sucursal_info=info_sede
     )
@@ -181,3 +195,23 @@ def complain_reservation(res_id: int, message: str, db: Session = Depends(get_db
     # Simulación de envío de mail
     print(f"RECLAMO RECIBIDO para reserva {res_id} de {current_user.email}: {message}")
     return {"status": "ok", "message": "Su reclamo ha sido enviado al administrador del estacionamiento"}
+
+@router.post("/pay-reservation")
+def pay_reservation(res_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    res = db.query(models.Reservation).filter(models.Reservation.id == res_id, models.Reservation.user_id == current_user.id).first()
+    if not res: raise HTTPException(status_code=404, detail="Reserva no encontrada")
+    if res.estado_pago == "Pagado": return {"status": "ok", "message": "Ya está pagada"}
+    
+    # Simulación de Mercado Pago: marcamos como pagado.
+    res.estado_pago = "Pagado"
+    db.commit()
+    return {"status": "ok"}
+
+@router.post("/change-password")
+def change_password(data: schemas.UserChangePassword, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    if not auth.verify_password(data.old_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="La contraseña actual es incorrecta")
+    
+    current_user.password_hash = auth.get_password_hash(data.new_password)
+    db.commit()
+    return {"status": "ok"}

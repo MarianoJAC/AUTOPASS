@@ -10,7 +10,7 @@
             <img src="/static/images/logo.png" alt="Logo" style="height: 65px;">
             <div class="logo-text">AUTOPASS</div>
         </a>
-        <nav>
+        <nav id="main-nav">
             <a href="/contacto">Contacto</a>
             <a href="javascript:void(0)" onclick="openModal('loginModal')">Iniciá Sesión</a>
             <a href="javascript:void(0)" onclick="openModal('registerModal')">Creá tu Cuenta</a>
@@ -30,21 +30,23 @@
         </button>
     </section>
 
-    <div class="seccion-frase-destacada">
+    <div class="seccion-frase-destacada" style="padding: 80px 10%;">
         <div class="frase-parpadeante">AUTOPASS estacionamiento inteligente</div>
         <p class="descripcion-frase">AUTOPASS simplifica estacionar: detecta espacios libres, permite reservar online, abre barreras con solo ver tu patente y gestiona pagos digitales, reduciendo demoras, estrés y mejorando la experiencia urbana.</p>
     </div>
 
-    <section class="hero">
-        <h1>AUTOPASS</h1>
-        <p>La evolución del estacionamiento. Acceso inteligente, pagos digitales y control total desde cualquier dispositivo.</p>
-        <div class="cta-group">
-            <a href="javascript:void(0)" onclick="openModal('registerModal')" class="btn btn-primary">RESERVÁ YA</a>
-            <a href="/publicidad" class="btn btn-outline">Conocé Más</a>
+    <section class="hero" style="min-height: 70vh; padding: 100px 10%;">
+        <div class="hero-content">
+            <h1>AUTOPASS</h1>
+            <div id="leyendaHero" class="leyenda-hero"></div>
+            <div class="cta-group">
+                <a href="javascript:void(0)" onclick="openModal('registerModal')" class="btn btn-primary">RESERVÁ YA</a>
+                <a href="/publicidad" class="btn btn-outline">Conocé Más</a>
+            </div>
         </div>
     </section>
 
-    <section class="features" id="features">
+    <section class="features" id="features" style="padding: 100px 10%;">
         <div class="feature-card">
             <span class="feature-icon"><i class="fas fa-calendar-check"></i></span>
             <h3>Reservas Anticipadas</h3>
@@ -67,11 +69,10 @@
         </div>
     </section>
 
-    <section class="map-section" id="donde-estamos">
-        <h2>Encontrá los mejores puntos</h2>
-        <p>Encontrá el punto AUTOPASS más cercano a tu ubicación.</p>
-        <div class="map-container">
-            <div id="map"></div>
+    <section class="map-section" id="donde-estamos" style="padding: 100px 10%; background: var(--negro);">
+        <h2 style="text-align: center; margin-bottom: 60px; letter-spacing: 3px; font-weight: 900;">ENCONTRÁ EL PUNTO AUTOPASS MÁS CERCANO A TU UBICACIÓN</h2>
+        <div class="map-container" style="width: 100%; margin: 0 auto;">
+            <div id="map" style="height: 500px; border-radius: 25px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.5);"></div>
             <div class="map-overlay">
                 <h4><i class="fas fa-building"></i> Playa</h4>
                 <p>Av. del Libertador 1200, CABA</p>
@@ -231,43 +232,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-    // Lógica del Carrusel (Integrada temporalmente o para ser movida a main.js)
-    const imagenesCarrusel = [
-        { src: '/static/images/INICIO/estacionamiento1.webp', leyenda: 'SEGURIDAD 24 HORAS' },
-        { src: '/static/images/INICIO/estacionamiento2.webp', leyenda: 'ACCESO INTELIGENTE' },
-        { src: '/static/images/INICIO/estacionamiento3.webp', leyenda: 'PAGOS DIGITALES' },
-        { src: '/static/images/INICIO/estacionamiento4.webp', leyenda: 'GESTIÓN EN TIEMPO REAL' },
-        { src: '/static/images/INICIO/trafico1.webp', leyenda: 'SIN DEMORAS' },
-        { src: '/static/images/INICIO/trafico2.webp', leyenda: 'EL FUTURO ES HOY' },
-        { src: '/static/images/INICIO/trafico3.webp', leyenda: 'TU LUGAR ASEGURADO' }
-    ];
-
-    let slideActual = 0;
-    const contenedor = document.getElementById('contenedorCarrusel');
-
-    function inicializarCarrusel() {
-        if (!contenedor) return;
-        imagenesCarrusel.forEach((img, index) => {
-            const div = document.createElement('div');
-            div.className = `item-carrusel ${index === 0 ? 'activo' : ''}`;
-            div.style.backgroundImage = `url('${img.src}')`;
-            div.innerHTML = `<div class="leyenda-carrusel">${img.leyenda}</div>`;
-            contenedor.appendChild(div);
-        });
-        
-        setInterval(() => MoverCarrusel(1), 5000);
-    }
-
-    function MoverCarrusel(direccion) {
-        const items = document.querySelectorAll('.item-carrusel');
-        if (items.length === 0) return;
-        
-        items[slideActual].classList.remove('activo');
-        slideActual = (slideActual + direccion + items.length) % items.length;
-        items[slideActual].classList.add('activo');
-    }
-
-    document.addEventListener('DOMContentLoaded', inicializarCarrusel);
-</script>
+<!-- El carrusel se inicializa desde main.js mediante el ID #contenedorCarrusel -->
 {% endblock %}
