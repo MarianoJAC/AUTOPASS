@@ -30,15 +30,17 @@ class UserBase(BaseModel):
     @field_validator('dni')
     @classmethod
     def validate_dni(cls, v):
-        if not v.isdigit():
-            raise ValueError('El DNI debe contener únicamente números (sin puntos)')
+        clean = re.sub(r'[^0-9]', '', v)
+        if len(clean) < 6 or len(clean) > 8:
+            raise ValueError('El DNI debe tener entre 6 y 8 dígitos')
         return v
 
     @field_validator('telefono')
     @classmethod
     def validate_telefono(cls, v):
-        if not v.isdigit() or len(v) < 10:
-            raise ValueError('El teléfono debe contener código de área y número (mínimo 10 dígitos)')
+        clean = re.sub(r'[^0-9]', '', v)
+        if len(clean) < 10:
+            raise ValueError('El teléfono debe contener al menos 10 dígitos')
         return v
 
 class UserUpdate(BaseModel):

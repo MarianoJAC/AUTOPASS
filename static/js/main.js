@@ -230,6 +230,8 @@ if (loginForm) {
 
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
+    initPasswordValidation('reg-password', 'reg-password-confirm', 'reg-password-strength', 'reg-req-len', 'reg-req-up', 'reg-req-spec', 'reg-req-match');
+
     registerForm.onsubmit = async (e) => {
         e.preventDefault();
         const errorMsg = document.getElementById('register-error');
@@ -730,7 +732,16 @@ function showSection(sectionId, el) {
 
 async function loadProfile() {
     const res = await fetch(`${API_BASE}/user/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-    if (!res.ok) return logout();
+    if (!res.ok) {
+        if (res.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('rol');
+            localStorage.removeItem('nombre');
+            localStorage.removeItem('apellido');
+            window.location.href = '/';
+        }
+        return;
+    }
     const user = await res.json();
     
     // Actualizar localStorage con datos frescos
@@ -777,15 +788,15 @@ async function loadProfile() {
     initPasswordValidation('new-password', 'confirm-new-password');
 }
 
-function initPasswordValidation(passId, confirmId) {
+function initPasswordValidation(passId, confirmId, strengthId = 'password-strength', reqLenId = 'req-len', reqUpId = 'req-up', reqSpecId = 'req-spec', reqMatchId = 'req-match') {
     const regPass = document.getElementById(passId);
     const regPassConfirm = document.getElementById(confirmId);
-    const strengthMeter = document.getElementById('password-strength');
+    const strengthMeter = document.getElementById(strengthId);
     
-    const reqLen = document.getElementById('req-len');
-    const reqUp = document.getElementById('req-up');
-    const reqSpec = document.getElementById('req-spec');
-    const reqMatch = document.getElementById('req-match');
+    const reqLen = document.getElementById(reqLenId);
+    const reqUp = document.getElementById(reqUpId);
+    const reqSpec = document.getElementById(reqSpecId);
+    const reqMatch = document.getElementById(reqMatchId);
 
     if (regPass && strengthMeter) {
         const validatePass = () => {

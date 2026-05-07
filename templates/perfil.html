@@ -133,7 +133,7 @@
                                     <label>PATENTE</label>
                                     <div class="input-with-icon">
                                         <i class="fas fa-id-card"></i>
-                                        <input type="text" id="new-plate" placeholder="AA123BB" required style="width: 150px; text-transform: uppercase; font-family: var(--font-mono);">
+                                        <input type="text" id="new-plate" placeholder="ABC123 ó AB123CD" required style="width: 150px; text-transform: uppercase; font-family: var(--font-mono);">
                                     </div>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
@@ -499,8 +499,17 @@
 
     async function addVehicle(e) {
         e.preventDefault();
-        const p = document.getElementById('new-plate').value;
+        const p = document.getElementById('new-plate').value.trim().toUpperCase().replace(/\s/g, '');
         const m = document.getElementById('new-model').value;
+        
+        const oldFormat = /^[A-Z]{3}[0-9]{3}$/;
+        const newFormat = /^[A-Z]{2}[0-9]{3}[A-Z]{2}$/;
+        
+        if (!oldFormat.test(p) && !newFormat.test(p)) {
+            showToast('Formato de patente inválido. Usá ABC123 ó AB123CD');
+            return;
+        }
+
         const res = await fetch(`${API_BASE}/user/vehicles?patente=${p}&marca_modelo=${m}`, {
             method: 'POST',
             headers: {'Authorization': `Bearer ${token}`}
