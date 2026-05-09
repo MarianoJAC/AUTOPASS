@@ -6,11 +6,11 @@
 
 {% block content %}
     <header>
-        <a href="/" class="header-logo-link">
-            <img src="/static/images/logo.png" alt="Logo" class="header-logo-img">
+        <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 15px;">
+            <img src="/static/images/logo.png" alt="Logo" style="height: 65px;">
             <div class="logo-text">AUTOPASS</div>
         </a>
-        <nav id="main-nav">
+        <nav>
             <a href="javascript:void(0)" onclick="irAReserva()">RESERVA YA</a>
             <a href="javascript:void(0)" onclick="openModal('loginModal')">Iniciá Sesión</a>
             <a href="javascript:void(0)" onclick="openModal('registerModal')">Creá tu Cuenta</a>
@@ -18,7 +18,7 @@
         </nav>
     </header>
 
-    <!-- SECCION CARRUSEL + HERO OVERLAY -->
+    <!-- SECCION CARRUSEL -->
     <section class="seccion-carrusel">
         <div id="contenedorCarrusel" class="contenedor-carrusel">
             <!-- LOS ITEMS SE GENERARAN DINAMICAMENTE POR JS -->
@@ -29,18 +29,22 @@
         <button class="flecha-carrusel flecha-der" onclick="MoverCarrusel(1)">
             <i class="fas fa-chevron-right"></i>
         </button>
+    </section>
 
-        <div class="hero-overlay">
-            <h1>AUTOPASS</h1>
-            <div id="leyendaHero" class="leyenda-hero"></div>
-            <div class="cta-group">
-                <a href="javascript:void(0)" onclick="irAReserva()" class="btn btn-primary">RESERVÁ YA</a>
-                <a href="/publicidad" class="btn btn-outline">Conocé Más</a>
-            </div>
+    <div class="seccion-frase-destacada">
+        <div class="frase-parpadeante">AUTOPASS estacionamiento inteligente</div>
+        <p class="descripcion-frase">AUTOPASS simplifica estacionar: detecta espacios libres, permite reservar online, abre barreras con solo ver tu patente y gestiona pagos digitales, reduciendo demoras, estrés y mejorando la experiencia urbana.</p>
+    </div>
+
+    <section class="hero">
+        <h1>AUTOPASS</h1>
+        <p>La evolución del estacionamiento. Acceso inteligente, pagos digitales y control total desde cualquier dispositivo.</p>
+        <div class="cta-group">
+            <a href="javascript:void(0)" onclick="irAReserva()" class="btn btn-primary">RESERVÁ YA</a>
+            <a href="/publicidad" class="btn btn-outline">Conocé Más</a>
         </div>
     </section>
 
-    <!-- SECCION FEATURES -->
     <section class="features" id="features">
         <div class="feature-card">
             <span class="feature-icon"><i class="fas fa-calendar-check"></i></span>
@@ -64,13 +68,13 @@
         </div>
     </section>
 
-    <!-- SECCION MAPA -->
     <section class="map-section" id="donde-estamos">
-        <h2 class="section-title">ENCONTRÁ EL PUNTO AUTOPASS MÁS CERCANO</h2>
+        <h2>Encontrá los mejores puntos</h2>
+        <p>Encontrá el punto AUTOPASS más cercano a tu ubicación.</p>
         <div class="map-container">
             <div id="map"></div>
             <div class="map-overlay">
-                <h4><i class="fas fa-building"></i> Playa Central</h4>
+                <h4><i class="fas fa-building"></i> Playa</h4>
                 <p>Av. del Libertador 1200, CABA</p>
             </div>
         </div>
@@ -79,15 +83,15 @@
     <footer class="main-footer">
         <div class="footer-grid">
             <div class="footer-col">
-                <div class="footer-logo">
-                    <img src="/static/images/logo.png" alt="Logo">
-                    <span class="footer-logo-text">AUTOPASS</span>
+                <div class="logo" style="margin-bottom: 20px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
+                    <img src="/static/images/logo.png" alt="Logo" style="height: 30px;">
+                    AUTOPASS
                 </div>
-                <p class="footer-description">Líderes en tecnología de estacionamiento inteligente en Argentina. Innovación, seguridad y confort para tu movilidad diaria.</p>
-                <div class="social-links">
-                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-x-twitter"></i></a>
+                <p style="margin-bottom: 20px;">Líderes en tecnología de estacionamiento inteligente en Argentina. Innovación, seguridad y confort para tu movilidad diaria.</p>
+                <div class="social-links" style="display: flex; gap: 15px;">
+                    <a href="#" style="font-size: 1.2rem; color: var(--dorado);"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" style="font-size: 1.2rem; color: var(--dorado);"><i class="fab fa-instagram"></i></a>
+                    <a href="#" style="font-size: 1.2rem; color: var(--dorado);"><i class="fab fa-x-twitter"></i></a>
                 </div>
             </div>
             <div class="footer-col">
@@ -104,18 +108,19 @@
             </div>
             <div class="footer-col">
                 <h4>Contacto</h4>
-                <p><i class="fas fa-location-dot contact-icon"></i> Av. del Libertador 1200, CABA</p>
-                <p><i class="fas fa-envelope contact-icon"></i> info@autopass.com.ar</p>
-                <p><i class="fas fa-phone contact-icon"></i> 0810-333-PASS</p>
+                <p><i class="fas fa-location-dot" style="width: 20px; color: var(--dorado);"></i> Av. del Libertador 1200, CABA</p>
+                <p><i class="fas fa-envelope" style="width: 20px; color: var(--dorado);"></i> info@autopass.com.ar</p>
+                <p><i class="fas fa-phone" style="width: 20px; color: var(--dorado);"></i> 0810-333-PASS</p>
             </div>
         </div>
         <div class="footer-bottom">
-            &copy; 2026 <span>AUTOPASS</span> TECHNOLOGY. Todos los derechos reservados.
+            &copy; 2026 AUTOPASS TECHNOLOGY. Todos los derechos reservados.
         </div>
     </footer>
 
+    {% include "auth_modals.html" %}
 {% endblock %}
 
+
 {% block extra_scripts %}
-<!-- El carrusel se inicializa desde main.js mediante el ID #contenedorCarrusel -->
 {% endblock %}

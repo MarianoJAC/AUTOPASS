@@ -1,14 +1,8 @@
-# Estado del Proyecto: ParkingTech (Actualizado 2026-05-07)
+# Estado del Proyecto: ParkingTech (Actualizado 2026-05-02)
 
-### 🚀 Hitos Recientes (Mayo 2026)
-- [x] **Refactorización del Sistema de Reservas**: Implementación de lógica dinámica para estadías fijas (Día, Semana, Mes) y por hora (max 24hs).
-- [x] **Sincronización de Base de Datos**: Migración de la tabla `reservations` para incluir `tipo_estadia` y metadatos de sucursales.
-- [x] **Seguridad de Usuario**: Implementación de endpoint para cambio de contraseña con validación de fuerza y cambio "in-place".
-- [x] **Pulido de Interfaz (UX/UI)**: Ajuste de placeholders, espaciados y jerarquía visual en el portal del cliente.
-- [x] **Integración de Pagos**: Implementación de lógica de pago de reservas y simulación de Mercado Pago.
-- [x] **Persistencia de Datos**: Verificación de flujo completo desde frontend hasta DB SQLite.
+### 🚀 Hitos Recientes
 
-### 🏗️ Arquitectura Professional (v3.6)
+### 🏗️ Arquitectura Professional (¡NUEVO v3.0!)
 - [x] **Modularización del Backend**: Segmentación de `main.py` en 6 routers especializados (`routes/`).
 - [x] **Patrón de Servicio**: Lógica de negocio (Dinero/Puntos) aislada en `BillingService`.
 - [x] **Frontend Pro (Jinja2)**: Implementación de herencia de plantillas (`base.html`) para eliminar redundancia.

@@ -4,28 +4,10 @@ import models
 
 class BillingService:
     @staticmethod
-    def get_rate(db: Session, stay_type: str = "hora") -> float:
-        """Obtiene la tarifa según el tipo de estadía (hora, dia, semana, quincena, mes)."""
-        clave_map = {
-            "hora": "precio_hora",
-            "dia": "precio_dia",
-            "semana": "precio_semana",
-            "quincena": "precio_quincena",
-            "mes": "precio_mes"
-        }
-        clave = clave_map.get(stay_type, "precio_hora")
-        setting = db.query(models.Settings).filter(models.Settings.clave == clave).first()
-        if setting:
-            return float(setting.valor)
-        
-        # Fallbacks si no existen en DB
-        fallbacks = {"hora": 1500.0, "dia": 12000.0, "semana": 60000.0, "quincena": 100000.0, "mes": 180000.0}
-        return fallbacks.get(stay_type, 1500.0)
-
-    @staticmethod
     def get_hourly_rate(db: Session) -> float:
-        """Obtiene la tarifa por hora (mantenido por compatibilidad)."""
-        return BillingService.get_rate(db, "hora")
+        """Obtiene la tarifa por hora desde la configuración de la base de datos."""
+        setting = db.query(models.Settings).filter(models.Settings.clave == "precio_hora").first()
+        return float(setting.valor) if setting else 100.0
 
     @staticmethod
     def calculate_debt(entry_time_str: str, db: Session) -> float:
