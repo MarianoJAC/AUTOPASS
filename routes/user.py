@@ -89,27 +89,45 @@ def create_user_reservation(res: schemas.UserReservationCreate, db: Session = De
     vehicle = db.query(models.Vehicle).filter(models.Vehicle.patente == res.patente, models.Vehicle.user_id == current_user.id).first()
     if not vehicle: raise HTTPException(status_code=400, detail="Patente no vinculada a su cuenta")
     
-    start = datetime.datetime.fromisoformat(res.fecha_inicio)
-    end = datetime.datetime.fromisoformat(res.fecha_fin)
-    duration_hours = (end - start).total_seconds() / 3600
-    if duration_hours <= 0: raise HTTPException(status_code=400, detail="La fecha de fin debe ser posterior a la de inicio")
-
-    # USAMOS EL SERVICIO PARA LA TARIFA SEGÚN TIPO
     import math
     rate = BillingService.get_rate(db, res.tipo_estadia)
 
-    if res.tipo_estadia == "hora":
-        monto = math.ceil(duration_hours) * rate
-    elif res.tipo_estadia == "dia":
-        monto = math.ceil(duration_hours / 24) * rate
-    elif res.tipo_estadia == "semana":
-        monto = math.ceil(duration_hours / (24 * 7)) * rate
-    elif res.tipo_estadia == "quincena":
-        monto = math.ceil(duration_hours / (24 * 15)) * rate
-    elif res.tipo_estadia == "mes":
-        monto = math.ceil(duration_hours / (24 * 30)) * rate
+    if res.tipo_estadia == "dia" and res.dias_semana:
+        # Contar días seleccionados dentro del rango de fechas
+        start = datetime.datetime.fromisoformat(res.fecha_inicio)
+        end = datetime.datetime.fromisoformat(res.fecha_fin)
+        dias_seleccionados = [int(d.strip()) for d in res.dias_semana.split(",") if d.strip()]
+        count = 0
+        d = start
+        while d <= end:
+            if d.weekday() in dias_seleccionados:
+                count += 1
+            d += datetime.timedelta(days=1)
+        if count == 0:
+            raise HTTPException(status_code=400, detail="No hay días seleccionados dentro del rango")
+        monto = count * rate
     else:
-        monto = math.ceil(duration_hours) * rate
+        start = datetime.datetime.fromisoformat(res.fecha_inicio)
+        end = datetime.datetime.fromisoformat(res.fecha_fin)
+        duration_hours = (end - start).total_seconds() / 3600
+
+        if res.tipo_estadia == "hora":
+            if duration_hours <= 0:
+                raise HTTPException(status_code=400, detail="La fecha de fin debe ser posterior a la de inicio")
+            monto = math.ceil(duration_hours) * rate
+        elif res.tipo_estadia == "dia":
+            monto = max(1, math.ceil(duration_hours / 24)) * rate
+        else:
+            if duration_hours <= 0:
+                raise HTTPException(status_code=400, detail="La fecha de fin debe ser posterior a la de inicio")
+            if res.tipo_estadia == "semana":
+                monto = math.ceil(duration_hours / (24 * 7)) * rate
+            elif res.tipo_estadia == "quincena":
+                monto = math.ceil(duration_hours / (24 * 15)) * rate
+            elif res.tipo_estadia == "mes":
+                monto = math.ceil(duration_hours / (24 * 30)) * rate
+            else:
+                monto = math.ceil(duration_hours) * rate
 
     estado_pago = "Pendiente"
     if current_user.saldo >= monto:
@@ -135,7 +153,8 @@ def create_user_reservation(res: schemas.UserReservationCreate, db: Session = De
         estado_reserva="Pendiente",
         tipo_estadia=res.tipo_estadia,
         sucursal_nombre=res.sucursal_nombre,
-        sucursal_info=info_sede
+        sucursal_info=info_sede,
+        dias_semana=res.dias_semana
     )
     db.add(new_res)
     db.commit()

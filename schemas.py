@@ -27,13 +27,6 @@ class UserBase(BaseModel):
     puntos_acumulados: Optional[int] = 0
     saldo: Optional[float] = 0.0
 
-    @field_validator('dni')
-    @classmethod
-    def validate_dni(cls, v):
-        if not v.isdigit():
-            raise ValueError('El DNI debe contener únicamente números (sin puntos)')
-        return v
-
     @field_validator('telefono')
     @classmethod
     def validate_telefono(cls, v):
@@ -50,6 +43,13 @@ class UserUpdate(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+
+    @field_validator('dni')
+    @classmethod
+    def validate_dni(cls, v):
+        if not v.isdigit():
+            raise ValueError('El DNI debe contener únicamente números (sin puntos)')
+        return v
 
     @field_validator('password')
     @classmethod
@@ -96,6 +96,7 @@ class UserReservationCreate(BaseModel):
     fecha_fin: str
     sucursal_nombre: Optional[str] = "AUTOPASS Central"
     tipo_estadia: Optional[str] = "hora"
+    dias_semana: Optional[str] = None
 
 class AdminReservationCreate(BaseModel):
     user_id: Optional[int] = None

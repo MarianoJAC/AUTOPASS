@@ -55,7 +55,7 @@ def create_admin_reservation(data: schemas.AdminReservationCreate, db: Session =
     if data.tipo_estadia == "hora":
         monto = math.ceil(duration_hours) * rate
     elif data.tipo_estadia == "dia":
-        monto = math.ceil(duration_hours / 24) * rate
+        monto = max(1, math.ceil(duration_hours / 24)) * rate
     elif data.tipo_estadia == "semana":
         monto = math.ceil(duration_hours / (24 * 7)) * rate
     elif data.tipo_estadia == "quincena":
