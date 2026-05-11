@@ -836,7 +836,296 @@ async function loadActiveStays() {
     }
 }
 
-// --- ACTUALIZAR CARGA DE VEHÍCULOS EN SELECTS ---
+async function payWithMP(plate) {
+    alert(`Simulando integración con Mercado Pago para ${plate}. El sistema procesará el pago automáticamente.`);
+    await fetch(`${API_BASE}/access/pay-stay?plate=${plate}`, { method: 'POST', headers: {'Authorization': `Bearer ${token}`} });
+    showToast('Pago exitoso');
+    loadActiveStays();
+    loadProfile();
+}
+
+function showReservationInfo(nombre, info) {
+    document.getElementById('info-parking-name').innerText = nombre || 'Sede AUTOPASS';
+    document.getElementById('info-parking-desc').innerText = info || 'No hay información adicional disponible para esta sede.';
+    openModal('infoModal');
+}
+
+async function payReservation(resId, plate) {
+    alert(`Simulando integración con Mercado Pago para la reserva ${resId} de la patente ${plate}. El sistema procesará el pago automáticamente.`);
+    const res = await fetch(`${API_BASE}/user/pay-reservation?res_id=${resId}`, { 
+        method: 'POST', 
+        headers: {'Authorization': `Bearer ${token}`} 
+    });
+    
+    if (res.ok) {
+        showToast('Pago de reserva exitoso');
+        loadReservations();
+        loadProfile();
+    } else {
+        const d = await res.json();
+        alert(d.detail || 'Error al procesar el pago');
+    }
+}
+
+// --- LÓGICA DE CALCULADORA DE COSTO RESERVAS ---
+let preciosGlobales = { precio_hora: 1500, precio_dia: 12000, precio_semana: 60000, precio_quincena: 100000, precio_mes: 180000 };
+
+async function actualizarPreciosGlobales() {
+    try {
+        const res = await fetch(`${API_BASE}/settings/prices`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (res.ok) {
+            preciosGlobales = await res.json();
+        }
+    } catch (e) { console.error("Error al cargar tarifas:", e); }
+}
+
+
+function updateReservationCost(form) {
+    if (!form) form = document.querySelector('.reservation-form');
+    
+    const startInput = form.querySelector('.res-start');
+    const endInput = form.querySelector('.res-end');
+    const typeSelect = form.querySelector('#res-type') || form.querySelector('.res-type');
+    const summary = form.querySelector('#res-summary') || form.querySelector('.res-summary');
+    const durationEl = form.querySelector('#res-duration') || form.querySelector('.res-duration');
+    const totalCostEl = form.querySelector('#res-total-cost') || form.querySelector('.res-total-cost');
+    
+    if (!startInput || !endInput) return;
+
+    const type = typeSelect ? typeSelect.value : 'hora';
+    let total = 0;
+    let durationTxt = "";
+
+    if (type === 'dia') {
+        if (startInput.value) {
+            total = preciosGlobales.precio_dia || 12000;
+            durationTxt = "1 Día";
+        }
+        if (total === 0 && summary) { summary.style.display = 'none'; return; }
+    } else if (startInput.value && endInput.value) {
+        let start, end;
+        if (type === 'hora') {
+            const timeInput = form.querySelector('.res-time');
+            const hoursInput = form.querySelector('.res-hours');
+            const timeStr = timeInput ? timeInput.value : '08:00';
+            start = new Date(startInput.value + 'T' + timeStr);
+            const hours = parseInt(hoursInput ? hoursInput.value : 1) || 1;
+            end = new Date(start.getTime() + hours * 3600000);
+        } else {
+            start = new Date(startInput.value + 'T00:00:00');
+            end = new Date(endInput.value + 'T00:00:00');
+        }
+        const diffMs = end - start;
+        
+        if (diffMs > 0) {
+            const diffHrs = diffMs / 3600000;
+
+            if (type === 'hora') {
+                const units = Math.ceil(diffHrs);
+                total = units * (preciosGlobales.precio_hora || 1500);
+                durationTxt = `${Math.floor(diffHrs)}h ${Math.round((diffHrs % 1) * 60)}m`;
+            } else if (type === 'semana') {
+                const units = Math.ceil(diffHrs / (24 * 7));
+                total = units * (preciosGlobales.precio_semana || 60000);
+                durationTxt = `${units} ${units === 1 ? 'Semana' : 'Semanas'}`;
+            } else if (type === 'quincena') {
+                const units = Math.ceil(diffHrs / (24 * 15));
+                total = units * (preciosGlobales.precio_quincena || 100000);
+                durationTxt = `${units} ${units === 1 ? 'Quincena' : 'Quincenas'}`;
+            } else if (type === 'mes') {
+                const units = Math.ceil(diffHrs / (24 * 30));
+                total = units * (preciosGlobales.precio_mes || 180000);
+                durationTxt = `${units} ${units === 1 ? 'Mes' : 'Meses'}`;
+            }
+        }
+        if (total === 0 && summary) { summary.style.display = 'none'; return; }
+    } else {
+        if (summary) summary.style.display = 'none';
+        return;
+    }
+    
+    if (durationEl) durationEl.innerText = durationTxt;
+    if (totalCostEl) totalCostEl.innerText = `$${total.toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+    if (summary) summary.style.display = 'flex';
+}
+
+// --- LÓGICA DE SELECTORES DE RESERVA DINÁMICOS ---
+function toggleReservationMode(form) {
+    const typeSelect = form.querySelector('#res-type') || form.querySelector('.res-type');
+    const type = typeSelect ? typeSelect.value : 'hora';
+    const hoursGroup = document.getElementById('hours-group');
+    const diasGroup = document.getElementById('dias-group');
+    const timeGroup = document.getElementById('time-group');
+    const endGroup = document.querySelector('.right-cell > .form-group:last-child');
+
+    hoursGroup.style.display = type === 'hora' ? 'block' : 'none';
+    timeGroup.style.display = type === 'hora' ? 'block' : 'none';
+    diasGroup.style.display = 'none';
+    if (endGroup) endGroup.style.display = (type === 'hora' || type === 'dia') ? 'none' : 'block';
+}
+
+function initReservationPickers() {
+    document.querySelectorAll('.reservation-form').forEach(form => {
+        const startInput = form.querySelector('.res-start');
+        const endInput = form.querySelector('.res-end');
+        const hoursInput = form.querySelector('.res-hours');
+        const typeSelect = form.querySelector('#res-type') || form.querySelector('.res-type');
+        
+        if (!startInput || !endInput) return;
+
+        function getConfigBase() {
+            return {
+                enableTime: false,
+                altInput: true,
+                altInputClass: "form-control",
+                altFormat: "d/m/Y",
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                theme: "dark",
+                locale: { firstDayOfWeek: 1 }
+            };
+        }
+
+        function rebuildPickers() {
+            const startVal = startInput.value;
+            const endVal = endInput.value;
+            form.startPicker?.destroy();
+            form.endPicker?.destroy();
+
+            const cfg = getConfigBase();
+            form.startPicker = flatpickr(startInput, {
+                ...cfg,
+                onChange: function(selectedDates) {
+                    if (selectedDates.length > 0) {
+                        reconfigureEndPicker(selectedDates[0], form);
+                    }
+                    updateReservationCost(form);
+                }
+            });
+            if (startVal) form.startPicker.setDate(startVal);
+
+            const endCfg = getConfigBase();
+            if (typeSelect && typeSelect.value !== 'hora') {
+                endCfg.minDate = startInput.value || "today";
+            }
+            form.endPicker = flatpickr(endInput, {
+                ...endCfg,
+                onChange: function() {
+                    updateReservationCost(form);
+                }
+            });
+            if (endVal) form.endPicker.setDate(endVal);
+        }
+
+        if (hoursInput) {
+            hoursInput.addEventListener('input', () => {
+                if (form.startPicker && form.startPicker.selectedDates.length > 0) {
+                    reconfigureEndPicker(form.startPicker.selectedDates[0], form);
+                }
+                updateReservationCost(form);
+            });
+        }
+
+        const timeInput = form.querySelector('.res-time');
+        if (timeInput) {
+            timeInput.addEventListener('change', () => {
+                if (form.startPicker && form.startPicker.selectedDates.length > 0) {
+                    reconfigureEndPicker(form.startPicker.selectedDates[0], form);
+                }
+                updateReservationCost(form);
+            });
+        }
+
+        form.querySelectorAll('.res-dia').forEach(cb => {
+            cb.addEventListener('change', () => updateReservationCost(form));
+        });
+
+        rebuildPickers();
+        toggleReservationMode(form);
+
+        if (typeSelect) {
+            typeSelect.addEventListener('change', () => {
+                toggleReservationMode(form);
+                rebuildPickers();
+                if (form.startPicker && form.startPicker.selectedDates.length > 0) {
+                    reconfigureEndPicker(form.startPicker.selectedDates[0], form);
+                }
+                updateReservationCost(form);
+            });
+        }
+
+        if (startInput.value) {
+            const d = new Date(startInput.value.replace(' ', 'T'));
+            if (!isNaN(d)) reconfigureEndPicker(d, form);
+        }
+    });
+}
+
+function reconfigureEndPicker(startDate, form) {
+    const typeSelect = form.querySelector('#res-type') || form.querySelector('.res-type');
+    const endInput = form.querySelector('.res-end');
+    const endPicker = form.endPicker;
+    const hoursInput = form.querySelector('.res-hours');
+    const timeInput = form.querySelector('.res-time');
+    
+    if (!endPicker || !typeSelect) return;
+
+    const type = typeSelect.value;
+
+    if (type === 'hora') {
+        let hours = 1;
+        if (hoursInput) {
+            hours = parseInt(hoursInput.value) || 1;
+            if (hours < 1) hours = 1;
+            if (hours > 24) hours = 24;
+        }
+        let baseDate = new Date(startDate);
+        if (timeInput && timeInput.value) {
+            const [h, m] = timeInput.value.split(':');
+            baseDate.setHours(parseInt(h), parseInt(m), 0, 0);
+        }
+        let endDate = new Date(baseDate);
+        endDate.setHours(endDate.getHours() + hours);
+        endPicker.setDate(endDate);
+        endInput.readOnly = true;
+        const alt = endInput.nextElementSibling;
+        if (alt && alt.tagName === 'INPUT') {
+            alt.readOnly = true;
+            alt.style.opacity = "0.7";
+            alt.style.cursor = "not-allowed";
+        }
+        updateReservationCost(form);
+    } else if (type === 'dia') {
+        endPicker.setDate(startDate);
+        endPicker.set("minDate", startDate);
+        endPicker.set("maxDate", startDate);
+        endInput.readOnly = true;
+        const alt = endInput.nextElementSibling;
+        if (alt && alt.tagName === 'INPUT') {
+            alt.readOnly = true;
+            alt.style.opacity = "0.7";
+            alt.style.cursor = "not-allowed";
+        }
+        updateReservationCost(form);
+    } else {
+        let endDate = new Date(startDate);
+        if (type === 'semana') endDate.setDate(startDate.getDate() + 7);
+        else if (type === 'quincena') endDate.setDate(startDate.getDate() + 15);
+        else if (type === 'mes') endDate.setMonth(startDate.getMonth() + 1);
+
+        endPicker.setDate(endDate);
+        endPicker.set("minDate", endDate);
+        endPicker.set("maxDate", endDate);
+        endInput.readOnly = true;
+        const alt = endInput.nextElementSibling;
+        if (alt && alt.tagName === 'INPUT') {
+            alt.readOnly = true;
+            alt.style.opacity = "0.7";
+            alt.style.cursor = "not-allowed";
+        }
+        updateReservationCost(form);
+    }
+}
 async function loadReservations() {
     const resV = await fetch(`${API_BASE}/user/vehicles`, { headers: { 'Authorization': `Bearer ${token}` } });
     const vehicles = await resV.json();

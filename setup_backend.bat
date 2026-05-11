@@ -36,7 +36,7 @@ echo [+] Actualizando PIP...
 python -m pip install --upgrade pip
 
 echo [+] Instalando FastAPI, Jinja2 y Base de Datos...
-pip install fastapi uvicorn sqlalchemy python-dotenv jinja2 passlib[bcrypt] python-jose[cryptography]
+pip install fastapi uvicorn sqlalchemy python-dotenv jinja2 passlib[bcrypt] python-jose[cryptography] python-multipart pillow
 
 echo [+] Instalando Comunicacion (MQTT y Requests)...
 pip install paho-mqtt requests
@@ -71,10 +71,13 @@ if not exist .env (
     echo [!] El archivo .env ya existe, preservando configuracion actual.
 )
 
-:: 5. Inicializar Base de Datos
+:: 5. Inicializar y Migrar Base de Datos
 echo.
 echo [+] Inicializando Base de Datos y Usuario Admin...
 python init_db.py
+
+echo [+] Ejecutando Migraciones (Actualización de Columnas)...
+python migrate_db.py
 
 echo.
 echo ======================================================

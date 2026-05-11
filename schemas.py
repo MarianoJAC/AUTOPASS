@@ -27,14 +27,6 @@ class UserBase(BaseModel):
     puntos_acumulados: Optional[int] = 0
     saldo: Optional[float] = 0.0
 
-    @field_validator('dni')
-    @classmethod
-    def validate_dni(cls, v):
-        clean = re.sub(r'[^0-9]', '', v)
-        if len(clean) < 6 or len(clean) > 8:
-            raise ValueError('El DNI debe tener entre 6 y 8 dígitos')
-        return v
-
     @field_validator('telefono')
     @classmethod
     def validate_telefono(cls, v):
@@ -52,6 +44,13 @@ class UserUpdate(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+
+    @field_validator('dni')
+    @classmethod
+    def validate_dni(cls, v):
+        if not v.isdigit():
+            raise ValueError('El DNI debe contener únicamente números (sin puntos)')
+        return v
 
     @field_validator('password')
     @classmethod
@@ -81,18 +80,22 @@ class ReservationCreate(BaseModel):
     duration_hours: int
     coupon_code: Optional[str] = None
 
-class AdminReservationCreate(BaseModel):
-    patente: str
-    fecha_inicio: str
-    fecha_fin: str
-    dias_semana: Optional[str] = None # Ej: "0,2,4"
-    monto_total: float = 0.0
-
 class UserReservationCreate(BaseModel):
     patente: str
     fecha_inicio: str
     fecha_fin: str
     sucursal_nombre: Optional[str] = "AUTOPASS Central"
+    tipo_estadia: Optional[str] = "hora"
+    dias_semana: Optional[str] = None
+
+class AdminReservationCreate(BaseModel):
+    user_id: Optional[int] = None
+    cliente_nombre: Optional[str] = ""
+    patente: str
+    fecha_inicio: str
+    fecha_fin: str
+    sucursal_nombre: Optional[str] = "AUTOPASS Ituzaingó"
+    tipo_estadia: Optional[str] = "hora"
 
 class ReservationUpdate(BaseModel):
     fecha_inicio: Optional[str] = None

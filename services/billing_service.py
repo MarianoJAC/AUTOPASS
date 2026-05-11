@@ -4,6 +4,19 @@ import models
 
 class BillingService:
     @staticmethod
+    def get_rate(db: Session, tipo: str = "hora") -> float:
+        setting_map = {
+            "hora": "precio_hora",
+            "dia": "precio_dia",
+            "semana": "precio_semana",
+            "quincena": "precio_quincena",
+            "mes": "precio_mes",
+        }
+        clave = setting_map.get(tipo, "precio_hora")
+        setting = db.query(models.Settings).filter(models.Settings.clave == clave).first()
+        return float(setting.valor) if setting else 100.0
+
+    @staticmethod
     def get_hourly_rate(db: Session) -> float:
         """Obtiene la tarifa por hora desde la configuración de la base de datos."""
         setting = db.query(models.Settings).filter(models.Settings.clave == "precio_hora").first()

@@ -192,21 +192,83 @@
                     <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px;">
                         <div class="card" style="height: fit-content;">
                             <div class="card-title"><i class="fas fa-file-circle-plus"></i> GENERAR NUEVA RESERVA</div>
-                            <form class="reservation-form" onsubmit="createReservation(event)" style="display: flex; flex-direction: column; gap: 20px;">
-                                <div class="form-group">
-                                    <label>Vehículo a Utilizar</label>
-                                    <select class="res-vehicle" required>
-                                        <option value="">Cargando flota...</option>
-                                    </select>
-                                </div>
-                                <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                            <form class="reservation-form form-stack" onsubmit="createReservation(event)">
+                                <div class="res-form-row">
                                     <div class="form-group">
-                                        <label><i class="fas fa-calendar-day"></i> Fecha y Hora Inicio</label>
-                                        <input type="text" class="res-start" placeholder="Seleccione fecha y hora..." required>
+                                        <label>Punto AutoPass</label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-building"></i>
+                                            <select class="res-sede form-control" required>
+                                                <option value="AUTOPASS Ituzaingó">AUTOPASS Ituzaingó</option>
+                                                <option value="AUTOPASS Castelar">AUTOPASS Castelar</option>
+                                                <option value="AUTOPASS Morón">AUTOPASS Morón</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                        <label><i class="fas fa-calendar-check"></i> Fecha y Hora Fin</label>
-                                        <input type="text" class="res-end" placeholder="Seleccione fecha y hora..." required>
+                                        <label>Vehículo</label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-car"></i>
+                                            <select class="res-vehicle form-control" required>
+                                                <option value="">Cargando flota...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="res-form-row">
+                                    <div class="form-group">
+                                        <label>Tipo de Estadía</label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-clock"></i>
+                                            <select class="res-type form-control" required>
+                                                <option value="hora" selected>Por Hora</option>
+                                                <option value="dia">Por Día</option>
+                                                <option value="semana">Por Semana</option>
+                                                <option value="quincena">Por Quincena</option>
+                                                <option value="mes">Mensual</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" id="hours-group" style="display:none;">
+                                        <label>Horas</label>
+                                        <input type="number" class="res-hours form-control" min="1" max="24" value="1">
+                                    </div>
+                                </div>
+                                <div class="res-form-row">
+                                    <div class="form-group">
+                                        <label>Inicio</label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-calendar-day"></i>
+                                            <input type="text" class="res-start form-control" placeholder="Seleccione fecha..." required>
+                                        </div>
+                                    </div>
+                                    <div class="right-cell">
+                                        <div class="form-group" id="time-group" style="display:none;">
+                                            <label>Horario</label>
+                                            <div class="input-with-icon">
+                                                <i class="fas fa-clock"></i>
+                                                <input type="time" class="res-time form-control" value="08:00">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Fin</label>
+                                            <div class="input-with-icon">
+                                                <i class="fas fa-calendar-check"></i>
+                                                <input type="text" class="res-end form-control" placeholder="Seleccione fecha..." required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="dias-group" style="display:none;">
+                                    <label>Seleccioná los Días</label>
+                                    <div class="dias-checkboxes">
+                                        <label class="dia-checkbox"><input type="checkbox" class="res-dia" value="0"> Lun</label>
+                                        <label class="dia-checkbox"><input type="checkbox" class="res-dia" value="1"> Mar</label>
+                                        <label class="dia-checkbox"><input type="checkbox" class="res-dia" value="2"> Mié</label>
+                                        <label class="dia-checkbox"><input type="checkbox" class="res-dia" value="3"> Jue</label>
+                                        <label class="dia-checkbox"><input type="checkbox" class="res-dia" value="4"> Vie</label>
+                                        <label class="dia-checkbox"><input type="checkbox" class="res-dia" value="5"> Sáb</label>
+                                        <label class="dia-checkbox"><input type="checkbox" class="res-dia" value="6"> Dom</label>
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-check-double"></i> Confirmar Reserva</button>
@@ -238,7 +300,7 @@
             minDate: "today",
             theme: "dark",
             locale: { firstDayOfWeek: 1 }
-        };
+        });
 
         const startPicker = flatpickr("#res-start", {
             ...flatpickrConfig,
@@ -292,26 +354,62 @@
     async function createReservation(e) {
         e.preventDefault();
         const form = e.target;
+        
+        const sedeEl = form.querySelector('#res-sede') || form.querySelector('.res-sede');
+        const vehicleEl = form.querySelector('.res-vehicle');
+        const typeEl = form.querySelector('#res-type') || form.querySelector('.res-type') || { value: 'hora' };
+        const startEl = form.querySelector('.res-start');
+        const endEl = form.querySelector('.res-end');
+        const hoursEl = form.querySelector('.res-hours');
+        const timeEl = form.querySelector('.res-time');
+
+        const tipo = typeEl.value;
+
+        let fecha_inicio = startEl.value;
+        if (tipo === 'hora' && startEl.value) {
+            const time = timeEl ? timeEl.value : '08:00';
+            fecha_inicio = startEl.value + 'T' + time;
+        }
+
+        let fecha_fin = endEl.value;
+        if (tipo === 'hora' && startEl.value) {
+            const start = new Date(fecha_inicio.replace(' ', 'T'));
+            const hours = parseInt(hoursEl ? hoursEl.value : 1) || 1;
+            start.setHours(start.getHours() + Math.min(Math.max(hours, 1), 24));
+            fecha_fin = start.toISOString().slice(0, 16);
+        } else if (tipo === 'dia' && startEl.value) {
+            fecha_fin = startEl.value;
+        }
+
         const payload = {
-            patente: form.querySelector('.res-vehicle').value,
-            fecha_inicio: form.querySelector('.res-start').value,
-            fecha_fin: form.querySelector('.res-end').value
+            sucursal_nombre: sedeEl ? sedeEl.value : "AUTOPASS Central",
+            patente: vehicleEl.value,
+            tipo_estadia: tipo,
+            fecha_inicio: fecha_inicio,
+            fecha_fin: fecha_fin
         };
-        const res = await fetch(`${API_BASE}/user/reservations`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(payload)
-        });
-        if (res.ok) {
-            showToast('Reserva creada con éxito');
-            loadReservations();
-            form.reset();
-        } else {
-            const d = await res.json();
-            alert(d.detail);
+
+        try {
+            const res = await fetch(`${API_BASE}/user/reservations`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                showToast('Reserva creada con éxito');
+                loadReservations();
+                form.reset();
+                if (typeof toggleReservationMode === 'function') toggleReservationMode(form);
+                if (typeof updateReservationCost === 'function') updateReservationCost(form);
+            } else {
+                const d = await res.json();
+                alert(d.detail || 'Error al crear reserva');
+            }
+        } catch (err) {
+            alert('Error de conexión');
         }
     }
 </script>

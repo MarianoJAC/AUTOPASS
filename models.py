@@ -46,6 +46,8 @@ class Reservation(Base):
     estado_reserva = Column(String, default="Pendiente")
     sucursal_nombre = Column(String, nullable=True)
     sucursal_info = Column(String, nullable=True)
+    tipo_estadia = Column(String, default="hora")
+    cliente_nombre = Column(String, nullable=True)
 
     user = relationship("User", back_populates="reservations")
     access_logs = relationship("AccessLog", back_populates="reservation")
