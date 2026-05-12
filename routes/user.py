@@ -178,18 +178,90 @@ def create_user_reservation(res: schemas.UserReservationCreate, db: Session = De
 def modify_reservation(res_id: int, data: schemas.ReservationUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     res = db.query(models.Reservation).filter(models.Reservation.id == res_id, models.Reservation.user_id == current_user.id).first()
     if not res: raise HTTPException(status_code=404, detail="Reserva no encontrada")
-    
-    # Verificar límite de tiempo (ej: 2 horas antes)
+
+    # Verificar límite de tiempo (2 horas antes)
     start_dt = datetime.datetime.fromisoformat(res.fecha_inicio)
     if (start_dt - datetime.datetime.now()).total_seconds() < 7200:
         raise HTTPException(status_code=400, detail="No se puede modificar una reserva con menos de 2 horas de antelación")
-    
+
+    # Guardar monto anterior para ajuste de saldo
+    monto_anterior = res.monto_total
+    ya_pagado = res.estado_pago == "Pagado"
+
+    # Actualizar campos
     if data.fecha_inicio: res.fecha_inicio = data.fecha_inicio
     if data.fecha_fin: res.fecha_fin = data.fecha_fin
-    if data.patente: res.patente = data.patente
-    
+    if data.patente: 
+        vehicle = db.query(models.Vehicle).filter(models.Vehicle.patente == data.patente, models.Vehicle.user_id == current_user.id).first()
+        if not vehicle: raise HTTPException(status_code=400, detail="Patente no vinculada a su cuenta")
+        res.patente = data.patente
+    if data.tipo_estadia: res.tipo_estadia = data.tipo_estadia
+    if data.sucursal_nombre:
+        res.sucursal_nombre = data.sucursal_nombre
+        sucursales_info = {
+            "AUTOPASS Central": "Av. del Libertador 1200, CABA. Abierto 24hs.",
+            "AUTOPASS Ituzaingó": "Punto de Acceso Estación Ituzaingó. Abierto 24hs.",
+            "AUTOPASS Castelar": "Centro Comercial Castelar. Abierto 24hs.",
+            "AUTOPASS Morón": "Plaza Oeste Shopping - Morón. Abierto 24hs."
+        }
+        res.sucursal_info = sucursales_info.get(data.sucursal_nombre, "Sede no especificada.")
+
+    # RECALCULAR MONTO
+    import math
+    rate = BillingService.get_rate(db, res.tipo_estadia)
+    start = datetime.datetime.fromisoformat(res.fecha_inicio)
+    end = datetime.datetime.fromisoformat(res.fecha_fin)
+    duration_hours = (end - start).total_seconds() / 3600
+
+    if duration_hours <= 0:
+        raise HTTPException(status_code=400, detail="La fecha de fin debe ser posterior a la de inicio")
+
+    if res.tipo_estadia == "hora":
+        monto_nuevo = math.ceil(duration_hours) * rate
+    elif res.tipo_estadia == "dia":
+        monto_nuevo = max(1, math.ceil(duration_hours / 24)) * rate
+    elif res.tipo_estadia == "semana":
+        monto_nuevo = math.ceil(duration_hours / (24 * 7)) * rate
+    elif res.tipo_estadia == "quincena":
+        monto_nuevo = math.ceil(duration_hours / (24 * 15)) * rate
+    elif res.tipo_estadia == "mes":
+        monto_nuevo = math.ceil(duration_hours / (24 * 30)) * rate
+    else:
+        monto_nuevo = math.ceil(duration_hours) * rate
+
+    # AJUSTE DE SALDO SI YA ESTABA PAGADO
+    if ya_pagado:
+        diferencia = monto_nuevo - monto_anterior
+        if diferencia > 0:
+            # Debe pagar más
+            if current_user.saldo < diferencia:
+                raise HTTPException(status_code=400, detail=f"Saldo insuficiente para la modificación. Necesitás ${diferencia} adicionales.")
+            current_user.saldo -= diferencia
+        elif diferencia < 0:
+            # Reembolso parcial
+            current_user.saldo += abs(diferencia)
+    else:
+        # Si no estaba pagado, intentamos cobrar el nuevo monto si el saldo alcanza
+        if current_user.saldo >= monto_nuevo:
+            current_user.saldo -= monto_nuevo
+            res.estado_pago = "Pagado"
+
+    res.monto_total = monto_nuevo
     db.commit()
-    return {"status": "ok"}
+    return {"status": "ok", "monto_total": monto_nuevo, "estado_pago": res.estado_pago}
+
+@router.post("/reservations/{res_id}/pay")
+def pay_reservation(res_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    res = db.query(models.Reservation).filter(models.Reservation.id == res_id, models.Reservation.user_id == current_user.id).first()
+    if not res: raise HTTPException(status_code=404, detail="Reserva no encontrada")
+    
+    if res.estado_pago == "Pagado":
+        return {"status": "ok", "message": "La reserva ya figura como pagada"}
+    
+    res.estado_pago = "Pagado"
+    db.commit()
+    return {"status": "ok", "message": "Reserva marcada como pagada con éxito"}
+
 
 @router.post("/reservations/{res_id}/cancel")
 def cancel_reservation(res_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
@@ -199,12 +271,9 @@ def cancel_reservation(res_id: int, db: Session = Depends(get_db), current_user:
     if res.estado_reserva == "Cancelada":
         raise HTTPException(status_code=400, detail="La reserva ya está cancelada")
     
-    if res.estado_pago == "Pagado":
-        current_user.saldo += res.monto_total
-        
     res.estado_reserva = "Cancelada"
     db.commit()
-    return {"status": "ok", "message": "Reserva cancelada y saldo reintegrado si correspondía"}
+    return {"status": "ok", "message": "Reserva cancelada"}
 
 @router.post("/reservations/{res_id}/repeat")
 def repeat_reservation(res_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):

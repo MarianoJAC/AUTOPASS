@@ -1,0 +1,483 @@
+/* --- RESERVATION TRIGGER --- */
+.reserva-trigger-card { background: linear-gradient(135deg, #C5A059 0%, #a68545 100%); cursor: pointer; margin-bottom: 30px; border-radius: 16px; transition: 0.3s; }
+.reserva-trigger-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(197,160,89,0.2); }
+.reserva-trigger-content { padding: 20px; color: var(--negro); display: flex; justify-content: space-between; align-items: center; }
+
+/* --- RESERVATION FORM: PREMIUM REDESIGN --- */
+#reserva-form-container {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, margin 0.4s ease;
+    margin: 0 auto;
+}
+
+#reserva-form-container.open {
+    max-height: 2000px;
+    opacity: 1;
+    margin: 0 auto 40px;
+}
+
+.modern-reservation-card {
+    background: #0a0a0a;
+    border: 1px solid rgba(197, 160, 89, 0.15);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    animation: slideUp 0.5s ease;
+}
+
+.card-header-premium {
+    background: linear-gradient(90deg, #161616 0%, #000 100%);
+    padding: 25px 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.header-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(197, 160, 89, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dorado);
+    font-size: 1.4rem;
+}
+
+.header-text h3 {
+    margin: 0;
+    font-family: 'Montserrat';
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+.header-text p {
+    margin: 3px 0 0;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.form-grid-premium {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.full-width-premium {
+    grid-column: span 3;
+}
+
+.form-group-premium {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group-premium label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--dorado);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-left: 5px;
+}
+
+.select-wrapper-premium {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.select-wrapper-premium i {
+    position: absolute;
+    left: 15px;
+    color: var(--dorado);
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.select-wrapper-premium select {
+    width: 100%;
+    background: #111;
+    border: 1.5px solid #222;
+    color: #fff;
+    padding: 12px 15px 12px 42px;
+    border-radius: 12px;
+    font-family: 'Montserrat';
+    font-size: 0.85rem;
+    appearance: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.select-wrapper-premium select:focus {
+    border-color: var(--dorado);
+    box-shadow: 0 0 15px rgba(197, 160, 89, 0.1);
+    outline: none;
+}
+
+.input-premium {
+    background: #111;
+    border: 1.5px solid #222;
+    color: #fff;
+    padding: 12px 15px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+.input-premium:focus {
+    border-color: var(--dorado);
+    outline: none;
+}
+
+.input-premium-readonly {
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid #1a1a1a;
+    color: var(--dorado);
+    padding: 12px 15px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: default;
+}
+
+.dynamic-row-premium {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    animation: fadeIn 0.4s ease;
+}
+
+.reservation-footer-premium {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-summary-premium {
+    display: flex;
+    flex-direction: column;
+}
+
+.total-label {
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.total-amount {
+    font-family: 'Montserrat';
+    font-weight: 900;
+    font-size: 1.8rem;
+    color: var(--dorado);
+    text-shadow: 0 0 20px rgba(197, 160, 89, 0.2);
+}
+
+.btn-confirm-premium {
+    background: var(--dorado);
+    color: #000;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 15px;
+    font-weight: 900;
+    font-family: 'Montserrat';
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-confirm-premium:hover {
+    background: #fff;
+    transform: scale(1.02) translateX(5px);
+}
+
+.btn-confirm-premium i {
+    font-size: 0.8rem;
+    transition: 0.3s;
+}
+
+.btn-confirm-premium:hover i {
+    transform: translateX(5px);
+}
+
+/* --- RESERVATIONS LIST: PREMIUM DESIGN --- */
+.reserva-card-modern {
+    background: linear-gradient(145deg, #161616 0%, #0d0d0d 100%);
+    border: 1px solid rgba(197, 160, 89, 0.1);
+    border-radius: 20px;
+    padding: 22px;
+    margin-bottom: 20px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.reserva-card-modern:hover {
+    border-color: var(--dorado);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(197, 160, 89, 0.12);
+}
+
+.reserva-card-modern::before {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; width: 100px; height: 100px;
+    background: radial-gradient(circle at top right, rgba(197, 160, 89, 0.05), transparent 70%);
+    pointer-events: none;
+}
+
+.reserva-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 12px;
+}
+
+.reserva-main-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.reserva-id {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #444;
+    font-family: var(--font-mono);
+}
+
+.plate-badge-sm {
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-weight: 900;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.reserva-status-badge {
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 5px 12px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.reserva-status-badge.pagado { background: rgba(16, 185, 129, 0.1); color: var(--secondary); border: 1px solid rgba(16, 185, 129, 0.2); }
+.reserva-status-badge.pendiente { background: rgba(197, 160, 89, 0.1); color: var(--dorado); border: 1px solid rgba(197, 160, 89, 0.2); }
+.reserva-status-badge.vencida { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+.reserva-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.info-row i {
+    color: var(--dorado);
+    width: 16px;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+.reserva-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.reserva-actions .btn {
+    width: 100%;
+    padding: 10px 5px; /* Tamaño más compacto */
+    border-radius: 8px;
+    font-family: 'Montserrat';
+    font-weight: 800;
+    font-size: 0.65rem; /* Letra más chica y elegante */
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    border: none;
+    white-space: nowrap;
+}
+
+.reserva-actions .btn-primary {
+    grid-column: span 1; /* Todos iguales */
+    background: var(--dorado);
+    color: #000;
+}
+
+.reserva-actions .btn-outline {
+    background: #111;
+    color: #bbb;
+    border: 1px solid #222;
+}
+
+.reserva-actions .btn-danger {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.reserva-actions .btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.2);
+}
+
+.reserva-actions .btn-primary:hover {
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(197, 160, 89, 0.2);
+}
+
+.reserva-actions .btn-danger:hover {
+    background: var(--danger);
+    color: #fff;
+}
+
+@media (max-width: 600px) {
+    .reserva-actions {
+        grid-template-columns: 1fr; /* En móvil uno debajo del otro */
+    }
+}
+
+/* --- HISTORIAL ITEMS --- */
+.historial-item {
+    padding: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.3s;
+}
+
+.historial-item:last-child { border-bottom: none; }
+.historial-item:hover { background: rgba(255,255,255,0.02); }
+
+.status-pill {
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.status-pill.completada { background: rgba(16, 185, 129, 0.1); color: var(--secondary); }
+.status-pill.cancelada { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+.historial-trigger {
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.historial-trigger:hover {
+    background: rgba(197, 160, 89, 0.05);
+}
+
+.historial-container {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+.historial-container.open {
+    max-height: 1500px;
+    opacity: 1;
+    margin-top: 10px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.page-info {
+    color: #666;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-pagination {
+    padding: 6px 15px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: transparent;
+    border: 1px solid #333;
+    color: #666;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-pagination:hover:not(:disabled) {
+    border-color: var(--dorado);
+    color: var(--dorado);
+    background: rgba(197, 160, 89, 0.05);
+}
+
+.btn-pagination:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+@media (max-width: 992px) {
+    .form-grid-premium { grid-template-columns: 1fr 1fr; }
+    .dynamic-row-premium { grid-template-columns: 1fr 1fr; }
+    .full-width-premium { grid-column: span 2; }
+}
+
+@media (max-width: 600px) {
+    .form-grid-premium { grid-template-columns: 1fr; }
+    .dynamic-row-premium { grid-template-columns: 1fr; }
+    .full-width-premium { grid-column: span 1; }
+    .reservation-footer-premium { flex-direction: column; gap: 20px; text-align: center; }
+    .btn-confirm-premium { width: 100%; justify-content: center; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

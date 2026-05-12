@@ -90,6 +90,12 @@ def create_admin_reservation(data: schemas.AdminReservationCreate, db: Session =
     db.add(new_res)
     db.commit()
     return {"status": "ok", "id": new_res.id, "monto": monto}
+@router.get("/admin/settings")
+def get_admin_settings(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    # Retorna un diccionario con todas las claves y valores de settings
+    all_settings = db.query(models.Settings).all()
+    return {s.clave: s.valor for s in all_settings}
+
 @router.get("/settings/prices")
 def get_prices(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     return {p.clave: p.valor for p in db.query(models.Settings).all()}

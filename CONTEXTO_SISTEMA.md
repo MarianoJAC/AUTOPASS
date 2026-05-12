@@ -15,11 +15,13 @@ El sistema ha sido refactorizado bajo una arquitectura modular de alta escalabil
 2.  **Capa de Servicios (Service Pattern)**:
     - `services/billing_service.py`: Lógica centralizada de cobro y puntos AutoPass.
     - `alpr_service.py`: Motor de reconocimiento de patentes.
-3.  **Frontend Premium (Jinja2 + Assets)**:
+3.  **Frontend Premium (Modular JS)**: 
     - `templates/base.html`: Esqueleto maestro para consistencia visual.
-    - `static/images/INICIO/`: Repositorio de recursos visuales para el carrusel principal.
+    - `static/js/main.js`: Hub de utilidades globales y lógica base de UI.
+    - `static/js/reservas.js`: Motor de gestión de reservas y cálculos automáticos.
+    - `static/js/vehicles.js`: Gestión de flota del usuario.
+    - `static/css/`: Hojas de estilo especializadas (`perfil.css`, `dashboard.css`) para carga bajo demanda.
     - Componentes Pro: Integración de **Chart.js**, **Flatpickr** y **html2canvas**.
-
 ## 🔐 Configuración y Seguridad
 - **Variables de Entorno**: Configuración centralizada en archivo `.env` (MQTT, Secret Keys, DB URLs).
 - **Token JWT**: Protección robusta de endpoints y persistencia de sesión.

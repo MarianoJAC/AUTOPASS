@@ -1,0 +1,130 @@
+/* --- PERFIL & DASHBOARD BASE --- */
+.profile-section { display: none; }
+.profile-section.active { display: block; animation: slideUp 0.4s ease; }
+
+.edit-mode { display: none; flex-direction: column; gap: 12px; }
+.display-mode { display: flex; flex-direction: column; gap: 4px; }
+
+/* --- UI COMPONENTS --- */
+.header-left { display: flex; flex-direction: column; }
+.header-right { display: flex; align-items: center; gap: 20px; }
+
+@media (max-width: 600px) {
+    .header-right {
+        flex-direction: column;
+        align-items: center; /* Centrar badges */
+        gap: 10px;
+        width: 100%; /* Ocupar todo el ancho para ayudar al centrado */
+    }
+    .balance-badge, .points-badge {
+        padding: 12px 20px; /* Más grandes */
+        font-size: 0.9rem;
+        width: 220px; /* Mismo tamaño para ambos */
+        justify-content: center; /* Centrar contenido interno del badge */
+    }
+}
+.balance-badge, .points-badge {
+    padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 10px;
+    transition: all 0.3s ease;
+}
+.balance-badge { background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.2); color: #2ecc71; }
+.points-badge { background: rgba(197, 160, 89, 0.1); border: 1px solid var(--border); color: var(--dorado); }
+
+.modal-content-wide { width: 90%; max-width: 800px; }
+.btn-edit { background: none; border: none; color: #666; cursor: pointer; font-size: 0.9rem; }
+.btn-edit:hover { color: var(--dorado); }
+.edit-actions { display: flex; gap: 10px; margin-top: 10px; }
+
+/* --- FORMS --- */
+.form-compact { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+}
+.form-compact .form-group { margin-bottom: 5px; }
+.form-compact .form-control { padding: 10px 12px; font-size: 0.85rem; }
+.form-compact .text-label { font-size: 0.7rem; margin-bottom: 5px; }
+
+.password-requirements { font-size: 0.75rem; color: #666; margin: 15px 0; }
+.req-item { color: #555; margin-bottom: 5px; }
+.req-item.satisfied { color: var(--secondary); }
+.strength-meter-container { height: 4px; background: #333; margin: 10px 0; border-radius: 2px; }
+.strength-meter { height: 100%; width: 0; transition: 0.3s; }
+.strength-meter.strength-weak { background: var(--danger); width: 33%; }
+.strength-meter.strength-medium { background: #f59e0b; width: 66%; }
+.strength-meter.strength-strong { background: var(--secondary); width: 100%; }
+
+/* --- GRID & LAYOUT --- */
+.profile-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 25px; 
+    align-items: flex-start; 
+}
+
+@media (max-width: 992px) { 
+    .profile-grid { grid-template-columns: 1fr; } 
+}
+
+.profile-grid .card {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-col .card {
+    height: auto;
+    min-height: unset;
+}
+
+.grid-stats { margin-top: 30px; }
+
+/* --- UTILS --- */
+.flex-col { display: flex; flex-direction: column; gap: 20px; }
+.flex-row { display: flex; gap: 20px; align-items: center; }
+.justify-between { justify-content: space-between; }
+.align-center { align-items: center; }
+.align-end { align-items: flex-end; }
+.text-uppercase { text-transform: uppercase; }
+.text-label { color: #666; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; }
+.text-bold { font-weight: 600; }
+.text-muted { color: #555; font-size: 0.9rem; text-align: center; padding: 20px; width: 100%; }
+
+/* --- SPACING & DIVIDERS --- */
+.profile-stats-grid {
+    margin-top: 60px !important;
+    padding-top: 40px;
+    border-top: 1px solid rgba(197, 160, 89, 0.1);
+    position: relative;
+}
+
+.profile-stats-grid::before {
+    content: "RESUMEN DE CUENTA";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    padding: 0 20px;
+    color: #444;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    white-space: nowrap; /* Evitar que el texto se rompa en dos líneas */
+}
+
+/* --- SECURITY DROPDOWN --- */
+.security-container {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+.security-container.open {
+    max-height: 1000px;
+    opacity: 1;
+}
+
+#security-arrow {
+    transition: transform 0.3s ease;
+}

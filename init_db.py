@@ -34,9 +34,17 @@ def init_db():
             print("[+] Aforo inicializado.")
 
         # 3. Inicializar Settings si no existen
-        if not db.query(models.Settings).filter(models.Settings.clave == "precio_hora").first():
-            db.add(models.Settings(clave="precio_hora", valor=100.0))
-            print("[+] Configuración de precio inicializada.")
+        default_settings = {
+            "precio_hora": 1500.0,
+            "precio_dia": 15000.0,
+            "precio_semana": 70000.0,
+            "precio_quincena": 120000.0,
+            "precio_mes": 200000.0
+        }
+        for clave, valor in default_settings.items():
+            if not db.query(models.Settings).filter(models.Settings.clave == clave).first():
+                db.add(models.Settings(clave=clave, valor=valor))
+                print(f"[+] Configuración de {clave} inicializada a {valor}.")
 
         db.commit()
         print("[OK] Base de datos inicializada correctamente.")

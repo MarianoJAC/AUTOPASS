@@ -116,6 +116,8 @@ class ReservationUpdate(BaseModel):
     fecha_inicio: Optional[str] = None
     fecha_fin: Optional[str] = None
     patente: Optional[str] = None
+    tipo_estadia: Optional[str] = None
+    sucursal_nombre: Optional[str] = None
 
 class UserReservationResponse(BaseModel):
     id: int

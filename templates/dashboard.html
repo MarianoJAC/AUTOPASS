@@ -2,7 +2,9 @@
 
 {% block title %}AUTOPASS Admin - Control Inteligente{% endblock %}
 
-{% block body_class %}layout-with-sidebar{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+{% endblock %}
 
 {% block content %}
     <script>
@@ -41,15 +43,15 @@
         <header>
             <div class="header-left"><h1 id="view-title">Monitoreo en Vivo</h1></div>
             <div class="header-right">
-                <div style="display: flex; gap: 10px; align-items: center">
-                    <span id="health-db" style="width: 8px; height: 8px; background: gray; border-radius: 50%"></span>
-                    <span style="font-size: 0.7rem; color: #555; font-weight: 700; text-transform: uppercase;">Estado del Sistema</span>
+                <div class="health-indicator">
+                    <span id="health-db" class="health-dot"></span>
+                    <span class="health-label">Estado del Sistema</span>
                 </div>
-                <div style="font-weight: 700; font-size: 0.9rem; color: var(--dorado)" id="clock">00:00:00</div>
+                <div class="clock-display" id="clock">00:00:00</div>
             </div>
         </header>
 
-        <div class="content" style="padding: 30px 40px;">
+        <div class="content dashboard-content">
 
             <!-- TAB: LIVE -->
             <div id="tab-live" class="tab-view active">
@@ -72,21 +74,21 @@
                     </div>
                 </div>
 
-                <div class="camera-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div class="cam-box" style="aspect-ratio: 16/9; background: #000; border-radius: 15px; position: relative; overflow: hidden; border: 1px solid var(--border-light);">
-                        <img id="cam-entry" src="/v1/system/video-feed/ENTRADA_PRINCIPAL" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;">
-                        <div class="cam-label" style="position: absolute; top: 15px; left: 15px; background: var(--dorado); color: var(--negro); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">INGRESO PRINCIPAL</div>
-                        <div class="cam-plate" id="plate-entry" style="position: absolute; bottom: 15px; right: 15px; background: var(--blanco); color: var(--negro); padding: 8px 15px; border-radius: 8px; font-family: var(--font-mono); font-weight: 800; font-size: 1.4rem;">---</div>
+                <div class="camera-grid">
+                    <div class="cam-box">
+                        <img id="cam-entry" src="/v1/system/video-feed/ENTRADA_PRINCIPAL">
+                        <div class="cam-label">INGRESO PRINCIPAL</div>
+                        <div class="cam-plate" id="plate-entry">---</div>
                     </div>
-                    <div class="cam-box" style="aspect-ratio: 16/9; background: #000; border-radius: 15px; position: relative; overflow: hidden; border: 1px solid var(--border-light);">
-                        <img id="cam-exit" src="/v1/system/video-feed/SALIDA_PRINCIPAL" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;">
-                        <div class="cam-label" style="position: absolute; top: 15px; left: 15px; background: var(--dorado); color: var(--negro); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">EGRESO PRINCIPAL</div>
-                        <div class="cam-plate" id="plate-exit" style="position: absolute; bottom: 15px; right: 15px; background: var(--blanco); color: var(--negro); padding: 8px 15px; border-radius: 8px; font-family: var(--font-mono); font-weight: 800; font-size: 1.4rem;">---</div>
+                    <div class="cam-box">
+                        <img id="cam-exit" src="/v1/system/video-feed/SALIDA_PRINCIPAL">
+                        <div class="cam-label">EGRESO PRINCIPAL</div>
+                        <div class="cam-plate" id="plate-exit">---</div>
                     </div>
                 </div>
 
                 <div class="card" style="margin-top: 30px">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;"><h3 class="card-title">Últimos Movimientos Registrados</h3></div>
+                    <div class="card-header manual-ops-header"><h3 class="card-title">Últimos Movimientos Registrados</h3></div>
                     <table>
                         <thead>
                             <tr><th>Horario</th><th>Patente</th><th>Evento</th><th>Estado</th></tr>
@@ -99,19 +101,19 @@
             <!-- TAB: OCCUPANCY -->
             <div id="tab-occupancy" class="tab-view">
                 <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;"><h3 class="card-title">Operaciones Manuales de Barrera</h3></div>
-                    <div style="display: flex; gap: 15px; align-items: flex-end;">
-                        <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
-                            <span style="font-size: 0.7rem; color: #888; font-weight: 700;">PATENTE DEL VEHÍCULO</span>
-                            <input type="text" id="manual-plate" placeholder="Ej: AA123BB" style="width: 100%">
+                    <div class="card-header manual-ops-header"><h3 class="card-title">Operaciones Manuales de Barrera</h3></div>
+                    <div class="manual-ops-row">
+                        <div class="manual-ops-field">
+                            <span class="manual-ops-label">PATENTE DEL VEHÍCULO</span>
+                            <input type="text" id="manual-plate" placeholder="Ej: AA123BB">
                         </div>
-                        <button class="btn btn-primary" onclick="manualEntry()" style="padding: 12px 24px;">Registrar Ingreso</button>
-                        <button class="btn btn-outline" style="border-color: #f59e0b; color: #f59e0b; padding: 12px 24px;" onclick="manualExit()">Registrar Salida</button>
+                        <button class="btn btn-primary btn-sm" onclick="manualEntry()" style="padding: 15px 30px;">Registrar Ingreso</button>
+                        <button class="btn btn-outline btn-sm btn-warning" onclick="manualExit()" style="padding: 15px 30px;">Registrar Salida</button>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;"><h3 class="card-title">Vehículos Actualmente en el Predio</h3></div>
+                    <div class="card-header manual-ops-header"><h3 class="card-title">Vehículos Actualmente en el Predio</h3></div>
                     <table>
                         <thead>
                             <tr><th>Patente</th><th>Ingreso</th><th>Permanencia</th><th>Deuda Actual</th><th>Acción</th></tr>
@@ -124,7 +126,7 @@
             <!-- TAB: USERS -->
             <div id="tab-users" class="tab-view">
                 <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;"><h3 class="card-title">Base de Datos de Clientes</h3></div>
+                    <div class="card-header manual-ops-header"><h3 class="card-title">Base de Datos de Clientes</h3></div>
                     <table>
                         <thead>
                             <tr><th>Nombre Completo</th><th>Correo Electrónico</th><th>DNI</th><th>Rol</th><th>Vehículos Vinculados</th></tr>
@@ -136,12 +138,12 @@
 
             <!-- TAB: FINANCE -->
             <div id="tab-finance" class="tab-view">
-                <div style="display: grid; grid-template-columns: 1fr 350px; gap: 25px; margin-bottom: 25px;">
+                <div class="finance-main-grid">
                     <div class="card">
-                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <div class="card-header finance-header">
                             <h3 class="card-title"><i class="fas fa-chart-area"></i> Tendencia de Recaudación</h3>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <select id="fin-period" onchange="toggleCustomFilters()" style="width: auto; padding: 8px 15px; font-size: 0.8rem; background: var(--gris-sidebar); border: 1px solid var(--border-light); color: var(--dorado); font-weight: 700;">
+                            <div class="finance-filters">
+                                <select id="fin-period" onchange="toggleCustomFilters()" class="finance-select">
                                     <option value="total">HISTÓRICO TOTAL</option>
                                     <option value="day">HOY</option>
                                     <option value="week">ESTA SEMANA</option>
@@ -149,9 +151,9 @@
                                     <option value="year">ESTE AÑO</option>
                                     <option value="custom">RANGO PERSONALIZADO</option>
                                 </select>
-                                <div id="custom-date-container" style="display: none; align-items: center; gap: 5px;">
+                                <div id="custom-date-container">
                                     <i class="fas fa-calendar-alt" style="color: var(--dorado)"></i>
-                                    <input type="text" id="fin-date-range" placeholder="Seleccionar rango..." style="width: 220px; padding: 8px 12px; font-size: 0.8rem;">
+                                    <input type="text" id="fin-date-range" placeholder="Seleccionar rango...">
                                 </div>
                             </div>
                         </div>
@@ -160,7 +162,7 @@
                         </div>
                     </div>
                     
-                    <div style="display: flex; flex-direction: column; gap: 25px;">
+                    <div class="finance-stats-col">
                         <div class="stat-card">
                             <div class="label">Recaudación Total</div>
                             <div class="value" id="fin-total">$0.00</div>
@@ -177,7 +179,7 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;"><h3 class="card-title">Historial de Transacciones Confirmadas</h3></div>
+                    <div class="card-header manual-ops-header"><h3 class="card-title">Historial de Transacciones Confirmadas</h3></div>
                     <table>
                         <thead>
                             <tr><th>Fecha y Hora</th><th>Patente</th><th>Importe</th><th>Estado de Pago</th></tr>
@@ -191,15 +193,15 @@
             <div id="tab-settings" class="tab-view">
                 <div class="card">
                     <div class="card-title">Configuración de Tarifas del Servicio</div>
-                    <div style="margin-top: 25px; display: flex; gap: 15px">
+                    <div class="settings-row">
                         <input type="number" id="cfg-price" placeholder="Valor de la hora">
                         <button class="btn btn-primary" onclick="savePrice()" style="padding: 12px 24px;">Actualizar Valor</button>
                     </div>
                 </div>
-                <div class="card" style="border-color: var(--danger)">
-                    <div class="card-title" style="color: var(--danger)">Zona de Seguridad / Restablecimiento</div>
-                    <p style="color: #888; font-size: 0.85rem; margin: 15px 0 25px">Esta acción es irreversible. Se eliminarán todos los registros históricos y configuraciones actuales.</p>
-                    <button class="btn btn-outline" style="color: var(--danger); border-color: var(--danger); padding: 12px 24px;" onclick="resetSys()">Reiniciar Sistema de Manera Integral</button>
+                <div class="card danger-zone">
+                    <div class="card-title danger-zone-title">Zona de Seguridad / Restablecimiento</div>
+                    <p class="danger-zone-text">Esta acción es irreversible. Se eliminarán todos los registros históricos y configuraciones actuales.</p>
+                    <button class="btn btn-outline btn-danger" onclick="resetSys()" style="padding: 12px 24px;">Reiniciar Sistema de Manera Integral</button>
                 </div>
             </div>
 

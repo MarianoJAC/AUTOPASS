@@ -9,10 +9,20 @@
     - **NOMBRES DE USUARIO**: SIEMPRE EN MAYÚSCULAS EN TODA LA INTERFAZ (SALUDOS, PERFIL, DASHBOARD).
     - **TÍTULOS SECCIONES**: RESPETAR ACENTUACIÓN Y VOSEO (EJ: "ENCONTRÁ LOS MEJORES PUNTOS").
 4.  **NOMENCLATURA DE CÓDIGO**:
-    - NOMBRES DE VARIABLES, FUNCIONES Y CLASES EN ESPAÑOL USANDO **PascalCase**.
-    - COMENTARIOS EN CÓDIGO SIEMPRE EN ESPAÑOL, EN **MAYÚSCULAS** Y SIN ACENTOS.
+    - **JavaScript**: Funciones y variables en `camelCase`.
+    - **Python**: Funciones y variables en `snake_case`.
+    - **Comentarios**: En español, en **MAYÚSCULAS** y descriptivos.
 
-## 🚀 ESTADO ACTUAL DEL TRABAJO (VERSIÓN 4.0 — 2026-05-07)
+## 🚀 ESTADO ACTUAL DEL TRABAJO (VERSIÓN 4.5 — 2026-05-12)
+
+### 👤 PERFIL DE USUARIO Y RESERVAS (MODULARIZACIÓN)
+- **REFACTORIZACIÓN JS**: Lógica de reservas extraída a `reservas.js`. Utilidades globales (`formatDate`, `toTitle`) centralizadas en `main.js`.
+- **FORMULARIO DE RESERVAS PRO**: 
+    - **Automatización**: Cálculos inteligentes de fecha de fin para Semana (+7d), Quincena (+15d) y Mes (+30d).
+    - **Modo Hora**: Selección dividida en [Día] [Hora] [Duración] para máxima precisión.
+    - **Modo Día**: Selección simplificada de 24hs con un solo clic.
+- **LIMPIEZA DE INTERFAZ**: Eliminación de la sección "Estadía Activa" en el inicio del perfil para un diseño más enfocado y minimalista.
+- **ESTILO CSS MODULAR**: Migración de estilos inline a archivos CSS específicos por sección (`perfil.css`, `modals.css`) cargados dinámicamente.
 
 ### 🏠 LANDING PAGE
 - **CARRUSEL + HERO OVERLAY**: El título AUTOPASS, leyendas rotativas y botones ahora se superponen directamente sobre el carrusel de imágenes (hero overlay), eliminando la sección separada.
@@ -47,7 +57,19 @@
 - **MERCADO PAGO**: INTEGRAR EL SDK PARA PROCESAR PAGOS DESDE EL BOTÓN DEL PERFIL.
 - **CANJE DE PUNTOS**: IMPLEMENTAR LA LÓGICA PARA QUE EL USUARIO USE SUS PUNTOS EN ESTADÍAS.
 - **NOTIFICACIONES**: DESARROLLAR EL SISTEMA DE ALERTAS (EMAIL/PUSH) PARA INGRESOS Y EGRESOS.
-- **CONSISTENCIA**: MANTENER EL TONO DE "VOS" Y LA ESTÉTICA DORADO/NEGRO EN CUALQUIER DESARROLLO NUEVO.
+## 📌 ACTIVIDAD RECIENTE
+
+### [2026-05-12] - Optimización de Reservas, UI Perfil y Responsive Design
+- **Refactorización CSS:** Se dividió `perfil.css` en 4 archivos especializados para mejorar la escalabilidad.
+- **Pase Digital:** Implementación de modal premium con QR, logo corregido y funcionalidad nativa de compartir.
+- **Responsive Design Overhaul:**
+    - Menú hamburguesa lateral con efecto slide-in y desenfoque de fondo.
+    - Cabecera móvil centrada con badges de saldo y puntos uniformes y destacados.
+    - Centrado de tarjetas de estadísticas y flota de vehículos en dispositivos móviles.
+    - Corrección de desbordes en el sidebar colapsado (footer prolijo).
+- **Lógica de Datos:** Sincronización de tarifas con DB y corrección de normalización de nombres (ahora soporta múltiples nombres con capitalización correcta y edición sin errores de espacios).
+- **Normalización UI:** Estandarización de botones premium estilo bloque sólido.
 
 ---
 *DOCUMENTO ACTUALIZADO POR GEMINI CLI PARA CONTINUIDAD DEL PROYECTO.*
+

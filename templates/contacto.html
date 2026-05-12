@@ -4,13 +4,21 @@
 
 {% block body_class %}bg-blur{% endblock %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="/static/css/landing.css">
+    <link rel="stylesheet" href="/static/css/contacto.css">
+{% endblock %}
+
 {% block content %}
     <header>
-        <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 15px;">
-            <img src="/static/images/logo.png" alt="Logo" style="height: 65px;">
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a href="/" class="header-logo-link">
+            <img src="/static/images/logo.png" alt="Logo" class="header-logo-img">
             <div class="logo-text">AUTOPASS</div>
         </a>
-        <nav>
+        <nav id="nav-menu">
             <a href="/">Inicio</a>
             <a href="/nuestra-red">Servicios</a>
             <a href="javascript:void(0)" id="nav-login" onclick="openModal('loginModal')">Iniciar Sesión</a>
@@ -68,7 +76,7 @@
                     <label>Mensaje</label>
                     <textarea placeholder="Escribí tu consulta acá..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%">Enviar Consulta</button>
+                <button type="submit" class="btn btn-primary btn-full">Enviar Consulta</button>
             </form>
         </div>
     </div>
@@ -76,16 +84,16 @@
     <footer class="main-footer">
         <div class="footer-grid">
             <div class="footer-col">
-                <div class="logo" style="margin-bottom: 20px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
-                    <img src="/static/images/logo.png" alt="Logo" style="height: 30px;">
+                <div class="footer-logo">
+                    <img src="/static/images/logo.png" alt="Logo" class="footer-logo-img">
                     AUTOPASS
                 </div>
-                <p style="margin-bottom: 20px;">Líderes en tecnología de estacionamiento inteligente en Argentina. Innovación, seguridad y confort para su movilidad diaria.</p>
-                <div class="social-links" style="display: flex; gap: 15px;">
-                    <a href="#" style="font-size: 1.2rem; color: var(--dorado);"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" style="font-size: 1.2rem; color: var(--dorado);"><i class="fab fa-instagram"></i></a>
-                    <a href="#" style="font-size: 1.2rem; color: var(--dorado);"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" style="font-size: 1.2rem; color: var(--dorado);"><i class="fab fa-x-twitter"></i></a>
+                <p class="footer-desc">Líderes en tecnología de estacionamiento inteligente en Argentina. Innovación, seguridad y confort para su movilidad diaria.</p>
+                <div class="footer-social">
+                    <a href="#" class="footer-social-link"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="footer-social-link"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="footer-social-link"><i class="fab fa-x-twitter"></i></a>
                 </div>
             </div>
             <div class="footer-col">
@@ -102,9 +110,9 @@
             </div>
             <div class="footer-col">
                 <h4>Contacto</h4>
-                <p><i class="fas fa-location-dot" style="width: 20px; color: var(--dorado);"></i> Av. del Libertador 1200, CABA</p>
-                <p><i class="fas fa-envelope" style="width: 20px; color: var(--dorado);"></i> info@autopass.com.ar</p>
-                <p><i class="fas fa-phone" style="width: 20px; color: var(--dorado);"></i> 0810-333-PASS</p>
+                <p class="footer-contact-item"><i class="fas fa-location-dot"></i> Av. del Libertador 1200, CABA</p>
+                <p class="footer-contact-item"><i class="fas fa-envelope"></i> info@autopass.com.ar</p>
+                <p class="footer-contact-item"><i class="fas fa-phone"></i> 0810-333-PASS</p>
             </div>
         </div>
         <div class="footer-bottom">
@@ -117,14 +125,6 @@
 
 
 {% block extra_scripts %}
-<script>
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.onsubmit = (e) => {
-            e.preventDefault();
-            alert('Gracias por comunicarse con AUTOPASS. Su mensaje ha sido enviado con éxito y un asesor lo contactará a la brevedad.');
-            e.target.reset();
-        };
-    }
-</script>
+    <script src="/static/js/landing.js"></script>
+    <script src="/static/js/contacto.js"></script>
 {% endblock %}
