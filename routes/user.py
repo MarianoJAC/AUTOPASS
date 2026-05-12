@@ -25,6 +25,14 @@ def update_me(data: schemas.UserUpdate, db: Session = Depends(get_db), current_u
     db.refresh(current_user)
     return current_user
 
+@router.post("/change-password")
+def change_password(data: schemas.ChangePassword, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    if not auth.verify_password(data.current_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="La contraseña actual no es correcta")
+    current_user.password_hash = auth.get_password_hash(data.new_password)
+    db.commit()
+    return {"status": "ok", "message": "Contraseña actualizada con éxito"}
+
 @router.get("/vehicles")
 def get_user_vehicles(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     return db.query(models.Vehicle).filter(models.Vehicle.user_id == current_user.id).all()
@@ -154,6 +162,7 @@ def create_user_reservation(res: schemas.UserReservationCreate, db: Session = De
         patente=res.patente, 
         fecha_inicio=res.fecha_inicio, 
         fecha_fin=res.fecha_fin, 
+        tipo_estadia=res.tipo_estadia,
         monto_total=monto, 
         estado_pago=estado_pago, 
         estado_reserva="Pendiente",

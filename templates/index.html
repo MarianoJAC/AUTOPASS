@@ -11,9 +11,12 @@
             <div class="logo-text">AUTOPASS</div>
         </a>
         <nav>
-            <a href="javascript:void(0)" onclick="irAReserva()">RESERVA YA</a>
-            <a href="javascript:void(0)" onclick="openModal('loginModal')">Iniciá Sesión</a>
-            <a href="javascript:void(0)" onclick="openModal('registerModal')">Creá tu Cuenta</a>
+            <a href="/">Inicio</a>
+            <a href="/nuestra-red">Servicios</a>
+            <a href="javascript:void(0)" id="nav-login" onclick="openModal('loginModal')">Iniciá Sesión</a>
+            <a href="javascript:void(0)" id="nav-register" onclick="openModal('registerModal')">Creá tu Cuenta</a>
+            <a href="/perfil" id="nav-profile" style="display:none;">Mi Perfil</a>
+            <a href="javascript:void(0)" id="nav-logout" style="display:none;" onclick="logout()">Cerrar Sesión</a>
             <a href="/contacto">Contacto</a>
         </nav>
     </header>
@@ -41,7 +44,7 @@
         <p>La evolución del estacionamiento. Acceso inteligente, pagos digitales y control total desde cualquier dispositivo.</p>
         <div class="cta-group">
             <a href="javascript:void(0)" onclick="irAReserva()" class="btn btn-primary">RESERVÁ YA</a>
-            <a href="/publicidad" class="btn btn-outline">Conocé Más</a>
+            <a href="/nuestra-red" class="btn btn-outline">Conocé Más</a>
         </div>
     </section>
 
@@ -97,7 +100,7 @@
             <div class="footer-col">
                 <h4>Navegación</h4>
                 <a href="/">Inicio</a>
-                <a href="/#features">Servicios</a>
+                <a href="/nuestra-red">Servicios</a>
                 <a href="/contacto">Contacto</a>
             </div>
             <div class="footer-col">
@@ -122,5 +125,4 @@
 {% endblock %}
 
 
-{% block extra_scripts %}
-{% endblock %}
+{% block extra_scripts %}{% endblock %}

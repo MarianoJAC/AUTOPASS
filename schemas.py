@@ -63,6 +63,21 @@ class UserCreate(UserBase):
             raise ValueError('La contraseña debe tener al menos un carácter especial')
         return v
 
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
+    @field_validator('new_password')
+    @classmethod
+    def validate_new_password(cls, v):
+        if len(v) < 8:
+            raise ValueError('La contraseña debe tener al menos 8 caracteres')
+        if not re.search(r"[A-Z]", v):
+            raise ValueError('La contraseña debe tener al menos una mayúscula')
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", v):
+            raise ValueError('La contraseña debe tener al menos un carácter especial')
+        return v
+
 class UserLogin(BaseModel):
     email: str
     password: str
@@ -107,6 +122,8 @@ class UserReservationResponse(BaseModel):
     patente: str
     fecha_inicio: str
     fecha_fin: str
+    tipo_estadia: Optional[str] = "hora"
+    dias_semana: Optional[str] = None
     estado_pago: str
     estado_reserva: str
     monto_total: float

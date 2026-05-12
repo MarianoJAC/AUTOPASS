@@ -1,6 +1,8 @@
 const API_BASE = '/v1';
 const token = localStorage.getItem('token');
 
+const toTitle = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+
 function formatDate(isoStr) {
     if (!isoStr) return '---';
     const d = new Date(isoStr);
@@ -27,7 +29,27 @@ function toggleSidebar() {
     localStorage.setItem('sidebarCollapsed', isCollapsed);
 }
 
+function updateAuthNav() {
+    const loggedIn = !!localStorage.getItem('token');
+    const login = document.getElementById('nav-login');
+    const register = document.getElementById('nav-register');
+    const profile = document.getElementById('nav-profile');
+    const logout = document.getElementById('nav-logout');
+
+    if (login) login.style.display = loggedIn ? 'none' : '';
+    if (register) register.style.display = loggedIn ? 'none' : '';
+    if (profile) {
+        profile.style.display = loggedIn ? 'inline-block' : 'none';
+        if (loggedIn) {
+            profile.href = localStorage.getItem('rol') === 'admin' ? '/dashboard' : '/perfil';
+        }
+    }
+    if (logout) logout.style.display = loggedIn ? 'inline-block' : 'none';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    updateAuthNav();
+
     // Restaurar estado del sidebar
     if (localStorage.getItem('sidebarCollapsed') === 'true') {
         const layout = document.querySelector('.layout-with-sidebar');
@@ -128,33 +150,71 @@ function MoverCarrusel(Direccion) {
     IniciarTemporizadorCarrusel(); // REINICIAR TIEMPO PARA QUE NO SALTE JUSTO DESPUES DEL CLIC
 }
 
-// --- LÓGICA GENÉRICA DE MODALES ---
-function openModal(id) { document.getElementById(id).style.display = 'block'; }
-function closeModal(id) { 
-    document.getElementById(id).style.display = 'none'; 
-    const loginErr = document.getElementById('login-error');
-    const regErr = document.getElementById('register-error');
-    if (loginErr) loginErr.style.display = 'none';
-    if (regErr) regErr.style.display = 'none';
-}
 function switchModal(oldId, newId) { closeModal(oldId); openModal(newId); }
 
 function irAReserva() {
     if (localStorage.getItem('token')) {
         window.location.href = '/perfil';
     } else {
-        openModal('loginModal');
+        openModal('registerModal');
     }
 }
+
+function togglePasswordVisibility(inputId, iconEl) {
+    const input = document.getElementById(inputId);
+    if (!input || !iconEl) return;
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    iconEl.classList.replace(isPassword ? 'fa-eye' : 'fa-eye-slash', isPassword ? 'fa-eye-slash' : 'fa-eye');
+}
+
+function openModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = 'block';
+    const emailInput = el.querySelector('input[type="email"]');
+    if (emailInput) setTimeout(() => emailInput.focus(), 100);
+}
+
+function closeModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = 'none';
+    document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+}
+
+// Close modal on overlay click
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal') && e.target.style.display === 'block') {
+        e.target.style.display = 'none';
+        e.target.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal[style*="display: block"]').forEach(m => {
+            m.style.display = 'none';
+            m.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+        });
+    }
+});
 
 // --- LÓGICA DE AUTENTICACIÓN ---
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
     loginForm.onsubmit = async (e) => {
         e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
         const errorMsg = document.getElementById('login-error');
+        const originalText = btn.innerHTML;
+
+        errorMsg.style.display = 'none';
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Ingresando...';
+        btn.disabled = true;
 
         try {
             const res = await fetch(`${API_BASE}/auth/login`, {
@@ -167,16 +227,20 @@ if (loginForm) {
             if (res.ok) {
                 localStorage.setItem('token', data.access_token);
                 localStorage.setItem('rol', data.rol);
-                localStorage.setItem('nombre', data.nombre.toUpperCase());
-                localStorage.setItem('apellido', data.apellido.toUpperCase());
+                localStorage.setItem('nombre', toTitle(data.nombre));
+                localStorage.setItem('apellido', toTitle(data.apellido));
                 window.location.href = data.rol === 'admin' ? '/dashboard' : '/perfil';
             } else {
                 errorMsg.innerText = data.detail || 'Error al iniciar sesión';
                 errorMsg.style.display = 'block';
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         } catch (err) {
             errorMsg.innerText = 'Error de conexión';
             errorMsg.style.display = 'block';
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
     };
 }
@@ -606,6 +670,7 @@ function showSection(sectionId, el) {
     
     if (sectionId === 'reservas') loadReservations();
     if (sectionId === 'inicio') loadProfile();
+    if (sectionId === 'perfil') loadProfile();
 }
 
 async function loadProfile() {
@@ -623,17 +688,17 @@ async function loadProfile() {
     const user = await res.json();
     
     // Actualizar localStorage con datos frescos
-    localStorage.setItem('nombre', user.nombre.toUpperCase());
-    localStorage.setItem('apellido', user.apellido.toUpperCase());
+    localStorage.setItem('nombre', toTitle(user.nombre));
+    localStorage.setItem('apellido', toTitle(user.apellido));
     
-    document.getElementById('user-name').innerText = `Hola, ${user.nombre.toUpperCase()}`;
+    document.getElementById('user-name').innerText = `Hola, ${toTitle(user.nombre)}`;
     const pts = document.getElementById('points-val'); if (pts) pts.innerText = user.puntos_acumulados || 0;
     
     const balance = document.getElementById('balance-val'); if (balance) balance.innerText = `$${(user.saldo || 0).toFixed(2)}`;
 
     // Poblar visualización de datos en sección Mi Cuenta
-    const dispNombre = document.getElementById('display-nombre'); if (dispNombre) dispNombre.innerText = user.nombre.toUpperCase();
-    const dispApellido = document.getElementById('display-apellido'); if (dispApellido) dispApellido.innerText = user.apellido.toUpperCase();
+    const dispNombre = document.getElementById('display-nombre'); if (dispNombre) dispNombre.innerText = toTitle(user.nombre);
+    const dispApellido = document.getElementById('display-apellido'); if (dispApellido) dispApellido.innerText = toTitle(user.apellido);
     const dispEmail = document.getElementById('display-email'); if (dispEmail) dispEmail.innerText = user.email;
     
     // Normalizar Teléfono (XX XXXX XXXX)
@@ -785,7 +850,7 @@ async function loadVehicles() {
             <div class="vehicle-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
                     <span class="plate-badge" style="letter-spacing: 2px;">${v.patente}</span>
-                    <button class="btn btn-outline delete-vehicle-btn" style="padding: 5px 10px; font-size: 0.7rem; color: var(--danger); border-color: var(--danger); background: rgba(239, 68, 68, 0.05);" onclick="deleteVehicle('${v.patente}')"><i class="fas fa-xmark"></i></button>
+                    <button class="btn btn-outline btn-danger delete-vehicle-btn" style="padding: 5px 10px; font-size: 0.7rem; background: rgba(239, 68, 68, 0.05);" onclick="deleteVehicle('${v.patente}')"><i class="fas fa-xmark"></i></button>
                 </div>
                 
                 <div class="vehicle-card-divider"></div>
@@ -797,6 +862,15 @@ async function loadVehicles() {
                     <span>${v.marca_modelo}</span>
                 </div>
             </div>`;
+    });
+
+    // Poblar selects de vehículos en formularios de reserva
+    const selects = document.querySelectorAll('.res-vehicle');
+    selects.forEach(select => {
+        select.innerHTML = vehicles.length ? '<option value="">Seleccioná tu vehículo...</option>' : '<option value="">No tenés vehículos</option>';
+        vehicles.forEach(v => {
+            select.innerHTML += `<option value="${v.patente}">${v.patente} - ${v.marca_modelo}</option>`;
+        });
     });
 }
 
@@ -953,14 +1027,14 @@ function updateReservationCost(form) {
 function toggleReservationMode(form) {
     const typeSelect = form.querySelector('#res-type') || form.querySelector('.res-type');
     const type = typeSelect ? typeSelect.value : 'hora';
-    const hoursGroup = document.getElementById('hours-group');
-    const diasGroup = document.getElementById('dias-group');
-    const timeGroup = document.getElementById('time-group');
-    const endGroup = document.querySelector('.right-cell > .form-group:last-child');
+    const hoursGroup = form.querySelector('#hours-group');
+    const diasGroup = form.querySelector('#dias-group');
+    const timeGroup = form.querySelector('#time-group');
+    const endGroup = form.querySelector('.right-cell > .form-group:last-child');
 
-    hoursGroup.style.display = type === 'hora' ? 'block' : 'none';
-    timeGroup.style.display = type === 'hora' ? 'block' : 'none';
-    diasGroup.style.display = 'none';
+    if (hoursGroup) hoursGroup.style.display = type === 'hora' ? 'block' : 'none';
+    if (timeGroup) timeGroup.style.display = type === 'hora' ? 'block' : 'none';
+    if (diasGroup) diasGroup.style.display = 'none';
     if (endGroup) endGroup.style.display = (type === 'hora' || type === 'dia') ? 'none' : 'block';
 }
 
@@ -1204,17 +1278,28 @@ async function loadReservations() {
 
         if (activeItems.length === 0) activeList.innerHTML = '<p style="color: #444; font-weight: 600;">No tienes próximas reservas.</p>';
         
-        window.renderHistory = (items) => {
+        const PER_PAGE = 5;
+        let historialPageNum = 1;
+        window.historialAllItems = [];
+
+        function renderHistoryPage() {
             historyList.innerHTML = '';
-            if (items.length === 0) {
+            const totalPages = Math.max(1, Math.ceil(window.historialAllItems.length / PER_PAGE));
+            if (historialPageNum > totalPages) historialPageNum = totalPages;
+            const start = (historialPageNum - 1) * PER_PAGE;
+            const pageItems = window.historialAllItems.slice(start, start + PER_PAGE);
+
+            if (pageItems.length === 0) {
                 historyList.innerHTML = '<p style="color: #444; font-weight: 600;">No se encontraron registros para este periodo.</p>';
+                document.getElementById('historial-pagination').style.display = 'none';
                 return;
             }
-            items.forEach(r => {
+
+            pageItems.forEach(r => {
                 const isCancelled = r.estado_reserva === 'Cancelada';
                 const cardColor = isCancelled ? '#666' : (r.estado_pago === 'Pagado' ? 'var(--secondary)' : '#f59e0b');
                 historyList.innerHTML += `
-                    <div class="card" style="border-left: 4px solid ${cardColor}; opacity: ${isCancelled ? '0.6' : '1'}; margin-bottom: 0;">
+                    <div class="card historial-card" style="border-left: 4px solid ${cardColor}; opacity: ${isCancelled ? '0.6' : '1'}; margin-bottom: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
                                 <div style="font-weight: 800; font-size: 1.1rem; color: var(--dorado); letter-spacing: 1px">${r.patente} ${isCancelled ? '[CANCELADA]' : ''}</div>
@@ -1226,12 +1311,42 @@ async function loadReservations() {
                                 <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="showReservationInfo('${r.sucursal_nombre}', '${r.sucursal_info}')"><i class="fas fa-info-circle"></i> Info</button>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #222; padding-top: 15px;">
+                        <div class="historial-actions" style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #222; padding-top: 15px;">
                             <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;" onclick="repeatReservation(${r.id})"><i class="fas fa-rotate"></i> Volver a reservar</button>
-                            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; color: var(--danger); border-color: var(--danger);" onclick="complainReservation(${r.id})"><i class="fas fa-circle-exclamation"></i> Reclamo</button>
+                            <button class="btn btn-outline btn-danger" style="flex: 1; font-size: 0.7rem;" onclick="complainReservation(${r.id})"><i class="fas fa-circle-exclamation"></i> Reclamo</button>
                         </div>
                     </div>`;
             });
+
+            const pag = document.getElementById('historial-pagination');
+            if (pag) {
+                pag.style.display = totalPages > 1 ? 'flex' : 'none';
+                document.getElementById('historial-page-info').innerText = `Página ${historialPageNum} de ${totalPages}`;
+                document.getElementById('historial-prev').disabled = historialPageNum <= 1;
+                document.getElementById('historial-next').disabled = historialPageNum >= totalPages;
+            }
+        }
+
+        window.historialPage = (dir) => {
+            historialPageNum += dir;
+            renderHistoryPage();
+        };
+
+        window.renderHistory = (items) => {
+            window.historialAllItems = items;
+            historialPageNum = 1;
+            renderHistoryPage();
+        };
+
+        let historialOpen = false;
+        window.toggleHistorial = () => {
+            const container = document.getElementById('historial-container');
+            const arrow = document.getElementById('historial-arrow');
+            historialOpen = !historialOpen;
+            container.style.maxHeight = historialOpen ? '2000px' : '0px';
+            container.style.opacity = historialOpen ? '1' : '0';
+            container.style.marginTop = historialOpen ? '20px' : '0';
+            if (arrow) arrow.style.transform = historialOpen ? 'rotate(180deg)' : 'rotate(0deg)';
         };
 
         activeItems.forEach(r => {
@@ -1246,14 +1361,15 @@ async function loadReservations() {
                             <div style="font-family: 'Montserrat'; font-weight: 800; margin-top: 10px; font-size: 1.1rem; color: ${cardColor}">$${r.monto_total} - ${r.estado_pago.toUpperCase()}</div>
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 8px;">
+                            ${r.estado_pago !== 'Pagado' ? `<button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="payReservation(${r.id}, '${r.patente}')"><i class="fas fa-credit-card"></i> Pagar</button>` : ''}
                             <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="showReservationInfo('${r.sucursal_nombre}', '${r.sucursal_info}')"><i class="fas fa-info-circle"></i> Info</button>
                             <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="showDigitalPass(${r.id}, '${r.patente}', '${r.fecha_inicio}', '${r.fecha_fin}')"><i class="fas fa-share-nodes"></i> Pase</button>
                         </div>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #222; padding-top: 15px;">
                         <button class="btn btn-primary" style="flex: 1; font-size: 0.75rem;" onclick="repeatReservation(${r.id})"><i class="fas fa-rotate"></i> Repetir</button>
-                        <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;" onclick="modifyReservation(${r.id}, '${r.fecha_inicio}')"><i class="fas fa-pen-to-square"></i> Modificar</button>
-                        <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem; color: var(--danger); border-color: var(--danger);" onclick="cancelReservation(${r.id})"><i class="fas fa-xmark"></i> Cancelar</button>
+                        <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;" onclick="modifyReservation(${r.id}, '${r.fecha_inicio}', '${r.fecha_fin}', '${r.patente}', '${r.sucursal_nombre}', '${r.tipo_estadia || 'hora'}', '${r.dias_semana || ''}')"><i class="fas fa-pen-to-square"></i> Modificar</button>
+                        <button class="btn btn-outline btn-danger" style="flex: 1; font-size: 0.75rem;" onclick="cancelReservation(${r.id})"><i class="fas fa-xmark"></i> Cancelar</button>
                     </div>
                 </div>`;
         });
@@ -1383,28 +1499,120 @@ async function cancelReservation(id) {
     }
 }
 
-async function modifyReservation(id, currentStart) {
-    const startDt = new Date(currentStart);
+function modifyReservation(id, fechaInicio, fechaFin, patente, sede, tipo, dias) {
+    const startDt = new Date(fechaInicio);
     const now = new Date();
     if ((startDt - now) < 7200000) return alert('Solo con más de 2 horas de anticipación.');
-    
-    const newStart = prompt('Nueva fecha inicio (AAAA-MM-DD HH:MM):');
-    if (!newStart) return;
-    const newEnd = prompt('Nueva fecha fin (AAAA-MM-DD HH:MM):');
-    if (!newEnd) return;
+
+    const form = document.querySelector('.reservation-form[data-mode="modify"]');
+    if (!form) return;
+
+    form.querySelector('[name="modify-id"]').value = id;
+    form.querySelector('[name="modify-sede"]').value = sede || '';
+    form.querySelector('[name="modify-sede-display"]').value = sede || '';
+
+    // Horas
+    const hoursInput = form.querySelector('.res-hours');
+    if (hoursInput && tipo === 'hora') {
+        const diffMs = new Date(fechaFin) - new Date(fechaInicio);
+        hoursInput.value = Math.max(1, Math.min(24, Math.round(diffMs / 3600000) || 1));
+    }
+
+    // Horario
+    const timeInput = form.querySelector('.res-time');
+    if (timeInput && tipo === 'hora') {
+        timeInput.value = fechaInicio.slice(11, 16);
+    }
+
+    // Días semana
+    if (dias) {
+        const vals = dias.split(',').map(s => s.trim());
+        form.querySelectorAll('.res-dia').forEach(cb => {
+            cb.checked = vals.includes(cb.value);
+        });
+    }
+
+    // Preseleccionar vehículo
+    const vehicleSelect = form.querySelector('.res-vehicle');
+    if (vehicleSelect) {
+        const opt = Array.from(vehicleSelect.options).find(o => o.value === patente);
+        if (opt) opt.selected = true;
+    }
+
+    document.getElementById('modify-error').style.display = 'none';
+    openModal('modifyModal');
+
+    // Inicializar pickers DESPUÉS de abrir el modal (flatpickr necesita visible para posicionar)
+    if (typeof initReservationPickers === 'function') setTimeout(initReservationPickers, 50);
+
+    // Setear tipo y fechas después de que flatpickr se inicialice
+    setTimeout(() => {
+        const typeSelect = form.querySelector('.res-type');
+        if (typeSelect) {
+            typeSelect.value = tipo || 'hora';
+            typeSelect.dispatchEvent(new Event('change'));
+        }
+        if (form.startPicker) form.startPicker.setDate(fechaInicio.slice(0, 10));
+        if (form.endPicker) form.endPicker.setDate(fechaFin.slice(0, 10));
+    }, 300);
+}
+
+async function saveModifyReservation(e) {
+    e.preventDefault();
+    const form = e.target;
+    const id = form.querySelector('[name="modify-id"]').value;
+    const patente = form.querySelector('.res-vehicle').value;
+    const tipo = form.querySelector('.res-type').value;
+    const startInput = form.querySelector('.res-start');
+    const endInput = form.querySelector('.res-end');
+    const errorEl = document.getElementById('modify-error');
+
+    if (!patente) {
+        errorEl.innerText = 'Seleccioná un vehículo.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    let fecha_inicio = startInput.value;
+    let fecha_fin = endInput.value;
+
+    if (tipo === 'hora' && startInput.value) {
+        const time = form.querySelector('.res-time') ? form.querySelector('.res-time').value : '08:00';
+        fecha_inicio = startInput.value + 'T' + time;
+        const start = new Date(fecha_inicio.replace(' ', 'T'));
+        const hours = parseInt(form.querySelector('.res-hours') ? form.querySelector('.res-hours').value : 1) || 1;
+        start.setHours(start.getHours() + Math.min(Math.max(hours, 1), 24));
+        fecha_fin = start.toISOString().slice(0, 16);
+    } else if (tipo === 'dia' && startInput.value) {
+        fecha_fin = startInput.value;
+    }
+
+    if (new Date(fecha_fin) <= new Date(fecha_inicio)) {
+        errorEl.innerText = 'La fecha fin debe ser posterior a la fecha inicio.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    const appendSeconds = s => s.includes('T') ? s + ':00' : s;
 
     const res = await fetch(`${API_BASE}/user/reservations/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ fecha_inicio: newStart.replace(' ', 'T'), fecha_fin: newEnd.replace(' ', 'T') })
+        body: JSON.stringify({
+            patente,
+            fecha_inicio: appendSeconds(fecha_inicio),
+            fecha_fin: appendSeconds(fecha_fin)
+        })
     });
 
     if (res.ok) {
+        closeModal('modifyModal');
         showToast('Reserva modificada');
         loadReservations();
     } else {
         const d = await res.json();
-        alert(d.detail);
+        errorEl.innerText = d.detail || 'Error al modificar la reserva';
+        errorEl.style.display = 'block';
     }
 }
 

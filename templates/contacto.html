@@ -12,43 +12,45 @@
         </a>
         <nav>
             <a href="/">Inicio</a>
-            <a href="/#features">Servicios</a>
+            <a href="/nuestra-red">Servicios</a>
             <a href="javascript:void(0)" id="nav-login" onclick="openModal('loginModal')">Iniciar Sesión</a>
-            <a href="javascript:void(0)" id="nav-profile" href="/perfil" style="display: none;">Mi Perfil</a>
+            <a href="/perfil" id="nav-profile" style="display: none;">Mi Perfil</a>
+            <a href="javascript:void(0)" id="nav-logout" style="display: none;" onclick="logout()">Cerrar Sesión</a>
+            <a href="/contacto">Contacto</a>
         </nav>
     </header>
 
-    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 160px 20px 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px;">
-        <div class="info-section">
-            <h1 style="font-family: 'Montserrat'; font-size: 3rem; margin-bottom: 30px; background: linear-gradient(135deg, var(--blanco) 30%, var(--dorado) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Hablemos.</h1>
-            <p style="color: #888; font-size: 1.1rem; line-height: 1.8; margin-bottom: 40px;">Impulsá tu gestión con AUTOPASS. Contactanos para recibir asesoramiento personalizado sobre nuestras soluciones inteligentes y soporte técnico especializado.</p>
-            
-            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px;">
-                <div style="width: 50px; height: 50px; background: var(--gris-card); border: 1px solid var(--border-light); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: var(--dorado); font-size: 1.2rem;"><i class="fas fa-location-dot"></i></div>
+    <div class="contact-layout">
+        <div class="contact-info-section">
+            <h1>Hablemos.</h1>
+            <p>Impulsá tu gestión con AUTOPASS. Contactanos para recibir asesoramiento personalizado sobre nuestras soluciones inteligentes y soporte técnico especializado.</p>
+
+            <div class="contact-item">
+                <div class="contact-icon-box"><i class="fas fa-location-dot"></i></div>
                 <div>
-                    <h4 style="margin: 0; font-family: 'Montserrat'; font-size: 0.9rem; color: var(--dorado); text-transform: uppercase;">Nuestra Sede</h4>
-                    <p style="margin: 5px 0 0; color: #eee; font-size: 1rem;">Av. del Libertador 1200, CABA, Argentina</p>
+                    <h4 class="contact-label">Nuestra Sede</h4>
+                    <p class="contact-value">Av. del Libertador 1200, CABA, Argentina</p>
                 </div>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px;">
-                <div style="width: 50px; height: 50px; background: var(--gris-card); border: 1px solid var(--border-light); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: var(--dorado); font-size: 1.2rem;"><i class="fas fa-phone"></i></div>
+            <div class="contact-item">
+                <div class="contact-icon-box"><i class="fas fa-phone"></i></div>
                 <div>
-                    <h4 style="margin: 0; font-family: 'Montserrat'; font-size: 0.9rem; color: var(--dorado); text-transform: uppercase;">Atención al Cliente</h4>
-                    <p style="margin: 5px 0 0; color: #eee; font-size: 1rem;">+54 11 4567-8900</p>
+                    <h4 class="contact-label">Atención al Cliente</h4>
+                    <p class="contact-value">+54 11 4567-8900</p>
                 </div>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px;">
-                <div style="width: 50px; height: 50px; background: var(--gris-card); border: 1px solid var(--border-light); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: var(--dorado); font-size: 1.2rem;"><i class="fas fa-envelope"></i></div>
+            <div class="contact-item">
+                <div class="contact-icon-box"><i class="fas fa-envelope"></i></div>
                 <div>
-                    <h4 style="margin: 0; font-family: 'Montserrat'; font-size: 0.9rem; color: var(--dorado); text-transform: uppercase;">Soporte Técnico</h4>
-                    <p style="margin: 5px 0 0; color: #eee; font-size: 1rem;">soporte@autopass.com.ar</p>
+                    <h4 class="contact-label">Soporte Técnico</h4>
+                    <p class="contact-value">soporte@autopass.com.ar</p>
                 </div>
             </div>
         </div>
 
-        <div class="card" style="padding: 50px;">
+        <div class="card contact-form-card">
             <form id="contactForm">
                 <div class="form-group">
                     <label>Nombre Completo</label>
@@ -89,7 +91,7 @@
             <div class="footer-col">
                 <h4>Navegación</h4>
                 <a href="/">Inicio</a>
-                <a href="/#features">Servicios</a>
+                <a href="/nuestra-red">Servicios</a>
                 <a href="/contacto">Contacto</a>
             </div>
             <div class="footer-col">
@@ -116,15 +118,6 @@
 
 {% block extra_scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        if (localStorage.getItem('token')) {
-            document.getElementById('nav-login').style.display = 'none';
-            const profileLink = document.getElementById('nav-profile');
-            profileLink.style.display = 'inline-block';
-            profileLink.href = localStorage.getItem('rol') === 'admin' ? '/dashboard' : '/perfil';
-        }
-    });
-
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         contactForm.onsubmit = (e) => {

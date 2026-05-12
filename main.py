@@ -75,9 +75,9 @@ async def get_dashboard(request: Request):
 async def get_perfil(request: Request):
     return templates.TemplateResponse(request=request, name="perfil.html")
 
-@app.get("/publicidad", response_class=HTMLResponse)
-async def get_publicidad(request: Request):
-    return templates.TemplateResponse(request=request, name="publicidad.html")
+@app.get("/nuestra-red", response_class=HTMLResponse)
+async def get_nuestra_red(request: Request):
+    return templates.TemplateResponse(request=request, name="nuestra-red.html")
 
 @app.get("/contacto", response_class=HTMLResponse)
 async def get_contacto(request: Request):

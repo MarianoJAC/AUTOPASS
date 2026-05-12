@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+python-dotenv
+jinja2
+passlib[bcrypt]
+python-jose[cryptography]
+paho-mqtt
+requests
+opencv-python-headless
+easyocr
