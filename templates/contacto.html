@@ -28,103 +28,94 @@
         </nav>
     </header>
 
+    <section class="page-hero">
+        <h1>CENTRO DE SOPORTE</h1>
+        <p>Estamos aquí para asistirte. Ya seas un usuario frecuente o busques integrar tu playa a nuestra red, nuestro equipo está listo para ayudarte.</p>
+    </section>
+
     <div class="contact-layout">
         <div class="contact-info-section">
-            <h1>Hablemos.</h1>
-            <p>Impulsá tu gestión con AUTOPASS. Contactanos para recibir asesoramiento personalizado sobre nuestras soluciones inteligentes y soporte técnico especializado.</p>
-
-            <div class="contact-item">
-                <div class="contact-icon-box"><i class="fas fa-location-dot"></i></div>
-                <div>
-                    <h4 class="contact-label">Nuestra Sede</h4>
-                    <p class="contact-value">Av. del Libertador 1200, CABA, Argentina</p>
+            <div class="support-badge"><i class="fas fa-headset"></i> ASISTENCIA 24/7 ACTIVADA</div>
+            <h2>Canales de Atención</h2>
+            <p>Elegí el medio que más te convenga. Nuestro tiempo de respuesta promedio para consultas digitales es de menos de 15 minutos.</p>
+            
+            <div class="contact-cards-grid">
+                <div class="contact-item-card">
+                    <div class="contact-icon-box"><i class="fas fa-phone-volume"></i></div>
+                    <div class="contact-text">
+                        <p class="contact-label">Asistencia en Barrera</p>
+                        <p class="contact-value">0810-333-PASS (7277)</p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="contact-item">
-                <div class="contact-icon-box"><i class="fas fa-phone"></i></div>
-                <div>
-                    <h4 class="contact-label">Atención al Cliente</h4>
-                    <p class="contact-value">+54 11 4567-8900</p>
+                <div class="contact-item-card">
+                    <div class="contact-icon-box"><i class="fas fa-envelope-open-text"></i></div>
+                    <div class="contact-text">
+                        <p class="contact-label">Consultas Generales</p>
+                        <p class="contact-value">soporte@autopass.com.ar</p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="contact-item">
-                <div class="contact-icon-box"><i class="fas fa-envelope"></i></div>
-                <div>
-                    <h4 class="contact-label">Soporte Técnico</h4>
-                    <p class="contact-value">soporte@autopass.com.ar</p>
+                <div class="contact-item-card">
+                    <div class="contact-icon-box"><i class="fas fa-building-circle-check"></i></div>
+                    <div class="contact-text">
+                        <p class="contact-label">Alianzas Comerciales</p>
+                        <p class="contact-value">expansion@autopass.com.ar</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="card contact-form-card">
-            <form id="contactForm">
+        <div class="contact-form-container">
+            <div class="form-header">
+                <h3>Envianos tu consulta</h3>
+                <p>Completá el formulario y un asesor se pondrá en contacto con vos.</p>
+            </div>
+            <form id="contactForm" class="premium-form">
                 <div class="form-group">
-                    <label>Nombre Completo</label>
-                    <input type="text" placeholder="Ej: Juan Pérez" required>
+                    <label>Nombre y Apellido</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Ej: Juan Pérez" required>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Correo Electrónico</label>
-                    <input type="email" placeholder="ejemplo@correo.com.ar" required>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="juan@ejemplo.com" required>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Asunto</label>
-                    <input type="text" placeholder="¿En qué podemos ayudarte?" required>
+                    <label>Motivo de Consulta</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-list-ul"></i>
+                        <select required>
+                            <option value="">Seleccioná una opción</option>
+                            <option value="usuario">Soy Usuario (Soporte/Dudas)</option>
+                            <option value="dueno">Soy Dueño de Estacionamiento</option>
+                            <option value="empresa">Consulta Corporativa</option>
+                            <option value="otro">Otro Motivo</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Mensaje</label>
-                    <textarea placeholder="Escribí tu consulta acá..."></textarea>
+                    <textarea rows="5" placeholder="Escribí tu mensaje aquí..." required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary btn-full">Enviar Consulta</button>
+                <button type="submit" class="btn btn-primary btn-full">Enviar Mensaje</button>
             </form>
         </div>
     </div>
 
-    <footer class="main-footer">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <div class="footer-logo">
-                    <img src="/static/images/logo.png" alt="Logo" class="footer-logo-img">
-                    AUTOPASS
-                </div>
-                <p class="footer-desc">Líderes en tecnología de estacionamiento inteligente en Argentina. Innovación, seguridad y confort para su movilidad diaria.</p>
-                <div class="footer-social">
-                    <a href="#" class="footer-social-link"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="footer-social-link"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="footer-social-link"><i class="fab fa-x-twitter"></i></a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>Navegación</h4>
-                <a href="/">Inicio</a>
-                <a href="/nuestra-red">Servicios</a>
-                <a href="/contacto">Contacto</a>
-            </div>
-            <div class="footer-col">
-                <h4>Legal</h4>
-                <a href="#">Términos y Condiciones</a>
-                <a href="#">Políticas de Privacidad</a>
-                <a href="#">Soporte</a>
-            </div>
-            <div class="footer-col">
-                <h4>Contacto</h4>
-                <p class="footer-contact-item"><i class="fas fa-location-dot"></i> Av. del Libertador 1200, CABA</p>
-                <p class="footer-contact-item"><i class="fas fa-envelope"></i> info@autopass.com.ar</p>
-                <p class="footer-contact-item"><i class="fas fa-phone"></i> 0810-333-PASS</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            &copy; 2026 AUTOPASS TECHNOLOGY. Todos los derechos reservados.
-        </div>
-    </footer>
+    {% include "footer.html" %}
 
     {% include "auth_modals.html" %}
 {% endblock %}
 
 
 {% block extra_scripts %}
+    <script src="/static/js/auth.js"></script>
     <script src="/static/js/landing.js"></script>
     <script src="/static/js/contacto.js"></script>
 {% endblock %}

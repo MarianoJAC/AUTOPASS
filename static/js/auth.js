@@ -1,7 +1,5 @@
 /* --- LÓGICA DE NEGOCIO: AUTENTICACIÓN (LOGIN Y REGISTRO) --- */
 
-const toTitle = s => s && typeof s === 'string' ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : '---';
-
 function initPasswordValidation(passId, confirmId, strengthId, reqLenId, reqUpId, reqSpecId, reqMatchId) {
     const regPass = document.getElementById(passId);
     const regPassConfirm = document.getElementById(confirmId);

@@ -82,3 +82,11 @@ async def get_nuestra_red(request: Request):
 @app.get("/contacto", response_class=HTMLResponse)
 async def get_contacto(request: Request):
     return templates.TemplateResponse(request=request, name="contacto.html")
+
+@app.get("/terminos", response_class=HTMLResponse)
+async def get_terminos(request: Request):
+    return templates.TemplateResponse(request=request, name="terminos.html")
+
+@app.get("/privacidad", response_class=HTMLResponse)
+async def get_privacidad(request: Request):
+    return templates.TemplateResponse(request=request, name="privacidad.html")

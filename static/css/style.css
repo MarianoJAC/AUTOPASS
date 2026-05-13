@@ -296,6 +296,13 @@ input:focus, select:focus { border-color: var(--dorado); background: #050505; }
 
 .error-msg { background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); margin-bottom: 20px; font-size: 0.85rem; display: none; text-align: center; }
 
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mt-30 { margin-top: 30px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.mb-30 { margin-bottom: 30px; }
+
 @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 

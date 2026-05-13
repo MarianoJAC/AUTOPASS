@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}AUTOPASS - Políticas de Privacidad{% endblock %}
+
+{% block body_class %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="/static/css/landing.css">
+    <link rel="stylesheet" href="/static/css/legal.css">
+{% endblock %}
+
+{% block content %}
+    <header>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a href="/" class="header-logo-link">
+            <img src="/static/images/logo.png" alt="Logo" class="header-logo-img">
+            <div class="logo-text">AUTOPASS</div>
+        </a>
+        <nav id="nav-menu">
+            <a href="/">Inicio</a>
+            <a href="/nuestra-red">Servicios</a>
+            <a href="/contacto">Soporte</a>
+        </nav>
+    </header>
+
+    <section class="page-hero">
+        <h1>POLÍTICAS DE PRIVACIDAD</h1>
+        <p>Tu confianza es nuestro activo más valioso. Protegemos tus datos con los más altos estándares de seguridad.</p>
+    </section>
+
+    <div class="legal-layout">
+        <article class="legal-content">
+            <p class="legal-date">Última actualización: 13 de mayo de 2026</p>
+
+            <div class="legal-body">
+                <p>En AUTOPASS, nos tomamos muy en serio la protección de tus datos personales. Esta política detalla cómo recolectamos, usamos y protegemos tu información.</p>
+
+                <h2>1. Datos Recolectados</h2>
+                <p>Para brindarte el servicio, recolectamos:</p>
+                <ul>
+                    <li>Información de contacto (nombre, email, teléfono).</li>
+                    <li>Datos del vehículo (patente, marca, modelo).</li>
+                    <li>Historial de movimientos y pagos.</li>
+                    <li>Imágenes de tu patente capturadas en los puntos de acceso.</li>
+                </ul>
+
+                <h2>2. Finalidad del Tratamiento</h2>
+                <p>Usamos tus datos exclusivamente para operar el sistema de estacionamiento inteligente, procesar cobros y mejorar tu experiencia de usuario.</p>
+
+                <h2>3. Protección de Datos</h2>
+                <p>Cumplimos con la Ley N° 25.326 de Protección de Datos Personales de Argentina. Tus datos están encriptados y solo personal autorizado tiene acceso a ellos bajo estrictos acuerdos de confidencialidad.</p>
+
+                <h2>4. Derechos del Usuario</h2>
+                <p>Tenés derecho a acceder, rectificar o solicitar la eliminación de tus datos personales de nuestra base de datos en cualquier momento a través de tu perfil o enviando un correo a privacidad@autopass.com.ar</p>
+
+                <h2>5. Cookies y Seguimiento</h2>
+                <p>Utilizamos cookies técnicas necesarias para mantener tu sesión activa y brindarte un acceso seguro a tu panel de control.</p>
+            </div>
+        </article>
+    </div>
+
+    {% include "footer.html" %}
+
+    {% include "auth_modals.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/landing.js"></script>
+{% endblock %}

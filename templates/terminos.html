@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}AUTOPASS - Términos y Condiciones{% endblock %}
+
+{% block body_class %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="/static/css/landing.css">
+    <link rel="stylesheet" href="/static/css/legal.css">
+{% endblock %}
+
+{% block content %}
+    <header>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a href="/" class="header-logo-link">
+            <img src="/static/images/logo.png" alt="Logo" class="header-logo-img">
+            <div class="logo-text">AUTOPASS</div>
+        </a>
+        <nav id="nav-menu">
+            <a href="/">Inicio</a>
+            <a href="/nuestra-red">Servicios</a>
+            <a href="/contacto">Soporte</a>
+        </nav>
+    </header>
+
+    <section class="page-hero">
+        <h1>TÉRMINOS Y CONDICIONES</h1>
+        <p>Transparencia y compromiso en cada interacción. Conocé las reglas que rigen nuestro ecosistema digital.</p>
+    </section>
+
+    <div class="legal-layout">
+        <article class="legal-content">
+            <p class="legal-date">Última actualización: 13 de mayo de 2026</p>
+
+            <div class="legal-body">
+                <p>Bienvenido a AUTOPASS. Al utilizar nuestros servicios, aplicaciones y plataformas, aceptás cumplir con los siguientes términos y condiciones de uso.</p>
+
+                <h2>1. Objeto del Servicio</h2>
+                <p>AUTOPASS proporciona una plataforma de gestión de estacionamiento inteligente basada en tecnología de reconocimiento de patentes (ALPR). El servicio permite la reserva de plazas, el acceso automatizado y la gestión de pagos digitales.</p>
+
+                <h2>2. Registro de Usuario</h2>
+                <p>Para utilizar las funciones avanzadas, debés crear una cuenta proporcionando información veraz y actualizada. Sos el único responsable de la seguridad de tus credenciales de acceso.</p>
+
+                <h2>3. Uso de la Tecnología ALPR</h2>
+                <p>Al ingresar a un estacionamiento de la red AUTOPASS, aceptás que tu patente sea capturada por nuestras cámaras para:</p>
+                <ul>
+                    <li>Registrar el horario exacto de ingreso y egreso.</li>
+                    <li>Calcular la tarifa correspondiente según el tiempo de estadía.</li>
+                    <li>Gestionar la apertura automática de barreras.</li>
+                </ul>
+
+                <h2>4. Tarifas y Pagos</h2>
+                <p>Las tarifas son establecidas por cada establecimiento adherido. El usuario se compromete a abonar el total de la estadía a través de los medios de pago habilitados antes de proceder a la salida.</p>
+
+                <h2>5. Responsabilidad</h2>
+                <p>AUTOPASS es una plataforma tecnológica. No nos responsabilizamos por daños, hurtos o siniestros ocurridos dentro de los estacionamientos adheridos, los cuales mantienen su propia póliza de seguro y responsabilidad legal.</p>
+            </div>
+        </article>
+    </div>
+
+    {% include "footer.html" %}
+
+    {% include "auth_modals.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/landing.js"></script>
+{% endblock %}

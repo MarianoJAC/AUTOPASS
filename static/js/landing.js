@@ -10,14 +10,14 @@ function toggleMobileMenu() {
             btnIcon.className = isActive ? 'fas fa-xmark' : 'fas fa-bars';
         }
         
-        // Cerrar menú al hacer clic en un enlace
+        // Cerrar menú al hacer clic en un enlace sin pisar el onclick original
         if (isActive) {
             const navLinks = nav.querySelectorAll('a');
             navLinks.forEach(link => {
-                link.onclick = () => {
+                link.addEventListener('click', () => {
                     nav.classList.remove('active');
                     if (btnIcon) btnIcon.className = 'fas fa-bars';
-                };
+                }, { once: true });
             });
         }
     }
