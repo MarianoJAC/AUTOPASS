@@ -123,6 +123,46 @@
 .strength-meter.strength-medium { background: #f59e0b; width: 66%; }
 .strength-meter.strength-strong { background: var(--secondary); width: 100%; }
 
+/* CONFIRM MODAL SPECIAL STYLES */
+.confirm-modal-content {
+    text-align: center;
+    max-width: 400px;
+    padding: 40px 30px;
+}
+
+.confirm-icon {
+    font-size: 3rem;
+    color: var(--dorado);
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.confirm-modal-content h3 {
+    font-family: 'Montserrat';
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.confirm-modal-content .modal-text {
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: #999;
+}
+
+.confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.confirm-actions .btn {
+    padding: 12px;
+    font-weight: 900;
+    font-size: 0.75rem;
+}
+
 /* RESPONSIVO */
 @media (max-width: 480px) {
     .modal-content { 

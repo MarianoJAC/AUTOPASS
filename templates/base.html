@@ -29,6 +29,21 @@
     {% block content %}{% endblock %}
 
     <!-- Sistema de Notificaciones Global -->
+    <!-- Modal de Confirmación Global -->
+    <div id="modal-confirm" class="modal" style="display: none; z-index: 3000;">
+        <div class="modal-content confirm-modal-content">
+            <div class="confirm-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h3 id="confirm-title">¿Estás seguro?</h3>
+            <p id="confirm-msg" class="modal-text">Esta acción no se puede deshacer.</p>
+            <div class="confirm-actions">
+                <button id="confirm-btn-cancel" class="btn btn-outline">CANCELAR</button>
+                <button id="confirm-btn-ok" class="btn btn-primary">CONFIRMAR</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container"></div>
 
     <!-- Scripts Base -->

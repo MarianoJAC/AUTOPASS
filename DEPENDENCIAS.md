@@ -20,7 +20,7 @@ Este documento detalla las librerías y herramientas necesarias para el funciona
 - **`python-jose[cryptography]`**: Generación y validación de tokens JWT (JSON Web Tokens).
 
 ### 👁️ Visión Artificial (ALPR)
-- **`opencv-python`**: Procesamiento de imágenes y manejo de streams de video.
+- **`opencv-python`** o **`opencv-python-headless`**: Procesamiento de imágenes y manejo de streams de video.
 - **`easyocr`**: Motor de reconocimiento óptico de caracteres para la lectura de patentes.
 - **`torch` / `torchvision`**: (Instalados automáticamente por EasyOCR) Motor de Deep Learning.
 

@@ -242,7 +242,7 @@
                 <div id="section-vehiculos" class="profile-section">
                     <div class="card welcome-card">
                         <div class="welcome-msg">
-                            <h1><i class="fas fa-car-rear"></i> GESTIÓN DE VEHÍCULOS</h1>
+                            <h1><i class="fas fa-car-rear"></i> MIS VEHÍCULOS</h1>
                         </div>
                     </div>
 
@@ -291,16 +291,39 @@
                 <div id="section-reservas" class="profile-section">
                     <div class="card welcome-card">
                         <div class="welcome-msg">
-                            <h1><i class="fas fa-calendar-days"></i> TUS RESERVAS</h1>
-                            <p class="text-label" style="margin-top: 5px;">Gestioná tus lugares asegurados y revisá tu historial</p>
+                            <h1><i class="fas fa-calendar-days"></i> MIS RESERVAS</h1>
                         </div>
                     </div>
-                    <div class="flex-col">
-                        <div class="card">
-                            <div class="card-title"><i class="fas fa-calendar-check"></i> RESERVAS ACTIVAS</div>
-                            <div id="reservation-list-active" class="flex-col">
-                                <p class="text-bold">Cargando reservas...</p>
+
+                    <!-- HEADER DE STATS RÁPIDAS -->
+                    <div class="reserva-stats-grid">
+                        <div class="res-stat-card">
+                            <i class="fas fa-car-side"></i>
+                            <div class="res-stat-info">
+                                <span class="res-stat-value" id="stat-res-active">0</span>
+                                <span class="res-stat-label">En Curso</span>
                             </div>
+                        </div>
+                        <div class="res-stat-card">
+                            <i class="fas fa-calendar-check"></i>
+                            <div class="res-stat-info">
+                                <span class="res-stat-value" id="stat-res-upcoming">0</span>
+                                <span class="res-stat-label">Próximas</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-col">
+                        <!-- SECCIÓN: ESTADÍA DESTACADA (EN CURSO) -->
+                        <div id="container-res-featured" style="display: none;">
+                            <div class="section-subtitle"><i class="fas fa-star"></i> ESTADÍA ACTUAL</div>
+                            <div id="reservation-featured-list"></div>
+                        </div>
+
+                        <!-- SECCIÓN: PRÓXIMAS RESERVAS (GRID) -->
+                        <div class="section-subtitle"><i class="fas fa-calendar-list"></i> TUS PRÓXIMAS RESERVAS</div>
+                        <div id="reservation-list-active" class="reserva-grid-modern">
+                            <p class="text-bold">Cargando reservas...</p>
                         </div>
 
                         <div class="card historial-trigger" onclick="toggleHistorial()">
@@ -573,4 +596,4 @@
     <script src="/static/js/perfil.js"></script>
     <script src="/static/js/vehicles.js"></script>
     <script src="/static/js/reservas.js"></script>
-{% endblock %}
+{% endblock %}block %}

@@ -35,12 +35,16 @@ Los prefijos se definen en los routers dentro de `routes/`:
     - `vehicles.js`: CRUD de vehículos del usuario.
     - `auth.js`: Modales de login/registro.
 - **Estilos (CSS Modular)**: `static/css/`
-    - `style.css`: Estilos base, fuentes globales y landing.
+    - `style.css`: Estilos base, fuentes globales y fuentes maestras.
+    - `landing.css`: Animaciones y diseño hero de la página de inicio.
     - `perfil-base.css`: Layout del portal, sidebar y elementos comunes del perfil.
     - `perfil-reservas.css`: Diseño premium del formulario de reserva y tarjetas activas.
     - `perfil-vehiculos.css`: Estilos de la flota y vinculación de patentes.
     - `perfil-ticket.css`: Estética exclusiva del Pase Digital con QR (Gold & Black).
     - `dashboard.css`: Estilos específicos del panel administrativo.
+    - `modals.css`: Estilos para ventanas emergentes y diálogos.
+    - `footer.css`: Diseño del pie de página premium.
+    - `contacto.css` y `legal.css`: Estilos para páginas institucionales.
 
 ### ⚙️ Backend (Servidor)
 - **Entrada**: `main.py` (Configuración de FastAPI y MQTT).

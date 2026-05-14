@@ -130,3 +130,39 @@ function showToast(msg) {
     const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
     container.appendChild(t); setTimeout(() => t.remove(), 3000);
 }
+
+function showConfirm(title, msg) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('modal-confirm');
+        const titleEl = document.getElementById('confirm-title');
+        const msgEl = document.getElementById('confirm-msg');
+        const btnOk = document.getElementById('confirm-btn-ok');
+        const btnCancel = document.getElementById('confirm-btn-cancel');
+
+        if (!modal || !btnOk || !btnCancel) return resolve(false);
+
+        titleEl.innerText = title || '¿Estás seguro?';
+        if (msg.includes('<')) {
+            msgEl.innerHTML = msg;
+        } else {
+            msgEl.innerText = msg || 'Esta acción no se puede deshacer.';
+        }
+        
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+
+        const handleResponse = (result) => {
+            modal.style.display = 'none';
+            btnOk.onclick = null;
+            btnCancel.onclick = null;
+            resolve(result);
+        };
+
+        btnOk.onclick = () => handleResponse(true);
+        btnCancel.onclick = () => handleResponse(false);
+        
+        // También cerrar con escape o clic fuera
+        modal.onclick = (e) => { if(e.target === modal) handleResponse(false); };
+    });
+}

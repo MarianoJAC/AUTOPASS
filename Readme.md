@@ -6,7 +6,7 @@ Solucion empresarial para la gestión de estacionamientos que combina **Visión 
 
 El proyecto ha sido refactorizado siguiendo estándares de ingeniería de software de alto nivel:
 
-- **Backend Modular (FastAPI + Routers)**: La lógica se divide en módulos especializados (`parking`, `reports`, `user`, `admin`, `system`) para máxima mantenibilidad.
+- **Backend Modular (FastAPI + Routers)**: La lógica se divide en módulos especializados (`auth`, `parking`, `reports`, `user`, `admin`, `system`) para máxima mantenibilidad.
 - **Service Pattern**: La lógica de negocio (cobros, puntos AutoPass) está aislada en servicios independientes.
 - **Frontend Engine (Jinja2 + Layouts)**: Sistema de herencia de plantillas que garantiza consistencia visual y reduce el código repetido.
 - **Configuración Pro (.env)**: Centralización total de variables de entorno y secretos de seguridad.

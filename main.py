@@ -10,16 +10,16 @@ import paho.mqtt.client as mqtt
 from paho.mqtt.enums import CallbackAPIVersion
 from dotenv import load_dotenv
 
-import models, auth, auth_routes, database
+import models, auth, database
 from database import engine
 
 # Importación de Routers Modularizados
-from routes import parking, reports, system, admin, user
+from routes import parking, reports, system, admin, user, auth as auth_router_mod
 
 load_dotenv()
 
 # --- CONFIGURACIÓN DE LA APP ---
-app = FastAPI(title="AUTOPASS Professional API", version="3.1.0")
+app = FastAPI(title="AUTOPASS Professional API", version="4.5.0")
 templates = Jinja2Templates(directory="templates")
 
 # Directorios de Archivos
@@ -55,7 +55,7 @@ def startup_event():
         print(f"Error en inicio (MQTT/DB): {e}")
 
 # --- INCLUSIÓN DE ROUTERS ---
-app.include_router(auth_routes.router)
+app.include_router(auth_router_mod)
 app.include_router(parking)
 app.include_router(reports)
 app.include_router(system)

@@ -39,6 +39,7 @@ async function loadProfile() {
         return;
     }
     const user = await res.json();
+    localStorage.setItem('userData', JSON.stringify(user));
     localStorage.setItem('nombre', toTitle(user.nombre));
     localStorage.setItem('apellido', toTitle(user.apellido));
     document.getElementById('user-name').innerText = `Hola, ${toTitle(user.nombre)}`;

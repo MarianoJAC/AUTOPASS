@@ -84,6 +84,23 @@ async function addVehicle(e) {
         return;
     }
 
+    // RESUMEN PARA CONFIRMACIÓN
+    const resumenHtml = `
+        <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(197,160,89,0.2); margin-top: 10px;">
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-id-card" style="color: var(--dorado);"></i>
+                <span>Patente: <b style="color: #fff;">${patente}</b></span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-car-side" style="color: var(--dorado);"></i>
+                <span>Marca/Modelo: <b style="color: #fff;">${marca_modelo}</b></span>
+            </div>
+        </div>
+    `;
+
+    const confirmed = await showConfirm('CONFIRMAR NUEVO VEHÍCULO', resumenHtml);
+    if (!confirmed) return;
+
     btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
     btn.disabled = true;
 
@@ -126,7 +143,11 @@ async function addVehicle(e) {
 }
 
 async function deleteVehicle(patente) {
-    if (!confirm(`¿Estás seguro de eliminar el vehículo ${patente}?`)) return;
+    const confirmed = await showConfirm(
+        'ELIMINAR VEHÍCULO',
+        `¿Estás seguro de que querés eliminar el vehículo con patente ${patente}? Esta acción no se puede deshacer.`
+    );
+    if (!confirmed) return;
 
     try {
         const res = await fetch(`${API_BASE}/user/vehicles/${encodeURIComponent(patente)}`, {
@@ -156,6 +177,13 @@ function toggleNuevoVinculo() {
     const isOpen = container.classList.toggle('open');
     if (trigger) trigger.classList.toggle('open');
     if (arrow) {
-        arrow.style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+        const isMobile = window.innerWidth <= 900;
+        if (isMobile) {
+            // En móvil: 90deg (abajo) -> 270deg (arriba)
+            arrow.style.transform = isOpen ? 'rotate(270deg)' : 'rotate(90deg)';
+        } else {
+            // En PC: 0deg (derecha) -> 180deg (atrás)
+            arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
     }
 }

@@ -273,6 +273,11 @@
         height: 55px; 
         border-radius: 16px !important; 
     }
+
+    #vinculo-arrow {
+        transform: rotate(90deg); /* Mirando hacia abajo por defecto en móvil */
+        transition: transform 0.3s ease;
+    }
     
     #vinculo-container {
         max-width: 100%;
@@ -311,14 +316,21 @@
     }
 
     /* Centrar lista de vehículos y contenido de tarjetas */
+    .card-dynamic-width {
+        width: 100%;
+        margin: 0 auto;
+    }
+
     #vehicle-list {
         justify-content: center;
         width: 100%;
+        margin-left: 0;
+        margin-right: 0;
     }
 
     .vehicle-card {
         width: 100%; 
-        max-width: 320px;
+        max-width: 340px;
         margin: 0 auto; /* Centrar el bloque de la tarjeta */
         align-items: center;
         text-align: center;
@@ -326,11 +338,11 @@
     }
 
     .vehicle-card .bg-icon-modern {
-        right: 10px;
-        bottom: 10px;
-        font-size: 4rem;
-        opacity: 0.1; /* Hacerlo más visible en móvil */
-        transform: rotate(-10deg);
+        right: -10px;
+        bottom: -10px;
+        font-size: 4.5rem;
+        color: rgba(197, 160, 89, 0.05); /* Mantener sutileza */
+        transform: rotate(-15deg);
     }
 
     .vehicle-card-main {
@@ -346,7 +358,9 @@
     }
 
     .delete-btn-modern {
-        width: 100%;
-        margin-top: 5px;
+        width: 45px;
+        height: 45px;
+        margin: 10px auto 0;
+        font-size: 1.1rem;
     }
 }

@@ -7,6 +7,7 @@ Este documento describe la arquitectura de comunicación y el flujo de datos del
 El sistema ha sido refactorizado bajo una arquitectura modular de alta escalabilidad:
 
 1.  **Backend Modular (FastAPI Routers)**: 
+    - `routes/auth.py`: Autenticación, registro y gestión de tokens.
     - `routes/parking.py`: Control de aforo y validación ALPR.
     - `routes/reports.py`: Analítica avanzada y reportes financieros.
     - `routes/user.py`: Portal del cliente y gestión de vehículos.

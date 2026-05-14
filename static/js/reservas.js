@@ -330,6 +330,43 @@ async function createReservation(e) {
     btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> PROCESANDO...';
     btn.disabled = true;
 
+    // PREPARAR RESUMEN PARA CONFIRMACIÓN
+    const resumenHtml = `
+        <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(197,160,89,0.2); margin-top: 10px;">
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-car" style="color: var(--dorado);"></i>
+                <span>Vehículo: <b style="color: #fff;">${patente}</b></span>
+            </div>
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-location-dot" style="color: var(--dorado);"></i>
+                <span>Sucursal: <b style="color: #fff;">${sucursal}</b></span>
+            </div>
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-calendar-day" style="color: var(--dorado);"></i>
+                <span>Estadía: <b style="color: #fff; text-transform: capitalize;">${tipo}</b></span>
+            </div>
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-clock" style="color: var(--dorado);"></i>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.8rem; color: #666;">Desde: <b style="color: #eee;">${formatDate(inicio)}</b></span>
+                    <span style="font-size: 0.8rem; color: #666;">Hasta: <b style="color: #eee;">${formatDate(fin)}</b></span>
+                </div>
+            </div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 800; font-size: 0.8rem;">TOTAL A PAGAR:</span>
+                <b style="color: var(--dorado); font-size: 1.2rem; font-family: Montserrat;">${document.getElementById('reserva-total-est').innerText}</b>
+            </div>
+        </div>
+    `;
+
+    const confirmed = await showConfirm('REVISÁ TU RESERVA', resumenHtml);
+    
+    if (!confirmed) {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+        return;
+    }
+
     try {
         const url = editingReservaId ? `${API_BASE}/user/reservations/${editingReservaId}` : `${API_BASE}/user/reservations`;
         const method = editingReservaId ? 'PATCH' : 'POST';
@@ -375,56 +412,174 @@ async function loadReservations() {
     const statRes = document.getElementById('stat-reservations');
     if (statRes) statRes.innerText = active.length;
 
+    // Actualizar Stats del Header
+    const now = new Date();
+    const inProgress = active.filter(r => now >= new Date(r.fecha_inicio.replace(/-/g, "/")) && now < new Date(r.fecha_fin.replace(/-/g, "/")));
+    const upcoming = active.filter(r => now < new Date(r.fecha_inicio.replace(/-/g, "/")));
+
+    const statActiveVal = document.getElementById('stat-res-active');
+    const statUpcomingVal = document.getElementById('stat-res-upcoming');
+    
+    if (statActiveVal) statActiveVal.innerText = inProgress.length;
+    if (statUpcomingVal) statUpcomingVal.innerText = upcoming.length;
+
+    const featuredContainer = document.getElementById('container-res-featured');
+    const featuredList = document.getElementById('reservation-featured-list');
     const activeList = document.getElementById('reservation-list-active');
+
+    // Manejar Estadía Destacada (la primera que esté en curso)
+    if (inProgress.length > 0) {
+        if (featuredContainer) featuredContainer.style.display = 'block';
+        if (featuredList) {
+            featuredList.innerHTML = renderReservaCard(inProgress[0], true);
+        }
+    } else {
+        if (featuredContainer) featuredContainer.style.display = 'none';
+    }
+
+    // Manejar Lista (Próximas + Resto de En curso si hubiera más de una)
+    const listToRender = active.filter(r => inProgress.length > 0 ? r.id !== inProgress[0].id : true);
+
     if (activeList) {
-        if (active.length === 0) {
+        if (listToRender.length === 0 && inProgress.length === 0) {
+            activeList.style.display = 'block'; // Para que el empty state ocupe todo el ancho
             activeList.innerHTML = `
-                <div class="empty-state-minimal" style="padding: 20px;">
-                    <i class="fas fa-calendar-xmark" style="font-size: 2rem; color: #222; margin-bottom: 10px;"></i>
+                <div class="empty-state-minimal" style="padding: 40px; grid-column: span 2;">
+                    <i class="fas fa-calendar-xmark" style="font-size: 3rem; color: #222; margin-bottom: 15px;"></i>
                     <p class="text-muted">No tenés reservas activas en este momento.</p>
                 </div>`;
+        } else if (listToRender.length === 0) {
+             activeList.style.display = 'block';
+             activeList.innerHTML = `<p class="text-muted" style="padding: 20px; opacity: 0.5;">No hay más reservas próximas.</p>`;
         } else {
-            activeList.innerHTML = active.map(r => `
-                <div class="reserva-card-modern">
-                    <div class="reserva-header">
-                        <div class="reserva-main-info">
-                            <span class="reserva-id">#${r.id}</span>
-                            <div class="plate-badge-sm">${r.patente}</div>
-                        </div>
-                        <div class="reserva-status-badge ${r.estado_pago.toLowerCase()}">${r.estado_pago}</div>
-                    </div>
-                    <div class="reserva-body">
-                        <div class="info-row"><i class="fas fa-location-dot"></i> <span>${r.sucursal_nombre}</span></div>
-                        <div class="info-row" style="font-size: 0.75rem; opacity: 0.7; margin-top: -5px; padding-left: 28px;">
-                            <span>${r.sucursal_info || ''}</span>
-                        </div>
-                        <div class="info-row"><i class="fas fa-clock"></i> <span>${formatDate(r.fecha_inicio)} - ${formatDate(r.fecha_fin)}</span></div>
-                        <div class="info-row"><i class="fas fa-receipt"></i> <span>$${r.monto_total.toLocaleString()} (${toTitle(r.tipo_estadia)})</span></div>
-                    </div>
-                    <div class="reserva-actions">
-                        ${r.estado_pago === 'Pagado' ? `
-                            <button class="btn btn-primary" onclick="showDigitalPass(${r.id})">
-                                <i class="fas fa-qrcode"></i> VER PASE DIGITAL
-                            </button>
-                        ` : `
-                            <button class="btn btn-primary" onclick="payReservation(${r.id})">
-                                <i class="fas fa-wallet"></i> PAGAR RESERVA
-                            </button>
-                        `}
-                        <button class="btn btn-outline" onclick="prepareEditReservation(${r.id})">
-                            <i class="fas fa-pen-to-square"></i> EDITAR
-                        </button>
-                        <button class="btn btn-outline btn-danger" onclick="cancelReservation(${r.id})">
-                            <i class="fas fa-trash-can"></i> CANCELAR
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+            activeList.style.display = 'grid';
+            activeList.innerHTML = listToRender.map(r => renderReservaCard(r, false)).join('');
         }
     }
 
     renderHistory(history);
 }
+
+function renderReservaCard(r, isFeatured) {
+    const now = new Date();
+    const start = new Date(r.fecha_inicio.replace(/-/g, "/"));
+    const end = new Date(r.fecha_fin.replace(/-/g, "/"));
+    
+    let progress = 0;
+    let progressText = "";
+    let isStarted = now >= start;
+    let isAboutToStart = !isStarted && (start - now) < 3600000; // 1 hora antes
+
+    if (isStarted) {
+        const total = end - start;
+        const elapsed = now - start;
+        progress = Math.min(100, Math.max(0, (elapsed / total) * 100));
+        progressText = progress >= 100 ? "ESTADÍA FINALIZADA" : `PROGRESO DE ESTADÍA: ${Math.round(progress)}%`;
+    } else {
+        progressText = `INICIA EL ${formatDate(r.fecha_inicio).split(' ')[0]}`;
+    }
+
+    const statusClass = r.estado_pago.toLowerCase();
+    const canEdit = !isStarted && (start - now) > 7200000;
+
+    return `
+    <div class="reserva-card-ultra ${isFeatured ? 'featured' : ''}">
+        <div class="reserva-header-ultra">
+            <div class="reserva-info-main">
+                <span class="reserva-tag-id">RESERVA #${r.id}</span>
+                <div class="reserva-plate-container">
+                    <div class="plate-badge-premium">${r.patente}</div>
+                    ${isAboutToStart ? '<span class="status-badge-ultra active-pulse" style="background:rgba(197,160,89,0.1); color:#C5A059; border:1px solid #C5A059;">PRÓXIMA</span>' : ''}
+                    ${isStarted && progress < 100 ? '<span class="status-badge-ultra active-pulse" style="background:rgba(16,185,129,0.1); color:#10b981; border:1px solid #10b981;">EN CURSO</span>' : ''}
+                </div>
+            </div>
+            <div class="reserva-status-ultra">
+                <div class="status-badge-ultra ${statusClass}">
+                    <i class="fas ${r.estado_pago === 'Pagado' ? 'fa-check-circle' : 'fa-clock-rotate-left'}"></i>
+                    ${r.estado_pago}
+                </div>
+                <div class="price-container-ultra">
+                    <span class="price-value-ultra">$${r.monto_total.toLocaleString()}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="reserva-timeline-container">
+            <div class="timeline-labels">
+                <span>${isStarted ? 'INGRESO' : 'INICIO'}</span>
+                <span>${progressText}</span>
+                <span>${isStarted ? 'SALIDA' : 'FIN'}</span>
+            </div>
+            <div class="timeline-progress-bg">
+                <div class="timeline-progress-fill ${isStarted ? 'active' : ''}" style="width: ${isStarted ? progress : 0}%"></div>
+            </div>
+        </div>
+
+        <div class="reserva-details-ultra" ${isFeatured ? 'style="grid-template-columns: repeat(4, 1fr);"' : ''}>
+            <div class="detail-item-ultra">
+                <i class="fas fa-location-dot"></i>
+                <div class="detail-info-ultra">
+                    <span class="detail-label-ultra">Sucursal</span>
+                    <span class="detail-value-ultra">${r.sucursal_nombre}</span>
+                </div>
+            </div>
+            <div class="detail-item-ultra">
+                <i class="fas fa-calendar-day"></i>
+                <div class="detail-info-ultra">
+                    <span class="detail-label-ultra">Estadía</span>
+                    <span class="detail-value-ultra">${toTitle(r.tipo_estadia)}</span>
+                </div>
+            </div>
+            <div class="detail-item-ultra">
+                <i class="fas fa-clock"></i>
+                <div class="detail-info-ultra">
+                    <span class="detail-label-ultra">Desde</span>
+                    <span class="detail-value-ultra">${formatDate(r.fecha_inicio)}</span>
+                </div>
+            </div>
+            <div class="detail-item-ultra">
+                <i class="fas fa-hourglass-end"></i>
+                <div class="detail-info-ultra">
+                    <span class="detail-label-ultra">Hasta</span>
+                    <span class="detail-value-ultra">${formatDate(r.fecha_fin)}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="reserva-actions-ultra">
+            ${r.estado_pago === 'Pagado' ? `
+                <button class="btn-ultra btn-ultra-primary" onclick="showDigitalPass(${r.id})">
+                    <i class="fas fa-ticket"></i> MI PASE DIGITAL
+                </button>
+            ` : `
+                <button class="btn-ultra btn-ultra-primary" onclick="payReservation(${r.id})">
+                    <i class="fas fa-credit-card"></i> PAGAR AHORA
+                </button>
+            `}
+            
+            <button class="btn-ultra btn-ultra-secondary" onclick="prepareEditReservation(${r.id})" ${!canEdit ? 'disabled title="No se puede editar con poca antelación"' : ''}>
+                <i class="fas fa-pen"></i>
+            </button>
+            
+            <button class="btn-ultra btn-ultra-danger" onclick="cancelReservation(${r.id})" ${isStarted ? 'disabled title="No se puede cancelar una estadía en curso"' : ''}>
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </div>
+    `;
+}
+
+// --- ACTUALIZACIÓN AUTOMÁTICA ---
+// Refrescar cada 60 segundos para actualizar estados "En Curso" y barras de progreso
+setInterval(() => {
+    // Solo refrescar si estamos en la sección de reservas o si el modal de pase no está abierto
+    const reservationsSec = document.getElementById('section-reservas');
+    const isVisible = reservationsSec && reservationsSec.classList.contains('active') || (window.getComputedStyle && reservationsSec && window.getComputedStyle(reservationsSec).display !== 'none');
+    
+    if (isVisible && token) {
+        loadReservations();
+    }
+}, 60000);
 
 // --- PASE DIGITAL CON QR ---
 
@@ -516,27 +671,44 @@ function renderHistory(history) {
     const totalPages = Math.ceil(history.length / HISTORIAL_PAGE_SIZE);
     
     if (history.length === 0) {
-        list.innerHTML = '<p class="text-muted">No hay historial de reservas.</p>';
+        list.innerHTML = '<p class="text-muted" style="padding: 30px;">No hay historial de reservas.</p>';
         return;
     }
 
     const start = (historialCurrentPage - 1) * HISTORIAL_PAGE_SIZE;
     const paged = history.slice(start, start + HISTORIAL_PAGE_SIZE);
 
-    list.innerHTML = paged.map(r => `
+    list.innerHTML = paged.map(r => {
+        const statusClass = r.estado_reserva.toLowerCase();
+        const icon = statusClass === 'completada' ? 'fa-car-circle-check' : (statusClass === 'cancelada' ? 'fa-ban' : 'fa-clock-rotate-left');
+        
+        return `
         <div class="historial-item">
-            <div class="flex-row justify-between align-center">
-                <div>
-                    <div class="text-bold">${r.patente}</div>
-                    <div class="text-label" style="font-size: 0.7rem;">${formatDate(r.fecha_inicio)}</div>
-                </div>
-                <div class="flex-col align-end">
-                    <div class="text-bold">$${r.monto_total}</div>
-                    <div class="status-pill ${r.estado_reserva.toLowerCase()}">${r.estado_reserva}</div>
+            <div class="hist-icon">
+                <i class="fas ${icon}"></i>
+            </div>
+            <div class="hist-main-info">
+                <span class="hist-title">${r.sucursal_nombre}</span>
+                <span class="hist-subtitle">${r.patente} • ${formatDate(r.fecha_inicio).split(',')[0]}</span>
+            </div>
+            <div class="hist-amount-info">
+                <span class="hist-value">$${r.monto_total.toLocaleString()}</span>
+                <div class="status-pill ${statusClass}">
+                    <i class="fas ${statusClass === 'completada' ? 'fa-check' : 'fa-xmark'}"></i>
+                    ${r.estado_reserva}
                 </div>
             </div>
+            <div class="hist-actions-group">
+                <button class="btn-claim-express" onclick="openClaim(${r.id})" title="Iniciar Reclamo">
+                    <i class="fas fa-circle-exclamation"></i>
+                </button>
+                <button class="btn-repeat-express" onclick="repeatReservation('${r.patente}', '${r.sucursal_nombre}', '${r.tipo_estadia}')" title="Repetir Reserva">
+                    <i class="fas fa-rotate-right"></i>
+                </button>
+            </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 
     const pageInfo = document.getElementById('historial-page-info');
     if (pageInfo) pageInfo.innerText = `Página ${historialCurrentPage} de ${totalPages || 1}`;
@@ -547,13 +719,55 @@ function renderHistory(history) {
     if (nextBtn) nextBtn.disabled = historialCurrentPage >= totalPages;
 }
 
+async function repeatReservation(patente, sucursal, tipo) {
+    // Cambiar a sección inicio
+    const inicioNavItem = document.querySelector('.nav-item[onclick*="inicio"]');
+    if (inicioNavItem && typeof showSection === 'function') {
+        showSection('inicio', inicioNavItem);
+    }
+
+    // Abrir formulario
+    const container = document.getElementById('reserva-form-container');
+    if (!container.classList.contains('open')) {
+        await toggleReservaForm();
+    }
+
+    // Scroll sutil
+    container.scrollIntoView({ behavior: 'smooth' });
+
+    // Pre-cargar valores
+    setTimeout(() => {
+        const vehicleSelect = document.querySelector('.res-vehicle');
+        const sedeSelect = document.querySelector('.res-sede');
+        const typeSelect = document.querySelector('.res-type');
+        
+        if (vehicleSelect) vehicleSelect.value = patente;
+        if (sedeSelect) sedeSelect.value = sucursal;
+        if (typeSelect) {
+            typeSelect.value = tipo;
+            updateFormGroups(tipo);
+        }
+        
+        showToast('¡Datos cargados! Elegí la nueva fecha.');
+    }, 500);
+}
+
+function openClaim(id) {
+    showToast(`Iniciando reclamo para Reserva #${id}... (Módulo en desarrollo)`);
+    // Aquí se podría abrir un modal con un formulario de contacto o ticket
+}
+
 function historialPage(dir) {
     historialCurrentPage += dir;
     loadReservations();
 }
 
 async function cancelReservation(id) {
-    if (!confirm('¿Estás seguro de cancelar esta reserva?')) return;
+    const confirmed = await showConfirm(
+        'CANCELAR RESERVA',
+        '¿Estás seguro de cancelar esta reserva? Esta acción no se puede deshacer.'
+    );
+    if (!confirmed) return;
     
     try {
         const res = await fetch(`${API_BASE}/user/reservations/${id}/cancel`, {
@@ -574,7 +788,11 @@ async function cancelReservation(id) {
 }
 
 async function payReservation(id) {
-    if (!confirm('¿Deseás pagar esta reserva usando tu saldo?')) return;
+    const confirmed = await showConfirm(
+        'PAGAR RESERVA',
+        '¿Deseás pagar esta reserva usando tu saldo de AutoPass?'
+    );
+    if (!confirmed) return;
     
     try {
         const res = await fetch(`${API_BASE}/user/reservations/${id}/pay`, {
