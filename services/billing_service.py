@@ -41,8 +41,8 @@ class BillingService:
 
     @staticmethod
     def calculate_points(amount: float) -> int:
-        """Calcula los puntos AutoPass ganados (10 pts por cada $100)."""
-        puntos = int(amount / 10) # Equivale a (monto / 100) * 10
+        """Calcula los puntos AutoPass ganados (10 pts por cada $1000)."""
+        puntos = int(amount / 100) # Equivale a (monto / 1000) * 10
         return max(1, puntos) if amount > 0 else 0
 
     @staticmethod
@@ -70,6 +70,15 @@ class BillingService:
         if vehiculo and vehiculo.owner:
             puntos_ganados = BillingService.calculate_points(monto_real)
             vehiculo.owner.puntos_acumulados += puntos_ganados
+            
+            # Registrar en historial
+            log_pts = models.PointsLog(
+                user_id=vehiculo.owner.id,
+                cantidad=puntos_ganados,
+                motivo=f"Estadía: {plate}",
+                fecha=datetime.datetime.now().isoformat()
+            )
+            db.add(log_pts)
         
         db.commit()
         return {

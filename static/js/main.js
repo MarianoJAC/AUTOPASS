@@ -1,6 +1,3 @@
-const API_BASE = '/v1';
-const token = localStorage.getItem('token');
-
 // --- UTILIDADES GLOBALES ---
 const toTitle = s => {
     if (!s || typeof s !== 'string') return '---';

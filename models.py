@@ -77,6 +77,16 @@ class Coupon(Base):
     fecha_expiracion = Column(String)
     activo = Column(Boolean, default=True)
 
+class Promotion(Base):
+    __tablename__ = "promotions"
+    id = Column(Integer, primary_key=True, index=True)
+    titulo = Column(String)
+    descripcion = Column(String)
+    costo_puntos = Column(Integer)
+    icono = Column(String, default="fas fa-gift")
+    categoria = Column(String, default="Beneficio")
+    activa = Column(Boolean, default=True)
+
 class Settings(Base):
     __tablename__ = "settings"
     id = Column(Integer, primary_key=True, index=True)

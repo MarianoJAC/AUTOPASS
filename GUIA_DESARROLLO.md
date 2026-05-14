@@ -49,6 +49,8 @@ Los prefijos se definen en los routers dentro de `routes/`:
 ### ⚙️ Backend (Servidor)
 - **Entrada**: `main.py` (Configuración de FastAPI y MQTT).
 - **Controladores**: `routes/` (Segmentación por dominio).
+- **Servicios**: `services/` (Lógica de negocio y reglas financieras).
+- **Repositorios**: `repositories/` (Abstracción de consultas SQL).
 - **Modelos de Datos**: `models.py` (Estructura de tablas SQL).
 - **Validación/DLO**: `schemas.py` (Pydantic para entrada/salida de API).
 - **Lógica de Cobro**: `services/billing_service.py` (Cerebro financiero).
@@ -61,11 +63,13 @@ Los prefijos se definen en los routers dentro de `routes/`:
 graph TD
     Templates[.html] -->|Script Import| JS[.js]
     Templates -->|Link| CSS[.css]
-    JS -->|Fetch API| Routers[.py]
+    JS -->|API Client| apiClient[api_client.js]
+    apiClient -->|Fetch API| Routers[.py]
     Routers -->|Use| Schemas[.py]
-    Routers -->|Database Ops| Models[.py]
-    Routers -->|Logic| BillingService[.py]
-    BillingService --> Models
+    Routers -->|Call| Services[.py]
+    Services -->|Logic| BillingService[.py]
+    Services -->|Data Access| Repositories[.py]
+    Repositories -->|ORMD| Models[.py]
 ```
 
 1.  **Frontend -> Backend**: Los archivos `.js` se comunican con los `.py` en `routes/` mediante `fetch` usando la constante `API_BASE = '/v1'`.

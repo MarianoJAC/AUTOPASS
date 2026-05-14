@@ -1,7 +1,7 @@
 @echo off
-title Setup Backend - AUTOPASS Professional v3.1
+title Setup Backend - AUTOPASS Professional v5.0
 echo ======================================================
-echo   INSTALACION DEL ENTORNO PROFESIONAL (AUTOPASS)
+echo   INSTALACION DEL ENTORNO PROFESIONAL (AUTOPASS v5.0)
 echo ======================================================
 echo.
 
@@ -35,15 +35,9 @@ call venv\Scripts\activate
 echo [+] Actualizando PIP...
 python -m pip install --upgrade pip
 
-echo [+] Instalando FastAPI, Jinja2 y Base de Datos...
-pip install fastapi uvicorn sqlalchemy python-dotenv jinja2 passlib[bcrypt] python-jose[cryptography] python-multipart pillow
-
-echo [+] Instalando Comunicacion (MQTT y Requests)...
-pip install paho-mqtt requests
-
-echo [+] Instalando Vision Artificial (ALPR)...
-echo Nota: La instalacion de EasyOCR puede tardar unos minutos.
-pip install opencv-python easyocr
+echo [+] Instalando dependencias desde requirements.txt...
+echo Nota: La instalacion de dependencias pesadas (OpenCV, EasyOCR) puede tardar unos minutos.
+pip install -r requirements.txt
 
 :: 4. Configurar Variables de Entorno (.env)
 echo [+] Configurando archivo de variables de entorno (.env)...
@@ -71,23 +65,20 @@ if not exist .env (
     echo [!] El archivo .env ya existe, preservando configuracion actual.
 )
 
-:: 5. Inicializar y Migrar Base de Datos
+:: 5. Inicializar Base de Datos
 echo.
-echo [+] Inicializando Base de Datos y Usuario Admin...
+echo [+] Inicializando Base de Datos, Esquemas y Usuario Admin...
 python init_db.py
 
-echo [+] Ejecutando Migraciones (Actualización de Columnas)...
-python migrate_db.py
-
 echo.
 echo ======================================================
-echo   INSTALACION COMPLETADA CON EXITO (v3.1)
+echo   INSTALACION COMPLETADA CON EXITO (v5.0)
 echo ======================================================
 echo.
-echo Arquitectura Profesional:
-echo - Backend Modular (Routers)
-echo - Frontend Engine (Jinja2)
-echo - Business Logic (Service Pattern)
+echo Nueva Arquitectura Profesional (Layered Architecture):
+echo - Frontend: API Client Centralizado (JS)
+echo - Backend: Capa de Servicios y Repositorios
+echo - Base de Datos: Inicializacion Automatica (init_db)
 echo.
 echo Credenciales de Admin por defecto:
 echo Email: admin@autopass.com

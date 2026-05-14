@@ -59,6 +59,22 @@
 - **NOTIFICACIONES**: DESARROLLAR EL SISTEMA DE ALERTAS (EMAIL/PUSH) PARA INGRESOS Y EGRESOS.
 ## 📌 ACTIVIDAD RECIENTE
 
+### [2026-05-14] - Refactorización de Arquitectura (v5.0) y Sistema de Fidelización
+- **Arquitectura de Capas (Backend):**
+    - **Capa de Servicios:** Creación de `ReservationService` para aislar la lógica de negocio de las rutas.
+    - **Capa de Repositorios:** Implementación de `UserRepository` y `ReservationRepository` para abstraer el acceso a la base de datos (SQLAlchemy).
+    - **Modularización de BD:** Refactorización de `database.py` y `init_db.py` para un manejo de sesiones y motor más limpio.
+- **Frontend Pro:**
+    - **API Client:** Nuevo `api_client.js` que centraliza `fetch`, inyecta tokens JWT automáticamente y maneja la expiración de sesiones (401).
+- **Sistema de Puntos & Saldo:**
+    - **Fix Integral:** Acumulación correcta en pagos diferidos y ajustes automáticos en modificaciones.
+    - **Deducción por Cancelación:** Los puntos ahora se descuentan automáticamente al cancelar una reserva pagada.
+    - **Recarga de Saldo:** Modal premium para carga manual de crédito desde el perfil.
+- **Mejoras de Reservas:**
+    - **Ciclo de Vida Automático:** Estados sincronizados con ALPR y vencimiento por tiempo.
+    - **Historial Filtrable:** Buscador por rango de fechas (Desde/Hasta) con UI compacta y centrada.
+    - **UI Polished:** Barra de progreso limpia para reservas futuras y estética dorada en indicadores de puntos.
+
 ### [2026-05-12] - Optimización de Reservas, UI Perfil y Responsive Design
 - **Refactorización CSS:** Se dividió `perfil.css` en 4 archivos especializados para mejorar la escalabilidad.
 - **Pase Digital:** Implementación de modal premium con QR, logo corregido y funcionalidad nativa de compartir.

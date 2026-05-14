@@ -6,6 +6,7 @@ from typing import List
 import models, schemas, auth
 from database import get_db
 from services.billing_service import BillingService
+from services.reservation_service import ReservationService
 
 router = APIRouter(prefix="/v1/user", tags=["User Actions"])
 
@@ -98,6 +99,7 @@ def get_user_payment_history(db: Session = Depends(get_db), current_user: models
 
 @router.get("/reservations", response_model=List[schemas.UserReservationResponse])
 def get_user_reservations(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    ReservationService.auto_finalize_reservations(db, current_user.id)
     return db.query(models.Reservation).filter(models.Reservation.user_id == current_user.id).order_by(models.Reservation.id.desc()).all()
 
 @router.post("/reservations")
@@ -147,6 +149,17 @@ def create_user_reservation(res: schemas.UserReservationCreate, db: Session = De
     if current_user.saldo >= monto:
         current_user.saldo -= monto
         estado_pago = "Pagado"
+        
+        # Acreditar puntos por reserva pagada
+        puntos_ganados = BillingService.calculate_points(monto)
+        current_user.puntos_acumulados += puntos_ganados
+        log_pts = models.PointsLog(
+            user_id=current_user.id,
+            cantidad=puntos_ganados,
+            motivo=f"Reserva: {res.patente}",
+            fecha=datetime.datetime.now().isoformat()
+        )
+        db.add(log_pts)
     
     # MAPEO DE SUCURSALES
     sucursales_info = {
@@ -229,9 +242,24 @@ def modify_reservation(res_id: int, data: schemas.ReservationUpdate, db: Session
     else:
         monto_nuevo = math.ceil(duration_hours) * rate
 
-    # AJUSTE DE SALDO SI YA ESTABA PAGADO
+    # AJUSTE DE SALDO Y PUNTOS SI YA ESTABA PAGADO
     if ya_pagado:
         diferencia = monto_nuevo - monto_anterior
+        
+        # Ajustar puntos
+        puntos_anteriores = BillingService.calculate_points(monto_anterior)
+        puntos_nuevos = BillingService.calculate_points(monto_nuevo)
+        dif_puntos = puntos_nuevos - puntos_anteriores
+        
+        if dif_puntos != 0:
+            current_user.puntos_acumulados += dif_puntos
+            db.add(models.PointsLog(
+                user_id=current_user.id,
+                cantidad=dif_puntos,
+                motivo=f"Ajuste Reserva: {res.patente} (Modificación)",
+                fecha=datetime.datetime.now().isoformat()
+            ))
+
         if diferencia > 0:
             # Debe pagar más
             if current_user.saldo < diferencia:
@@ -245,6 +273,16 @@ def modify_reservation(res_id: int, data: schemas.ReservationUpdate, db: Session
         if current_user.saldo >= monto_nuevo:
             current_user.saldo -= monto_nuevo
             res.estado_pago = "Pagado"
+            
+            # Acreditar puntos por primera vez
+            puntos_ganados = BillingService.calculate_points(monto_nuevo)
+            current_user.puntos_acumulados += puntos_ganados
+            db.add(models.PointsLog(
+                user_id=current_user.id,
+                cantidad=puntos_ganados,
+                motivo=f"Reserva: {res.patente}",
+                fecha=datetime.datetime.now().isoformat()
+            ))
 
     res.monto_total = monto_nuevo
     db.commit()
@@ -252,28 +290,12 @@ def modify_reservation(res_id: int, data: schemas.ReservationUpdate, db: Session
 
 @router.post("/reservations/{res_id}/pay")
 def pay_reservation(res_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
-    res = db.query(models.Reservation).filter(models.Reservation.id == res_id, models.Reservation.user_id == current_user.id).first()
-    if not res: raise HTTPException(status_code=404, detail="Reserva no encontrada")
-    
-    if res.estado_pago == "Pagado":
-        return {"status": "ok", "message": "La reserva ya figura como pagada"}
-    
-    res.estado_pago = "Pagado"
-    db.commit()
-    return {"status": "ok", "message": "Reserva marcada como pagada con éxito"}
+    return ReservationService.pay_reservation(db, current_user, res_id)
 
 
 @router.post("/reservations/{res_id}/cancel")
 def cancel_reservation(res_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
-    res = db.query(models.Reservation).filter(models.Reservation.id == res_id, models.Reservation.user_id == current_user.id).first()
-    if not res: raise HTTPException(status_code=404, detail="Reserva no encontrada")
-    
-    if res.estado_reserva == "Cancelada":
-        raise HTTPException(status_code=400, detail="La reserva ya está cancelada")
-    
-    res.estado_reserva = "Cancelada"
-    db.commit()
-    return {"status": "ok", "message": "Reserva cancelada"}
+    return ReservationService.cancel_reservation(db, current_user, res_id)
 
 @router.post("/reservations/{res_id}/repeat")
 def repeat_reservation(res_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
@@ -297,3 +319,44 @@ def complain_reservation(res_id: int, message: str, db: Session = Depends(get_db
     # Simulación de envío de mail
     print(f"RECLAMO RECIBIDO para reserva {res_id} de {current_user.email}: {message}")
     return {"status": "ok", "message": "Su reclamo ha sido enviado al administrador del estacionamiento"}
+
+@router.get("/promotions", response_model=List[schemas.PromotionResponse])
+def get_promotions(db: Session = Depends(get_db)):
+    return db.query(models.Promotion).filter(models.Promotion.activa == True).all()
+
+@router.post("/redeem/{promo_id}")
+def redeem_points(promo_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    promo = db.query(models.Promotion).filter(models.Promotion.id == promo_id, models.Promotion.activa == True).first()
+    if not promo:
+        raise HTTPException(status_code=404, detail="Promoción no encontrada")
+    
+    if current_user.puntos_acumulados < promo.costo_puntos:
+        raise HTTPException(status_code=400, detail="No tenés suficientes puntos para este canje")
+    
+    # Restar puntos
+    current_user.puntos_acumulados -= promo.costo_puntos
+    
+    # Registrar en historial
+    log = models.PointsLog(
+        user_id=current_user.id,
+        cantidad=-promo.costo_puntos,
+        motivo=f"Canje: {promo.titulo}",
+        fecha=datetime.datetime.now().isoformat()
+    )
+    db.add(log)
+    db.commit()
+    
+    return {"status": "ok", "message": f"Canje exitoso: {promo.titulo}", "puntos_restantes": current_user.puntos_acumulados}
+
+@router.get("/points-history")
+def get_points_history(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return db.query(models.PointsLog).filter(models.PointsLog.user_id == current_user.id).order_by(models.PointsLog.id.desc()).all()
+
+@router.post("/recharge-balance")
+def recharge_balance(data: schemas.RechargeBalance, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    if data.monto <= 0:
+        raise HTTPException(status_code=400, detail="El monto debe ser mayor a cero")
+    
+    current_user.saldo += data.monto
+    db.commit()
+    return {"status": "ok", "message": f"Carga de ${data.monto:.2f} exitosa", "nuevo_saldo": current_user.saldo}

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/css/perfil-reservas.css">
     <link rel="stylesheet" href="/static/css/perfil-vehiculos.css">
     <link rel="stylesheet" href="/static/css/perfil-ticket.css">
+    <link rel="stylesheet" href="/static/css/perfil-puntos.css">
 {% endblock %}
 
 {% block body_class %}layout-with-sidebar{% endblock %}
@@ -30,6 +31,7 @@
             <div class="nav-item active" onclick="showSection('inicio', this); closeMobileNav()"><i class="fas fa-house-user"></i> <span class="nav-text">Inicio</span></div>
             <div class="nav-item" onclick="showSection('vehiculos', this); closeMobileNav()"><i class="fas fa-car-side"></i> <span class="nav-text">Mis Vehículos</span></div>
             <div class="nav-item" onclick="showSection('reservas', this); closeMobileNav()"><i class="fas fa-calendar-check"></i> <span class="nav-text">Mis Reservas</span></div>
+            <div class="nav-item" onclick="showSection('puntos', this); closeMobileNav()"><i class="fas fa-star"></i> <span class="nav-text">Mis Puntos</span></div>
             <div class="nav-item" onclick="showSection('perfil', this); closeMobileNav()"><i class="fas fa-user-gear"></i> <span class="nav-text">Mi Cuenta</span></div>
         </nav>
         <div class="sidebar-footer" onclick="logout()">
@@ -51,7 +53,7 @@
                 </div>
             </div>
             <div class="header-right">
-                <div class="balance-badge">
+                <div class="balance-badge" onclick="openRechargeModal()" style="cursor: pointer;" title="Hacé click para cargar saldo">
                     <i class="fas fa-wallet"></i>
                     <span id="balance-val" class="text-bold">$0.00</span>
                     <span class="text-label">Mi Saldo</span>
@@ -335,6 +337,20 @@
 
                         <div id="historial-container" class="historial-container">
                             <div class="card" style="padding: 0; overflow: hidden;">
+                                <div class="history-filters no-print" style="padding: 20px; border-bottom: 1px solid var(--border-light); display: flex; gap: 15px; align-items: flex-end; justify-content: center; background: rgba(255,255,255,0.02); flex-wrap: wrap;">
+                                    <div class="form-group" style="margin:0; width: 150px;">
+                                        <label class="text-label" style="font-size: 0.7rem;">Desde</label>
+                                        <input type="date" id="history-filter-from" class="form-control" style="background: #111; border: 1px solid #333; color: #fff; padding: 8px; font-size: 0.8rem; width: 100%;">
+                                    </div>
+                                    <div class="form-group" style="margin:0; width: 150px;">
+                                        <label class="text-label" style="font-size: 0.7rem;">Hasta</label>
+                                        <input type="date" id="history-filter-to" class="form-control" style="background: #111; border: 1px solid #333; color: #fff; padding: 8px; font-size: 0.8rem; width: 100%;">
+                                    </div>
+                                    <div style="display: flex; gap: 10px;">
+                                        <button class="btn btn-primary btn-sm" onclick="applyHistoryFilters()" style="padding: 10px 15px;" title="Filtrar"><i class="fas fa-filter"></i></button>
+                                        <button class="btn btn-outline btn-sm" onclick="resetHistoryFilters()" style="padding: 10px 15px;" title="Limpiar"><i class="fas fa-rotate-left"></i></button>
+                                    </div>
+                                </div>
                                 <div id="reservation-list-history" class="flex-col" style="gap: 0;">
                                     <p class="text-bold" style="padding: 30px;">Cargando historial...</p>
                                 </div>
@@ -347,6 +363,62 @@
                                         SIGUIENTE <i class="fas fa-chevron-right"></i>
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN: MIS PUNTOS -->
+                <div id="section-puntos" class="profile-section">
+                    <div class="card welcome-card">
+                        <div class="welcome-msg">
+                            <h1><i class="fas fa-star"></i> MIS PUNTOS AUTOPASS</h1>
+                        </div>
+                    </div>
+
+                    <div class="points-overview-grid">
+                        <div class="points-main-card">
+                            <div class="points-display">
+                                <span class="points-count" id="points-page-val">0</span>
+                                <span class="points-label">Puntos Disponibles</span>
+                            </div>
+                            <div class="points-info-footer">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Sumás 10 puntos por cada $1000 abonados en estadías.</span>
+                            </div>
+                        </div>
+
+                        <div class="points-stats-mini">
+                            <div class="p-stat">
+                                <span class="p-label">Total Acumulado</span>
+                                <span class="p-val" id="total-earned-pts">0</span>
+                            </div>
+                            <div class="p-stat">
+                                <span class="p-label">Canjes Realizados</span>
+                                <span class="p-val" id="total-redeemed-pts">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-subtitle"><i class="fas fa-tags"></i> PROMOCIONES Y BENEFICIOS</div>
+                    <div id="promotions-grid" class="promotions-grid">
+                        <!-- Cargando... -->
+                        <div class="loading-spinner">
+                            <i class="fas fa-circle-notch fa-spin"></i> Cargando promociones...
+                        </div>
+                    </div>
+
+                    <div class="card points-history-trigger" onclick="togglePointsHistory()">
+                        <div class="flex-row justify-between align-center">
+                            <div class="card-title" style="margin: 0;"><i class="fas fa-clock-rotate-left"></i> HISTORIAL DE PUNTOS</div>
+                            <i id="pts-history-arrow" class="fas fa-chevron-down trigger-icon-sm"></i>
+                        </div>
+                    </div>
+
+                    <div id="pts-history-container" class="pts-history-container">
+                        <div class="card" style="padding: 0; overflow: hidden;">
+                            <div id="points-history-list" class="pts-history-list">
+                                <p class="text-bold" style="padding: 30px;">Cargando historial...</p>
                             </div>
                         </div>
                     </div>
@@ -590,10 +662,46 @@
             <div class="ticket-perf"></div>
         </div>
     </div>
+
+    <!-- MODAL: CARGAR SALDO (TEMPORAL) -->
+    <div id="rechargeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('rechargeModal')"><i class="fas fa-xmark"></i></span>
+            <div class="text-center">
+                <i class="fas fa-wallet" style="font-size: 3rem; color: var(--dorado); margin-bottom: 15px; opacity: 0.8;"></i>
+                <h2 style="margin-bottom: 5px;">CARGÁ TU SALDO</h2>
+                <p class="modal-subtitle">Ingresá el monto que deseás acreditar en tu cuenta.</p>
+            </div>
+            
+            <form id="rechargeForm" onsubmit="processRecharge(event)" style="margin-top: 25px;">
+                <div class="form-group">
+                    <label>Monto a Cargar ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                        <input type="number" id="recharge-amount" placeholder="0.00" min="100" step="100" required autofocus>
+                    </div>
+                </div>
+                
+                <div class="quick-amounts" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="setRechargeAmount(1000)">$1000</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="setRechargeAmount(5000)">$5000</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="setRechargeAmount(10000)">$10000</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-bolt"></i> ACREDITAR SALDO
+                </button>
+            </form>
+            
+            <div class="modal-text" style="font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 15px; margin-top: 25px;">
+                <i class="fas fa-shield-halved"></i> Transacción simulada para pruebas. Próximamente integración con Mercado Pago.
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="/static/js/perfil.js"></script>
     <script src="/static/js/vehicles.js"></script>
     <script src="/static/js/reservas.js"></script>
-{% endblock %}block %}
+{% endblock %}

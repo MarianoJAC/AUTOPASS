@@ -1,11 +1,11 @@
-from database import engine, SessionLocal
+from database import SessionLocal, init_db as create_tables
 import models
 from auth import get_password_hash
 import datetime
 
-def init_db():
-    # Crear tablas
-    models.Base.metadata.create_all(bind=engine)
+def populate_initial_data():
+    # Crear tablas usando la función modularizada
+    create_tables()
     
     db = SessionLocal()
     try:
@@ -55,4 +55,4 @@ def init_db():
         db.close()
 
 if __name__ == "__main__":
-    init_db()
+    populate_initial_data()

@@ -1,11 +1,17 @@
-# Estado del Proyecto: ParkingTech (Actualizado 2026-05-12)
+# Estado del Proyecto: ParkingTech (Actualizado 2026-05-14)
 
 ### 🚀 Hitos Recientes (Mayo 2026)
 - [x] **Responsive Design Full**: Menú hamburguesa pro, cabecera móvil centrada y adaptación total de la flota.
 - [x] **Pase Digital con QR**: Generación dinámica de vouchers premium compartibles vía Web Share API.
-- [x] **Modificación de Reservas Pro**: Lógica de recálculo automático de precios y reembolsos/cobros de saldo.
-- [x] **Arquitectura CSS Modular**: Refactorización en módulos especializados (`base`, `reservas`, `vehiculos`, `ticket`).
-- [x] **Normalización de Datos**: Capitalización inteligente de nombres compuestos y edición mejorada.
+- [x] **Gestión de Saldo Pre-pago**: Implementación de recarga de saldo manual a gusto desde el perfil (vía modal premium).
+- [x] **Sistema de Puntos Robusto**: Corrección integral de acumulación en pagos diferidos y ajustes automáticos por modificación de reserva.
+- [x] **Cierre de Ciclo de Reserva**: Automatización de estados (Pendiente -> Activa -> Completada) sincronizada con ingresos/egresos ALPR y vencimiento por tiempo.
+- [x] **Filtrado de Historial**: Implementación de filtros por rango de fechas (Desde/Hasta) con paginación dinámica en el portal de cliente.
+- [x] **UI/UX Polished**: Estética de puntos en dorado, barra de progreso limpia para reservas futuras y campos de filtrado optimizados.
+
+- [x] **Canje de Puntos**: Implementación de sección dedicada en el perfil, lógica de beneficios y promociones.
+- [x] **Nuevo Ratio de Puntos**: Ajuste de fidelización a 10 puntos por cada $1000 (1 pt x $100).
+- [x] **Historial de Puntos**: Seguimiento detallado de ganancias y canjes en el portal de cliente.
 
 ### 🏗️ Arquitectura Professional (¡NUEVO v4.5!)
 - [x] **Modularización del Backend**: Segmentación de `main.py` en 6 routers especializados (`routes/`).
@@ -38,8 +44,7 @@
 
 ## 🛠️ Pendientes Inmediatos (Backlog)
 1. **Integración Real de Pagos**: Conectar el flujo con el SDK de Mercado Pago.
-2. **Canje de Puntos**: Implementar sistema para usar los Puntos AutoPass en beneficios o descuentos.
-3. **Notificaciones**: Avisos vía email/push cuando un vehículo del usuario ingresa o sale.
+2. **Notificaciones**: Avisos vía email/push cuando un vehículo del usuario ingresa o sale.
 
 ## 📡 Configuración de Puertas
 - **Entrada**: `ENTRADA_PRINCIPAL`

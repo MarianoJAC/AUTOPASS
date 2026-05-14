@@ -5,7 +5,9 @@ python-dotenv
 jinja2
 passlib[bcrypt]
 python-jose[cryptography]
+python-multipart
+pillow
 paho-mqtt
 requests
-opencv-python-headless
+opencv-python
 easyocr

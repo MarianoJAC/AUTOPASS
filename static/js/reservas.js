@@ -4,6 +4,7 @@ let historialCurrentPage = 1;
 const HISTORIAL_PAGE_SIZE = 5;
 let currentRates = { hora: 1500, dia: 15000, semana: 70000, quincena: 120000, mes: 200000 };
 let editingReservaId = null;
+let historyData = []; // Almacena el historial completo para filtrar localmente
 
 async function toggleReservaForm() {
     const container = document.getElementById('reserva-form-container');
@@ -407,7 +408,7 @@ async function loadReservations() {
     
     const all = await res.json();
     const active = all.filter(r => r.estado_reserva === 'Pendiente' || r.estado_reserva === 'Activa');
-    const history = all.filter(r => r.estado_reserva !== 'Pendiente' && r.estado_reserva !== 'Activa');
+    historyData = all.filter(r => r.estado_reserva !== 'Pendiente' && r.estado_reserva !== 'Activa');
     
     const statRes = document.getElementById('stat-reservations');
     if (statRes) statRes.innerText = active.length;
@@ -457,7 +458,37 @@ async function loadReservations() {
         }
     }
 
-    renderHistory(history);
+    applyHistoryFilters();
+}
+
+function applyHistoryFilters() {
+    const fromVal = document.getElementById('history-filter-from').value;
+    const toVal = document.getElementById('history-filter-to').value;
+    
+    let filtered = [...historyData];
+    
+    if (fromVal) {
+        const fromDate = new Date(fromVal);
+        fromDate.setHours(0,0,0,0);
+        filtered = filtered.filter(r => new Date(r.fecha_inicio.replace(/-/g, "/")) >= fromDate);
+    }
+    
+    if (toVal) {
+        const toDate = new Date(toVal);
+        toDate.setHours(23,59,59,999);
+        filtered = filtered.filter(r => new Date(r.fecha_inicio.replace(/-/g, "/")) <= toDate);
+    }
+    
+    renderHistory(filtered);
+}
+
+function resetHistoryFilters() {
+    const fromInput = document.getElementById('history-filter-from');
+    const toInput = document.getElementById('history-filter-to');
+    if (fromInput) fromInput.value = '';
+    if (toInput) toInput.value = '';
+    historialCurrentPage = 1;
+    applyHistoryFilters();
 }
 
 function renderReservaCard(r, isFeatured) {
@@ -476,7 +507,7 @@ function renderReservaCard(r, isFeatured) {
         progress = Math.min(100, Math.max(0, (elapsed / total) * 100));
         progressText = progress >= 100 ? "ESTADÍA FINALIZADA" : `PROGRESO DE ESTADÍA: ${Math.round(progress)}%`;
     } else {
-        progressText = `INICIA EL ${formatDate(r.fecha_inicio).split(' ')[0]}`;
+        progressText = "";
     }
 
     const statusClass = r.estado_pago.toLowerCase();
@@ -759,7 +790,7 @@ function openClaim(id) {
 
 function historialPage(dir) {
     historialCurrentPage += dir;
-    loadReservations();
+    applyHistoryFilters(); // Re-renderizar con filtros actuales sin recargar de API
 }
 
 async function cancelReservation(id) {

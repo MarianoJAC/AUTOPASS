@@ -134,3 +134,18 @@ class UserReservationResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class RechargeBalance(BaseModel):
+    monto: float
+
+class PromotionResponse(BaseModel):
+    id: int
+    titulo: str
+    descripcion: str
+    costo_puntos: int
+    icono: str
+    categoria: str
+    activa: bool
+
+    class Config:
+        from_attributes = True

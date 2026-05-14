@@ -1,0 +1,301 @@
+/* ESTILOS SECCIÓN PUNTOS AUTOPASS - ALINEADO CON ESTILO GLOBAL */
+
+.points-overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.points-main-card {
+    background: linear-gradient(135deg, var(--negro) 0%, var(--gris-fondo) 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
+
+.points-main-card::after {
+    content: '\f005';
+    font-family: 'Font Awesome 6 Pro';
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    font-size: 150px;
+    color: var(--dorado);
+    opacity: 0.05;
+    transform: rotate(-15deg);
+}
+
+.points-display {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 2;
+}
+
+.points-count {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--dorado);
+    line-height: 1;
+}
+
+.points-label {
+    font-size: 1.1rem;
+    color: var(--blanco);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-top: 5px;
+    opacity: 0.8;
+}
+
+.points-info-footer {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: #888;
+    z-index: 2;
+}
+
+.points-info-footer i {
+    color: var(--dorado);
+}
+
+.points-stats-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.p-stat {
+    background: var(--gris-card);
+    border: 1px solid var(--border-light);
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+}
+
+.p-stat:hover {
+    transform: translateY(-5px);
+    border-color: var(--border);
+}
+
+.p-label {
+    font-size: 0.7rem;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.p-val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--dorado);
+}
+
+/* GRID DE PROMOCIONES */
+.promotions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.promo-card {
+    background: var(--gris-card);
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+}
+
+.promo-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--dorado);
+    box-shadow: 0 20px 40px rgba(197, 160, 89, 0.15);
+}
+
+.promo-header {
+    background: rgba(255,255,255,0.02);
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.promo-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(197, 160, 89, 0.1);
+    color: var(--dorado);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.promo-title {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--dorado);
+    text-transform: uppercase;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.promo-body {
+    padding: 25px;
+    flex-grow: 1;
+}
+
+.promo-desc {
+    font-size: 0.9rem;
+    color: #999;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.promo-cost {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    color: var(--dorado);
+    font-size: 1.3rem;
+}
+
+.promo-cost span {
+    font-size: 0.75rem;
+    color: #555;
+    text-transform: uppercase;
+}
+
+.promo-footer {
+    padding: 20px 25px;
+    border-top: 1px solid var(--border-light);
+}
+
+.btn-redeem {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--dorado);
+    color: var(--negro);
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-redeem:hover:not(:disabled) {
+    background: var(--blanco);
+    transform: scale(1.02);
+}
+
+.btn-redeem:disabled {
+    background: #222;
+    color: #555;
+    cursor: not-allowed;
+}
+
+/* HISTORIAL DE PUNTOS */
+.points-history-trigger {
+    background: var(--gris-card);
+    border: 1px solid var(--border-light);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.points-history-trigger:hover {
+    border-color: var(--dorado);
+}
+
+.pts-history-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+}
+
+.pts-history-container.open {
+    max-height: 1000px;
+}
+
+.pts-history-list {
+    display: flex;
+    flex-direction: column;
+    background: var(--gris-card);
+    border: 1px solid var(--border-light);
+    border-top: none;
+    border-radius: 0 0 15px 15px;
+}
+
+.pts-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 25px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.pts-item:last-child {
+    border-bottom: none;
+}
+
+.pts-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pts-item-reason {
+    font-weight: 700;
+    color: var(--blanco);
+}
+
+.pts-item-date {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.pts-item-amount {
+    font-weight: 800;
+    font-size: 1.2rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.pts-positive { 
+    color: var(--dorado); 
+}
+.pts-negative { 
+    color: var(--danger); 
+}
+
+@media (max-width: 992px) {
+    .points-overview-grid {
+        grid-template-columns: 1fr;
+    }
+}

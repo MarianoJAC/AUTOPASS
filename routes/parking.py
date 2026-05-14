@@ -85,6 +85,8 @@ def validate_plate(data: schemas.PlateValidation, db: Session = Depends(get_db),
     
     if reserva or aforo.ocupacion_actual < aforo.capacidad_total:
         aforo.ocupacion_actual += 1
+        if reserva:
+            reserva.estado_reserva = "Activa"
         db.add(models.AccessLog(patente_detectada=p, tipo_evento="ENTRADA", fecha_hora=now.isoformat(), imagen_path=img_name, reserva_id=reserva.id if reserva else None))
         db.commit()
         
@@ -109,6 +111,8 @@ def exit_plate(data: schemas.PlateValidation, db: Session = Depends(get_db), req
         aforo.ocupacion_actual -= 1
         
     now = datetime.datetime.now()
+    if ultimo.reservation:
+        ultimo.reservation.estado_reserva = "Completada"
     db.add(models.AccessLog(patente_detectada=p, tipo_evento="SALIDA", fecha_hora=now.isoformat(), pago_confirmado=True))
     db.commit()
     
