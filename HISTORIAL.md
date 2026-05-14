@@ -87,5 +87,4 @@
 - **Normalización UI:** Estandarización de botones premium estilo bloque sólido.
 
 ---
-*DOCUMENTO ACTUALIZADO POR GEMINI CLI PARA CONTINUIDAD DEL PROYECTO.*
 
