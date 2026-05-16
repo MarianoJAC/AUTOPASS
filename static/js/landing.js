@@ -13,16 +13,21 @@ function toggleMobileMenu() {
 
     const isActive = nav.classList.toggle('active');
     if (btn) btn.classList.toggle('hidden', isActive);
-    
-    if (isActive) {
-        const links = nav.querySelectorAll('a, button.btn-nav');
-        links.forEach(link => {
-            link.onclick = () => {
-                nav.classList.remove('active');
-                if (btn) btn.classList.remove('hidden');
-            };
+}
+
+// Cerrar menú móvil al clickear enlaces o botones
+function setupMobileMenuEvents() {
+    const nav = document.getElementById('nav-menu');
+    const btn = document.querySelector('.mobile-menu-btn');
+    if (!nav) return;
+
+    const links = nav.querySelectorAll('a, button.btn-nav');
+    links.forEach(link => {
+        link.addEventListener('click', () => {
+            nav.classList.remove('active');
+            if (btn) btn.classList.remove('hidden');
         });
-    }
+    });
 }
 
 // Cierre al clickear fuera del menú móvil
@@ -162,6 +167,7 @@ function initMap() {
 document.addEventListener('DOMContentLoaded', () => {
     checkAuthState();
     handleHeaderScroll();
+    setupMobileMenuEvents();
     window.addEventListener('scroll', handleHeaderScroll);
     
     if (document.getElementById('map')) initMap();

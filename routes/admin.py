@@ -111,7 +111,18 @@ def get_admin_settings(db: Session = Depends(get_db), current_user: models.User 
 
 @router.post("/settings/prices")
 def update_price(clave: str, valor: float, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
-    """Actualiza o crea un valor de configuración (Ej: precio por hora)."""
+    """Actualiza o crea un valor de configuración (Ej: precio por hora o capacidad total)."""
+    if clave == "capacidad_total":
+        aforo = db.query(models.ParkingAforo).first()
+        if aforo:
+            aforo.capacidad_total = int(valor)
+            db.commit()
+            return {"status": "ok"}
+        else:
+            db.add(models.ParkingAforo(capacidad_total=int(valor), ocupacion_actual=0, ultima_actualizacion=datetime.datetime.now().isoformat()))
+            db.commit()
+            return {"status": "ok"}
+
     setting = db.query(models.Settings).filter(models.Settings.clave == clave).first()
     if setting: setting.valor = valor
     else: db.add(models.Settings(clave=clave, valor=valor))

@@ -3,6 +3,8 @@
  * Handles tab switching, real-time updates, and administrative actions.
  */
 
+let revenueChart = null;
+
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     initClock();
@@ -50,8 +52,11 @@ async function checkSystemHealth() {
     if (res.ok) {
         dot.style.background = res.data.status === 'ok' ? '#10b981' : '#ef4444';
         dot.title = res.data.status === 'ok' ? 'Sistema Operativo' : 'Error en el sistema';
+        if (res.data.status === 'ok') dot.classList.add('online');
+        else dot.classList.remove('online');
     } else {
         dot.style.background = '#ef4444';
+        dot.classList.remove('online');
     }
 }
 
@@ -238,27 +243,72 @@ async function loadUsers() {
     const res = await apiClient.get('/admin/users');
     if (!res.ok) return;
 
+    const users = res.data;
     const tbody = document.getElementById('user-list');
     if (!tbody) return;
 
-    tbody.innerHTML = res.data.map(u => `
-        <tr>
-            <td class="text-bold">${u.nombre} ${u.apellido}</td>
-            <td>${u.email}</td>
-            <td>${u.dni}</td>
-            <td><span class="badge" style="background: ${u.rol === 'admin' ? 'var(--dorado)' : 'rgba(255,255,255,0.1)'}; color: ${u.rol === 'admin' ? '#000' : '#fff'}; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800;">${u.rol.toUpperCase()}</span></td>
-            <td>${u.puntos_acumulados} pts</td>
-            <td class="text-bold">$${u.saldo.toLocaleString('es-AR')}</td>
-        </tr>
-    `).join('');
+    // Actualizar KPIs
+    const totalUsers = users.length;
+    const adminUsers = users.filter(u => u.rol === 'admin').length;
+    const today = new Date().toISOString().split('T')[0];
+    const newUsersToday = users.filter(u => u.created_at && u.created_at.startsWith(today)).length;
+
+    document.getElementById('stat-total-users').innerText = totalUsers;
+    document.getElementById('stat-admin-users').innerText = adminUsers;
+    document.getElementById('stat-new-users').innerText = newUsersToday;
+
+    tbody.innerHTML = users.map(u => {
+        const rolBadge = u.rol === 'admin' ? 
+            `<span class="badge" style="background: var(--dorado); color: #000; font-weight: 800;">ADMIN</span>` : 
+            `<span class="badge" style="background: rgba(255,255,255,0.05); color: #ccc;">USUARIO</span>`;
+
+        return `
+            <tr>
+                <td>
+                    <div class="flex-col">
+                        <span class="text-bold">${u.nombre} ${u.apellido}</span>
+                        <span style="font-size: 0.7rem; color: #666;">DNI: ${u.dni}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="flex-col" style="gap: 2px;">
+                        <div style="font-size: 0.85rem; color: #eee;"><i class="fas fa-envelope" style="width: 15px; color: var(--dorado);"></i> ${u.email}</div>
+                        <div style="font-size: 0.75rem; color: #888;"><i class="fas fa-phone" style="width: 15px;"></i> ${u.telefono || 'S/D'}</div>
+                    </div>
+                </td>
+                <td><span class="text-small">${u.dni}</span></td>
+                <td>${rolBadge}</td>
+                <td><b style="color: var(--dorado);">${u.puntos_acumulados || 0}</b> <small>pts</small></td>
+                <td class="text-bold">$${u.saldo.toLocaleString('es-AR')}</td>
+                <td>
+                    <div class="flex-row gap-5">
+                        <button class="btn-icon-premium sm" onclick="adjustUserBalance(${u.id}, '${u.nombre}')" title="Ajustar Saldo">
+                            <i class="fas fa-wallet"></i>
+                        </button>
+                        <button class="btn-icon-premium sm" onclick="changeUserRole(${u.id}, '${u.rol}')" title="Cambiar Rol">
+                            <i class="fas fa-user-shield"></i>
+                        </button>
+                        <button class="btn-icon-premium sm danger" onclick="deleteUserAdmin(${u.id})" title="Eliminar">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 async function loadFinanceData() {
-    const resSummary = await apiClient.get('/reports/financial-summary?period=total');
+    const period = document.getElementById('fin-period')?.value || 'total';
+    const resSummary = await apiClient.get(`/reports/financial-summary?period=${period}`);
+    
     if (resSummary.ok) {
         document.getElementById('fin-total').innerText = `$${resSummary.data.total_recaudado.toLocaleString('es-AR')}`;
         document.getElementById('fin-count').innerText = resSummary.data.cantidad_pagos;
         document.getElementById('fin-avg').innerText = `$${resSummary.data.ticket_promedio.toLocaleString('es-AR')}`;
+        
+        // Inicializar o actualizar gráfico
+        updateRevenueChart(period);
     }
 
     const resHistory = await apiClient.get('/reports/payment-history');
@@ -269,11 +319,55 @@ async function loadFinanceData() {
                 <td>${new Date(pay.fecha_hora).toLocaleString('es-AR')}</td>
                 <td><span class="plate-style" style="background: #1e293b; color: #fff; padding: 4px 8px; border-radius: 4px; font-family: var(--font-mono); font-weight: 700;">${pay.patente_detectada}</span></td>
                 <td class="text-bold">$${pay.costo_estadia.toLocaleString('es-AR')}</td>
+                <td><span class="badge" style="background:rgba(255,255,255,0.05); color:#ccc;">SALDO VIRTUAL</span></td>
                 <td style="color: var(--secondary); font-weight: 700;">CONFIRMADO</td>
-                <td>SALDO VIRTUAL</td>
             </tr>
         `).join('') || '<tr><td colspan="5" class="text-center py-20">No hay transacciones registradas.</td></tr>';
     }
+}
+
+/**
+ * Genera o actualiza el gráfico de tendencia de ingresos.
+ */
+function updateRevenueChart(period) {
+    const ctx = document.getElementById('revenueChart')?.getContext('2d');
+    if (!ctx) return;
+
+    // Datos simulados por ahora para mostrar la estética
+    const labels = period === 'day' ? ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'] : 
+                   period === 'week' ? ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'] : 
+                   ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'];
+    
+    const dataValues = [12000, 19000, 15000, 25000, 22000, 30000, 28000];
+
+    if (revenueChart) revenueChart.destroy();
+
+    revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Ingresos ($)',
+                data: dataValues,
+                borderColor: '#C5A059',
+                backgroundColor: 'rgba(197, 160, 89, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#C5A059'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                x: { grid: { display: false }, ticks: { color: '#888' } }
+            }
+        }
+    });
 }
 
 async function loadSettings() {
@@ -282,8 +376,17 @@ async function loadSettings() {
         const keys = ['precio_hora', 'precio_dia', 'precio_semana', 'precio_quincena', 'precio_mes', 'capacidad_total'];
         keys.forEach(k => {
             const input = document.getElementById(`cfg-${k}`);
-            if (input) input.value = res.data[k] || 0;
+            if (input && res.data[k] !== undefined) input.value = res.data[k];
         });
+    }
+
+    // Si capacidad_total no está en settings, traerla de /parking/status
+    const capInput = document.getElementById('cfg-capacidad_total');
+    if (capInput && (!capInput.value || capInput.value == 0)) {
+        const resStatus = await apiClient.get('/parking/status');
+        if (resStatus.ok) {
+            capInput.value = resStatus.data.capacidad_total;
+        }
     }
 }
 

@@ -1,26 +1,56 @@
 <!-- PESTAÑA: GESTIÓN DE USUARIOS -->
 <div id="tab-users" class="tab-view" style="display: none;">
+    <!-- KPIS DE USUARIOS -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-users"></i></div>
+            <div class="kpi-data">
+                <span class="label">Usuarios Totales</span>
+                <span class="value" id="stat-total-users">0</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-user-plus"></i></div>
+            <div class="kpi-data">
+                <span class="label">Nuevos (Hoy)</span>
+                <span class="value" id="stat-new-users">0</span>
+            </div>
+        </div>
+        <div class="kpi-card highlight">
+            <div class="kpi-icon"><i class="fas fa-shield-halved"></i></div>
+            <div class="kpi-data">
+                <span class="label">Administradores</span>
+                <span class="value" id="stat-admin-users">0</span>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header-premium">
-            <div class="header-icon"><i class="fas fa-users"></i></div>
-            <div class="header-text">
-                <h3>BASE DE DATOS DE CLIENTES</h3>
-                <p>Administrá los perfiles, vehículos vinculados y saldos de los usuarios.</p>
-            </div>
+            <i class="fas fa-address-book" style="color: var(--dorado); font-size: 1.2rem;"></i>
+            <h3 style="margin: 0; letter-spacing: 1px; color: #fff; font-size: 1.1rem; flex: 1;">BASE DE DATOS DE CLIENTES</h3>
             <div class="header-actions">
                 <div class="search-box-premium">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="user-search" placeholder="Buscar por DNI o Email..." onkeyup="filterTable('user-list', this.value)">
+                    <input type="text" id="user-search" placeholder="Nombre, DNI o Email..." onkeyup="filterTable('user-list', this.value)">
                 </div>
             </div>
         </div>
         <div class="table-container">
             <table>
                 <thead>
-                    <tr><th>Nombre Completo</th><th>Correo Electrónico</th><th>DNI</th><th>Rol</th><th>Vehículos</th><th>Saldo</th></tr>
+                    <tr>
+                        <th>Nombre Completo</th>
+                        <th>Contacto</th>
+                        <th>DNI</th>
+                        <th>Rol</th>
+                        <th>Puntos</th>
+                        <th>Saldo</th>
+                        <th>Acciones</th>
+                    </tr>
                 </thead>
                 <tbody id="user-list">
-                    <tr><td colspan="6" class="text-center py-20">Cargando base de datos...</td></tr>
+                    <tr><td colspan="7" class="text-center py-20">Cargando base de datos...</td></tr>
                 </tbody>
             </table>
         </div>

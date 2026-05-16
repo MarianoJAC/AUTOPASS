@@ -1,74 +1,82 @@
 <!-- PESTAÑA: REPORTE FINANCIERO -->
 <div id="tab-finance" class="tab-view" style="display: none;">
-    <div class="finance-main-grid">
-        <div class="card">
-            <div class="card-header-premium">
-                <div class="header-icon"><i class="fas fa-chart-line"></i></div>
-                <div class="header-text">
-                    <h3>TENDENCIA DE RECAUDACIÓN</h3>
-                    <p>Visualización analítica de ingresos por período.</p>
+    <div class="finance-layout">
+        <!-- SECCIÓN SUPERIOR: KPIS RÁPIDOS -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-money-bill-trend-up"></i></div>
+                <div class="kpi-data">
+                    <span class="label">Recaudación Total</span>
+                    <span class="value" id="fin-total">$0</span>
                 </div>
-                <div class="header-actions">
-                    <div class="finance-filters">
-                        <select id="fin-period" onchange="toggleCustomFilters()" class="finance-select">
-                            <option value="total">HISTÓRICO TOTAL</option>
+                <div class="kpi-trend trend-up">▲ 12.5%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-receipt"></i></div>
+                <div class="kpi-data">
+                    <span class="label">Tickets Emitidos</span>
+                    <span class="value" id="fin-count">0</span>
+                </div>
+                <div class="kpi-trend">Estable</div>
+            </div>
+            <div class="kpi-card highlight">
+                <div class="kpi-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+                <div class="kpi-data">
+                    <span class="label">Ticket Promedio</span>
+                    <span class="value" id="fin-avg">$0</span>
+                </div>
+                <div class="kpi-trend trend-down">▼ 2.1%</div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN MEDIA: GRÁFICOS ANALÍTICOS -->
+        <div class="finance-analytics-row">
+            <div class="card chart-card">
+                <div class="card-header-premium">
+                    <i class="fas fa-chart-line" style="color: var(--dorado);"></i>
+                    <h3>TENDENCIA DE INGRESOS</h3>
+                    <div class="header-actions">
+                        <select id="fin-period" class="select-premium-sm" onchange="loadFinanceData()">
                             <option value="day">HOY</option>
-                            <option value="week">ESTA SEMANA</option>
+                            <option value="week">ÚLTIMA SEMANA</option>
                             <option value="month">ESTE MES</option>
-                            <option value="year">ESTE AÑO</option>
-                            <option value="custom">RANGO PERSONALIZADO</option>
+                            <option value="year">AÑO ACTUAL</option>
                         </select>
-                        <div id="custom-date-container">
-                            <i class="fas fa-calendar-alt" style="color: var(--dorado)"></i>
-                            <input type="text" id="fin-date-range" placeholder="Seleccionar rango...">
-                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="chart-container-premium">
-                <canvas id="revenueChart"></canvas>
-            </div>
-        </div>
-        
-        <div class="finance-stats-col">
-            <div class="stat-card">
-                <div class="label">Recaudación Total</div>
-                <div class="value" id="fin-total">$0.00</div>
-                <div class="stat-trend trend-up">▲ 8% vs periodo ant.</div>
-            </div>
-            <div class="stat-card">
-                <div class="label">Tickets Procesados</div>
-                <div class="value" id="fin-count">0</div>
-                <div class="stat-trend">Volumen estable</div>
-            </div>
-            <div class="stat-card">
-                <div class="label">Ticket Promedio</div>
-                <div class="value" id="fin-avg">$0.00</div>
-                <div class="stat-trend trend-down">▼ 2% vs periodo ant.</div>
+                <div class="chart-wrapper">
+                    <canvas id="revenueChart"></canvas>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="card">
-        <div class="card-header-premium">
-            <div class="header-icon"><i class="fas fa-receipt"></i></div>
-            <div class="header-text">
-                <h3>HISTORIAL DE TRANSACCIONES CONFIRMADAS</h3>
-                <p>Registro detallado de todos los cobros efectuados.</p>
+        <!-- SECCIÓN INFERIOR: HISTORIAL DETALLADO -->
+        <div class="card mt-25">
+            <div class="card-header-premium">
+                <i class="fas fa-list-check" style="color: var(--dorado);"></i>
+                <h3>HISTORIAL DE PAGOS CONFIRMADOS</h3>
+                <div class="header-actions">
+                    <button class="btn btn-outline btn-sm" onclick="exportFinanceData()">
+                        <i class="fas fa-download"></i> EXPORTAR
+                    </button>
+                </div>
             </div>
-            <div class="header-actions">
-                <button class="btn btn-outline btn-sm" onclick="exportFinance()"><i class="fas fa-file-export"></i> EXPORTAR CSV</button>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Vehículo / Patente</th>
+                            <th>Monto Abonado</th>
+                            <th>Método de Pago</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payment-list">
+                        <tr><td colspan="5" class="text-center py-20">Cargando transacciones...</td></tr>
+                    </tbody>
+                </table>
             </div>
-        </div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr><th>Fecha y Hora</th><th>Patente</th><th>Importe</th><th>Estado de Pago</th><th>Método</th></tr>
-                </thead>
-                <tbody id="payment-list">
-                    <tr><td colspan="5" class="text-center py-20">Cargando transacciones...</td></tr>
-                </tbody>
-            </table>
         </div>
     </div>
 </div>
