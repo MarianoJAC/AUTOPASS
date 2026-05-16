@@ -1,0 +1,74 @@
+<!-- PESTAÑA: REPORTE FINANCIERO -->
+<div id="tab-finance" class="tab-view" style="display: none;">
+    <div class="finance-main-grid">
+        <div class="card">
+            <div class="card-header-premium">
+                <div class="header-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="header-text">
+                    <h3>TENDENCIA DE RECAUDACIÓN</h3>
+                    <p>Visualización analítica de ingresos por período.</p>
+                </div>
+                <div class="header-actions">
+                    <div class="finance-filters">
+                        <select id="fin-period" onchange="toggleCustomFilters()" class="finance-select">
+                            <option value="total">HISTÓRICO TOTAL</option>
+                            <option value="day">HOY</option>
+                            <option value="week">ESTA SEMANA</option>
+                            <option value="month">ESTE MES</option>
+                            <option value="year">ESTE AÑO</option>
+                            <option value="custom">RANGO PERSONALIZADO</option>
+                        </select>
+                        <div id="custom-date-container">
+                            <i class="fas fa-calendar-alt" style="color: var(--dorado)"></i>
+                            <input type="text" id="fin-date-range" placeholder="Seleccionar rango...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container-premium">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="finance-stats-col">
+            <div class="stat-card">
+                <div class="label">Recaudación Total</div>
+                <div class="value" id="fin-total">$0.00</div>
+                <div class="stat-trend trend-up">▲ 8% vs periodo ant.</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Tickets Procesados</div>
+                <div class="value" id="fin-count">0</div>
+                <div class="stat-trend">Volumen estable</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Ticket Promedio</div>
+                <div class="value" id="fin-avg">$0.00</div>
+                <div class="stat-trend trend-down">▼ 2% vs periodo ant.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header-premium">
+            <div class="header-icon"><i class="fas fa-receipt"></i></div>
+            <div class="header-text">
+                <h3>HISTORIAL DE TRANSACCIONES CONFIRMADAS</h3>
+                <p>Registro detallado de todos los cobros efectuados.</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline btn-sm" onclick="exportFinance()"><i class="fas fa-file-export"></i> EXPORTAR CSV</button>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr><th>Fecha y Hora</th><th>Patente</th><th>Importe</th><th>Estado de Pago</th><th>Método</th></tr>
+                </thead>
+                <tbody id="payment-list">
+                    <tr><td colspan="5" class="text-center py-20">Cargando transacciones...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

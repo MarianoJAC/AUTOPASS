@@ -2,8 +2,12 @@
 
 {% block title %}AUTOPASS Admin - Control Inteligente{% endblock %}
 
+{% block body_class %}layout-with-sidebar{% endblock %}
+
 {% block extra_head %}
     <link rel="stylesheet" href="/static/css/dashboard.css">
+    <!-- Reutilizamos estilos premium del perfil para consistencia -->
+    <link rel="stylesheet" href="/static/css/perfil-base.css">
 {% endblock %}
 
 {% block content %}
@@ -13,8 +17,6 @@
             const rol = localStorage.getItem('rol');
             if (!token || rol !== 'admin') {
                 window.location.href = '/';
-            } else {
-                document.body.style.display = 'grid';
             }
         })();
     </script>
@@ -25,12 +27,13 @@
             <i class="fas fa-chevron-left"></i>
         </div>
         <div class="logo">
-            <img src="/static/images/logo.png" alt="Logo" style="height: 40px;">
+            <img src="/static/images/logo.png" alt="Logo">
             <span>AUTOPASS</span>
         </div>
         <nav class="nav-group">
-            <div class="nav-item active" onclick="switchTab('live', this)"><i class="fas fa-video"></i> <span class="nav-text">Monitoreo en Vivo</span></div>
+            <div class="nav-item active" onclick="switchTab('live', this)"><i class="fas fa-video"></i> <span class="nav-text">Monitoreo</span></div>
             <div class="nav-item" onclick="switchTab('occupancy', this)"><i class="fas fa-car"></i> <span class="nav-text">Ocupación Actual</span></div>
+            <div class="nav-item" onclick="switchTab('admin-reservations', this)"><i class="fas fa-calendar-check"></i> <span class="nav-text">Reservas de Usuarios</span></div>
             <div class="nav-item" onclick="switchTab('users', this)"><i class="fas fa-users-gear"></i> <span class="nav-text">Gestión de Usuarios</span></div>
             <div class="nav-item" onclick="switchTab('finance', this)"><i class="fas fa-chart-line"></i> <span class="nav-text">Reporte Financiero</span></div>
             <div class="nav-item" onclick="switchTab('settings', this)"><i class="fas fa-gears"></i> <span class="nav-text">Configuración</span></div>
@@ -40,172 +43,54 @@
         </div>
     </aside>
 
+    <div id="sidebar-overlay" class="sidebar-overlay no-print" onclick="closeMobileNav()"></div>
+
     <main class="main-content-scroll">
         <header>
-            <div class="header-left"><h1 id="view-title">Monitoreo en Vivo</h1></div>
-            <div class="header-right">
-                <div class="health-indicator">
-                    <span id="health-db" class="health-dot"></span>
-                    <span class="health-label">Estado del Sistema</span>
+            <div class="header-left">
+                <button class="mobile-nav-toggle no-print" onclick="toggleMobileNav()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="header-title-premium">
+                    <div class="header-icon-box">
+                        <i class="fas fa-gauge-high"></i>
+                    </div>
+                    <div class="header-text-info">
+                        <h1 class="header-main-title" id="view-title">Monitoreo</h1>
+                        <span class="header-subtitle">Panel de Control Administrativo</span>
+                    </div>
                 </div>
-                <div class="clock-display" id="clock">00:00:00</div>
+            </div>
+            <div class="header-right">
+                <div class="system-status-group">
+                    <div class="health-indicator">
+                        <span id="health-db" class="health-dot online"></span>
+                        <span class="health-label">SISTEMA</span>
+                    </div>
+                    <div class="clock-display" id="clock">00:00:00</div>
+                </div>
+                <div class="admin-badge">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Administrador</span>
+                </div>
             </div>
         </header>
 
         <div class="content dashboard-content">
-
-            <!-- PESTAÑA: MONITOREO EN VIVO -->
-            <div id="tab-live" class="tab-view active">
-                <div class="grid-stats">
-                    <div class="stat-card">
-                        <div class="label">Plazas Disponibles</div>
-                        <div class="value" id="stat-free">--</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Plazas Ocupadas</div>
-                        <div class="value" id="stat-occupied">--</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Ingresos de Hoy</div>
-                        <div class="value" id="stat-entries">--</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Total Recaudado</div>
-                        <div class="value" id="stat-money">$0</div>
-                    </div>
-                </div>
-
-                <div class="camera-grid">
-                    <div class="cam-box">
-                        <img id="cam-entry" src="/v1/system/video-feed/ENTRADA_PRINCIPAL">
-                        <div class="cam-label">INGRESO PRINCIPAL</div>
-                        <div class="cam-plate" id="plate-entry">---</div>
-                    </div>
-                    <div class="cam-box">
-                        <img id="cam-exit" src="/v1/system/video-feed/SALIDA_PRINCIPAL">
-                        <div class="cam-label">EGRESO PRINCIPAL</div>
-                        <div class="cam-plate" id="plate-exit">---</div>
-                    </div>
-                </div>
-
-                <div class="card" style="margin-top: 30px">
-                    <div class="card-header manual-ops-header"><h3 class="card-title">Últimos Movimientos Registrados</h3></div>
-                    <table>
-                        <thead>
-                            <tr><th>Horario</th><th>Patente</th><th>Evento</th><th>Estado</th></tr>
-                        </thead>
-                        <tbody id="live-logs"></tbody>
-                    </table>
+            <div class="content-wrapper">
+                <div id="dashboard-tabs-container">
+                    {% include "dashboard/tabs/live.html" %}
+                    {% include "dashboard/tabs/occupancy.html" %}
+                    {% include "dashboard/tabs/admin_reservations.html" %}
+                    {% include "dashboard/tabs/users.html" %}
+                    {% include "dashboard/tabs/finance.html" %}
+                    {% include "dashboard/tabs/settings.html" %}
                 </div>
             </div>
-
-            <!-- PESTAÑA: OCUPACIÓN ACTUAL -->
-            <div id="tab-occupancy" class="tab-view">
-                <div class="card">
-                    <div class="card-header manual-ops-header"><h3 class="card-title">Operaciones Manuales de Barrera</h3></div>
-                    <div class="manual-ops-row">
-                        <div class="manual-ops-field">
-                            <span class="manual-ops-label">PATENTE DEL VEHÍCULO</span>
-                            <input type="text" id="manual-plate" placeholder="Ej: AA123BB">
-                        </div>
-                        <button class="btn btn-primary btn-sm" onclick="manualEntry()" style="padding: 15px 30px;">Registrar Ingreso</button>
-                        <button class="btn btn-outline btn-sm btn-warning" onclick="manualExit()" style="padding: 15px 30px;">Registrar Salida</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header manual-ops-header"><h3 class="card-title">Vehículos Actualmente en el Predio</h3></div>
-                    <table>
-                        <thead>
-                            <tr><th>Patente</th><th>Ingreso</th><th>Permanencia</th><th>Deuda Actual</th><th>Acción</th></tr>
-                        </thead>
-                        <tbody id="occ-list"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- PESTAÑA: GESTIÓN DE USUARIOS -->
-            <div id="tab-users" class="tab-view">
-                <div class="card">
-                    <div class="card-header manual-ops-header"><h3 class="card-title">Base de Datos de Clientes</h3></div>
-                    <table>
-                        <thead>
-                            <tr><th>Nombre Completo</th><th>Correo Electrónico</th><th>DNI</th><th>Rol</th><th>Vehículos Vinculados</th></tr>
-                        </thead>
-                        <tbody id="user-list"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- PESTAÑA: REPORTE FINANCIERO -->
-            <div id="tab-finance" class="tab-view">
-                <div class="finance-main-grid">
-                    <div class="card">
-                        <div class="card-header finance-header">
-                            <h3 class="card-title"><i class="fas fa-chart-area"></i> Tendencia de Recaudación</h3>
-                            <div class="finance-filters">
-                                <select id="fin-period" onchange="toggleCustomFilters()" class="finance-select">
-                                    <option value="total">HISTÓRICO TOTAL</option>
-                                    <option value="day">HOY</option>
-                                    <option value="week">ESTA SEMANA</option>
-                                    <option value="month">ESTE MES</option>
-                                    <option value="year">ESTE AÑO</option>
-                                    <option value="custom">RANGO PERSONALIZADO</option>
-                                </select>
-                                <div id="custom-date-container">
-                                    <i class="fas fa-calendar-alt" style="color: var(--dorado)"></i>
-                                    <input type="text" id="fin-date-range" placeholder="Seleccionar rango...">
-                                </div>
-                            </div>
-                        </div>
-                        <div style="height: 300px; position: relative;">
-                            <canvas id="revenueChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="finance-stats-col">
-                        <div class="stat-card">
-                            <div class="label">Recaudación Total</div>
-                            <div class="value" id="fin-total">$0.00</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="label">Tickets Procesados</div>
-                            <div class="value" id="fin-count">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="label">Ticket Promedio</div>
-                            <div class="value" id="fin-avg">$0.00</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header manual-ops-header"><h3 class="card-title">Historial de Transacciones Confirmadas</h3></div>
-                    <table>
-                        <thead>
-                            <tr><th>Fecha y Hora</th><th>Patente</th><th>Importe</th><th>Estado de Pago</th></tr>
-                        </thead>
-                        <tbody id="payment-list"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- PESTAÑA: CONFIGURACIÓN -->
-            <div id="tab-settings" class="tab-view">
-                <div class="card">
-                    <div class="card-title">Configuración de Tarifas del Servicio</div>
-                    <div class="settings-row">
-                        <input type="number" id="cfg-price" placeholder="Valor de la hora">
-                        <button class="btn btn-primary" onclick="savePrice()" style="padding: 12px 24px;">Actualizar Valor</button>
-                    </div>
-                </div>
-                <div class="card danger-zone">
-                    <div class="card-title danger-zone-title">Zona de Seguridad / Restablecimiento</div>
-                    <p class="danger-zone-text">Esta acción es irreversible. Se eliminarán todos los registros históricos y configuraciones actuales.</p>
-                    <button class="btn btn-outline btn-danger" onclick="resetSys()" style="padding: 12px 24px;">Reiniciar Sistema de Manera Integral</button>
-                </div>
-            </div>
-
         </div>
     </main>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="/static/js/dashboard.js"></script>
 {% endblock %}

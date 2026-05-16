@@ -9,50 +9,48 @@ async function loadVehicles() {
     
     if (!list) return;
 
-    try {
-        const res = await fetch(`${API_BASE}/user/vehicles`, { 
-            headers: { 'Authorization': `Bearer ${token}` } 
-        });
-        if (!res.ok) throw new Error('Error al cargar vehículos');
-        
-        const vehicles = await res.json();
-        
-        if (statVehicles) statVehicles.innerText = vehicles.length;
-        
-        if (vehicles.length === 0) {
-            list.innerHTML = `
-                <div class="empty-state-card" style="display: block; grid-column: 1 / -1; text-align: center; padding: 40px;">
-                    <i class="fas fa-car-side" style="font-size: 3rem; color: #333; margin-bottom: 15px; display: block;"></i>
-                    <p style="color: #666; font-weight: 600;">No tenés vehículos registrados aún.</p>
-                </div>`;
-            return;
-        }
-
-        list.innerHTML = vehicles.map(v => `
-            <div class="vehicle-card">
-                <i class="fas fa-car-rear bg-icon-modern"></i>
-                <div class="vehicle-card-main">
-                    <div class="vehicle-data-group">
-                        <div class="plate-badge-modern">${v.patente}</div>
-                        <div class="vehicle-brand">${v.marca_modelo}</div>
-                    </div>
-                    <button class="delete-btn-modern" title="Eliminar vehículo" onclick="deleteVehicle('${v.patente}')">
-                        <i class="fas fa-trash-can"></i>
-                    </button>
-                </div>
-            </div>
-        `).join('');
-
-        // Actualizar selectores en formularios de reserva
-        const selects = document.querySelectorAll('.res-vehicle');
-        selects.forEach(select => {
-            select.innerHTML = '<option value="">Seleccioná tu vehículo...</option>' + 
-                vehicles.map(v => `<option value="${v.patente}">${v.patente} - ${v.marca_modelo}</option>`).join('');
-        });
-    } catch (err) {
-        console.error('Error cargando vehículos:', err);
+    const res = await apiClient.get('/user/vehicles');
+    if (!res.ok) {
+        console.error('Error al cargar vehículos:', res.error);
         list.innerHTML = '<p style="color: var(--danger);">Error al cargar flota.</p>';
+        return;
     }
+    
+    const vehicles = res.data;
+    if (statVehicles) statVehicles.innerText = vehicles.length;
+    
+    if (vehicles.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state-card" style="display: block; grid-column: 1 / -1; text-align: center; padding: 40px;">
+                <i class="fas fa-car-side" style="font-size: 3rem; color: #333; margin-bottom: 15px; display: block;"></i>
+                <p style="color: #666; font-weight: 600;">No tenés vehículos registrados aún.</p>
+            </div>`;
+        return;
+    }
+
+    list.innerHTML = vehicles.map(v => `
+        <div class="vehicle-card">
+            <i class="fas fa-car-rear bg-icon-modern"></i>
+            <div class="vehicle-card-main">
+                <div class="vehicle-data-group">
+                    <div class="plate-badge-modern">${v.patente}</div>
+                    <div class="vehicle-brand">${v.marca_modelo}</div>
+                </div>
+                <button class="delete-btn-modern" title="Eliminar vehículo" onclick="deleteVehicle('${v.patente}')">
+                    <i class="fas fa-trash-can"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+
+    // Actualizar selectores en formularios de reserva
+    const selects = document.querySelectorAll('.res-vehicle');
+    selects.forEach(select => {
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">Seleccioná tu vehículo...</option>' + 
+            vehicles.map(v => `<option value="${v.patente}">${v.patente} - ${v.marca_modelo}</option>`).join('');
+        if (currentVal) select.value = currentVal;
+    });
 }
 
 /**
@@ -92,35 +90,26 @@ async function addVehicle(e, isQuickAdd = false) {
     btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
     btn.disabled = true;
 
-    try {
-        const res = await fetch(`${API_BASE}/user/vehicles?patente=${encodeURIComponent(patente)}&marca_modelo=${encodeURIComponent(marca_modelo)}`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+    const res = await apiClient.post(`/user/vehicles?patente=${encodeURIComponent(patente)}&marca_modelo=${encodeURIComponent(marca_modelo)}`);
+    if (res.ok) {
+        showToast('Vehículo registrado con éxito');
+        form.reset();
         
-        const data = await res.json();
-        if (res.ok) {
-            showToast('Vehículo registrado con éxito');
-            form.reset();
-            
-            if (isQuickAdd) {
-                const container = document.getElementById('reserva-form-container');
-                if (container) container.classList.remove('open');
-                await toggleReservaForm();
-            } else {
-                toggleNuevoVinculo();
-            }
-            
-            await loadVehicles();
+        if (isQuickAdd) {
+            const container = document.getElementById('reserva-form-container');
+            if (container) container.classList.remove('open');
+            await toggleReservaForm();
         } else {
-            showToast(data.detail || 'Error al registrar vehículo');
+            toggleNuevoVinculo();
         }
-    } catch (err) {
-        showToast('Error de conexión con el servidor');
-    } finally {
-        btn.innerHTML = originalContent;
-        btn.disabled = false;
+        
+        await loadVehicles();
+    } else {
+        showToast(res.error || 'Error al registrar vehículo');
     }
+    
+    btn.innerHTML = originalContent;
+    btn.disabled = false;
 }
 
 /**
@@ -133,22 +122,13 @@ async function deleteVehicle(patente) {
     );
     if (!confirmed) return;
 
-    try {
-        const res = await fetch(`${API_BASE}/user/vehicles/${encodeURIComponent(patente)}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (res.ok) {
-            showToast('Vehículo eliminado');
-            await loadVehicles();
-            if (typeof refreshReservationFormState === 'function') refreshReservationFormState();
-        } else {
-            const data = await res.json();
-            showToast(data.detail || 'Error al eliminar');
-        }
-    } catch (err) {
-        showToast('Error de conexión');
+    const res = await apiClient.delete(`/user/vehicles/${encodeURIComponent(patente)}`);
+    if (res.ok) {
+        showToast('Vehículo eliminado');
+        await loadVehicles();
+        if (typeof refreshReservationFormState === 'function') refreshReservationFormState();
+    } else {
+        showToast(res.error || 'Error al eliminar');
     }
 }
 

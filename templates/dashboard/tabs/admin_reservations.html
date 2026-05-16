@@ -1,0 +1,38 @@
+<!-- PESTAÑA: RESERVAS DE USUARIOS -->
+<div id="tab-admin-reservations" class="tab-view" style="display: none;">
+    <div class="card">
+        <div class="card-header-premium">
+            <div class="header-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="header-text">
+                <h3>REGISTRO MAESTRO DE RESERVAS</h3>
+                <p>Monitoreá y gestioná todas las reservas activas y futuras de los clientes.</p>
+            </div>
+            <div class="header-actions">
+                <div class="search-box-premium">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="admin-res-search" placeholder="Patente, Cliente o Sede..." onkeyup="filterTable('admin-res-list', this.value)">
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Patente</th>
+                        <th>Desde / Hasta</th>
+                        <th>Sucursal</th>
+                        <th>Tipo</th>
+                        <th>Monto</th>
+                        <th>Pago</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-res-list">
+                    <tr><td colspan="9" class="text-center py-20">Cargando reservas...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

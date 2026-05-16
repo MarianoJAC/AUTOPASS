@@ -1,0 +1,138 @@
+<!-- PESTAÑA: MONITOREO -->
+<div id="tab-live" class="tab-view active">
+    <div class="monitoring-grid">
+        <!-- SECCIÓN IZQUIERDA: CÁMARAS Y CONTROL -->
+        <div class="monitoring-main">
+            <div class="camera-grid">
+                <div class="cam-box" id="cam-box-entry">
+                    <div class="cam-overlay">
+                        <div class="cam-status">
+                            <span class="live-indicator">EN VIVO</span>
+                            <span class="cam-label">INGRESO PRINCIPAL</span>
+                        </div>
+                        <div class="cam-actions">
+                            <button class="btn-icon-premium" onclick="openBarrier('ENTRADA')" title="Apertura Forzada">
+                                <i class="fas fa-unlock"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="cam-feed-container">
+                        <img id="cam-entry" src="/v1/system/video-feed/ENTRADA_PRINCIPAL" onerror="this.src='/static/images/mapa.png';">
+                        <div class="scan-line"></div>
+                    </div>
+                    <div class="cam-footer">
+                        <div class="plate-display">
+                            <span class="plate-label">PATENTE DETECTADA</span>
+                            <span class="plate-value" id="plate-entry">---</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cam-box" id="cam-box-exit">
+                    <div class="cam-overlay">
+                        <div class="cam-status">
+                            <span class="live-indicator">EN VIVO</span>
+                            <span class="cam-label">EGRESO PRINCIPAL</span>
+                        </div>
+                        <div class="cam-actions">
+                            <button class="btn-icon-premium" onclick="openBarrier('SALIDA')" title="Apertura Forzada">
+                                <i class="fas fa-unlock"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="cam-feed-container">
+                        <img id="cam-exit" src="/v1/system/video-feed/SALIDA_PRINCIPAL" onerror="this.src='/static/images/mapa.png';">
+                        <div class="scan-line"></div>
+                    </div>
+                    <div class="cam-footer">
+                        <div class="plate-display">
+                            <span class="plate-label">PATENTE DETECTADA</span>
+                            <span class="plate-value" id="plate-exit">---</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-25">
+                <div class="card-header-premium">
+                    <div class="header-icon"><i class="fas fa-list-ul"></i></div>
+                    <div class="header-text">
+                        <h3>ÚLTIMOS MOVIMIENTOS</h3>
+                        <p>Registro en tiempo real de accesos.</p>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Hora</th><th>Patente</th><th>Evento</th><th>Estado</th><th>Info</th></tr>
+                        </thead>
+                        <tbody id="live-logs">
+                            <tr><td colspan="5" class="text-center py-20">Esperando actividad...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DERECHA: ESTADÍSTICAS RÁPIDAS -->
+        <div class="monitoring-side">
+            <div class="stats-vertical">
+                <div class="stat-card-premium">
+                    <div class="stat-icon"><i class="fas fa-square-check"></i></div>
+                    <div class="stat-info">
+                        <span class="label">Disponibles</span>
+                        <span class="value" id="stat-free">--</span>
+                    </div>
+                    <div class="stat-progress">
+                        <div class="progress-bar"><div id="bar-free" class="progress-fill" style="width: 0%"></div></div>
+                    </div>
+                </div>
+                
+                <div class="stat-card-premium">
+                    <div class="stat-icon"><i class="fas fa-car"></i></div>
+                    <div class="stat-info">
+                        <span class="label">Ocupadas</span>
+                        <span class="value" id="stat-occupied">--</span>
+                    </div>
+                    <div class="stat-progress">
+                        <div class="progress-bar"><div id="bar-occupied" class="progress-fill warning" style="width: 0%"></div></div>
+                    </div>
+                </div>
+
+                <div class="stat-card-premium">
+                    <div class="stat-icon"><i class="fas fa-door-open"></i></div>
+                    <div class="stat-info">
+                        <span class="label">Ingresos Hoy</span>
+                        <span class="value" id="stat-entries">--</span>
+                    </div>
+                </div>
+
+                <div class="stat-card-premium highlight">
+                    <div class="stat-icon"><i class="fas fa-sack-dollar"></i></div>
+                    <div class="stat-info">
+                        <span class="label">Recaudado</span>
+                        <span class="value" id="stat-money">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-20 system-health-card">
+                <div class="card-title"><i class="fas fa-heart-pulse"></i> ESTADO NODOS</div>
+                <div class="health-list">
+                    <div class="health-item">
+                        <span>Base de Datos</span>
+                        <span class="dot online"></span>
+                    </div>
+                    <div class="health-item">
+                        <span>Broker MQTT</span>
+                        <span class="dot online"></span>
+                    </div>
+                    <div class="health-item">
+                        <span>Servicio OCR</span>
+                        <span class="dot online"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

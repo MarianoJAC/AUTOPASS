@@ -1,0 +1,97 @@
+<!-- PESTAÑA: CONFIGURACIÓN -->
+<div id="tab-settings" class="tab-view" style="display: none;">
+    <div class="settings-grid">
+        <!-- SECCIÓN: TARIFARIO -->
+        <div class="card">
+            <div class="card-header-premium">
+                <i class="fas fa-hand-holding-dollar" style="color: var(--dorado); font-size: 1.2rem;"></i>
+                <h3 style="margin: 0; letter-spacing: 1px; color: #fff; font-size: 1.1rem;">TARIFAS</h3>
+            </div>
+            
+            <div class="settings-content mt-20">
+                <div class="rates-grid">
+                    <div class="form-group-premium">
+                        <label>VALOR POR HORA ($)</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-clock"></i>
+                            <input type="number" id="cfg-precio_hora" class="input-premium" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-group-premium">
+                        <label>VALOR POR DÍA ($)</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-calendar-day"></i>
+                            <input type="number" id="cfg-precio_dia" class="input-premium" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-group-premium">
+                        <label>VALOR POR SEMANA ($)</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-calendar-week"></i>
+                            <input type="number" id="cfg-precio_semana" class="input-premium" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-group-premium">
+                        <label>VALOR POR QUINCENA ($)</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-calendar-days"></i>
+                            <input type="number" id="cfg-precio_quincena" class="input-premium" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-group-premium">
+                        <label>VALOR MENSUAL ($)</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-calendar-check"></i>
+                            <input type="number" id="cfg-precio_mes" class="input-premium" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex-row justify-end mt-30">
+                    <button class="btn btn-primary" onclick="saveAllRates()" style="padding: 15px 40px;">
+                        <i class="fas fa-save"></i> ACTUALIZAR TARIFARIO COMPLETO
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: PARÁMETROS DEL SISTEMA -->
+        <div class="grid-col">
+            <div class="card">
+                <div class="card-header-premium">
+                    <i class="fas fa-gears" style="color: var(--dorado); font-size: 1.2rem;"></i>
+                    <h3 style="margin: 0; letter-spacing: 1px; color: #fff; font-size: 1.1rem;">CANTIDAD DE PLAZAS</h3>
+                </div>
+                <div class="settings-content mt-20">
+                    <div class="form-group-premium">
+                        <label>CAPACIDAD TOTAL (PLAZAS)</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-car"></i>
+                            <input type="number" id="cfg-capacidad_total" class="input-premium" placeholder="20">
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-full mt-20" onclick="saveSystemParam('capacidad_total')">
+                        ACTUALIZAR CAPACIDAD
+                    </button>
+                </div>
+            </div>
+
+            <!-- ZONA DE PELIGRO -->
+            <div class="card danger-zone-card">
+                <div class="card-header-premium">
+                    <div class="header-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div class="header-text">
+                        <h3 style="color: var(--danger);">ZONA CRÍTICA</h3>
+                        <p>Acciones irreversibles.</p>
+                    </div>
+                </div>
+                <div class="danger-zone-content mt-20">
+                    <p class="danger-zone-text">El reinicio borrará <b>todos los datos</b> de la base de datos, incluyendo usuarios, registros y fotos.</p>
+                    <button class="btn btn-outline btn-danger btn-full" onclick="resetSys()">
+                        <i class="fas fa-trash-can"></i> REINICIAR SISTEMA
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

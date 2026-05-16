@@ -1,0 +1,28 @@
+<!-- PESTAÑA: GESTIÓN DE USUARIOS -->
+<div id="tab-users" class="tab-view" style="display: none;">
+    <div class="card">
+        <div class="card-header-premium">
+            <div class="header-icon"><i class="fas fa-users"></i></div>
+            <div class="header-text">
+                <h3>BASE DE DATOS DE CLIENTES</h3>
+                <p>Administrá los perfiles, vehículos vinculados y saldos de los usuarios.</p>
+            </div>
+            <div class="header-actions">
+                <div class="search-box-premium">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="user-search" placeholder="Buscar por DNI o Email..." onkeyup="filterTable('user-list', this.value)">
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr><th>Nombre Completo</th><th>Correo Electrónico</th><th>DNI</th><th>Rol</th><th>Vehículos</th><th>Saldo</th></tr>
+                </thead>
+                <tbody id="user-list">
+                    <tr><td colspan="6" class="text-center py-20">Cargando base de datos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

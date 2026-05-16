@@ -137,6 +137,8 @@ class UserReservationResponse(BaseModel):
     monto_total: float
     sucursal_nombre: Optional[str] = None
     sucursal_info: Optional[str] = None
+    user_name: Optional[str] = None
+    user_email: Optional[str] = None
 
     class Config:
         from_attributes = True

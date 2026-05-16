@@ -1,37 +1,28 @@
-/* --- COMPONENTES DEL HEADER --- */
-.health-indicator {
+/* --- DASHBOARD MONITORING REFACTOR (Command Center Aesthetic) --- */
+
+.tab-view {
+    display: none;
+    animation: slideUp 0.4s ease-out;
+}
+
+.tab-view.active {
+    display: block !important;
+}
+
+.monitoring-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 25px;
+    margin-top: 10px;
+}
+
+/* --- COLUMNA PRINCIPAL --- */
+.monitoring-main {
     display: flex;
-    gap: 10px;
-    align-items: center;
+    flex-direction: column;
+    gap: 25px;
 }
 
-.health-dot {
-    width: 8px;
-    height: 8px;
-    background: gray;
-    border-radius: 50%;
-    transition: 0.3s;
-}
-
-.health-label {
-    font-size: 0.7rem;
-    color: #555;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-.clock-display {
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--dorado);
-}
-
-/* --- CONTENEDOR PRINCIPAL --- */
-.dashboard-content {
-    padding: 30px 40px;
-}
-
-/* --- MONITOREO DE CÁMARAS --- */
 .camera-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -39,156 +30,604 @@
 }
 
 .cam-box {
-    aspect-ratio: 16/9;
-    background: #000;
-    border-radius: 15px;
+    background: #050505;
+    border-radius: 24px;
+    border: 1px solid var(--border-light);
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--border-light);
-}
-
-.cam-box img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.8;
-}
-
-.cam-label {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: var(--dorado);
-    color: var(--negro);
-    padding: 5px 12px;
-    border-radius: 8px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    z-index: 2;
-}
-
-.cam-plate {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    background: var(--blanco);
-    color: var(--negro);
-    padding: 8px 15px;
-    border-radius: 8px;
-    font-family: var(--font-mono);
-    font-weight: 800;
-    font-size: 1.4rem;
-    z-index: 2;
-}
-
-/* --- PESTAÑA: OCUPACIÓN (Entrada Manual) --- */
-.manual-ops-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-}
-
-.manual-ops-row {
-    display: flex;
-    gap: 15px;
-    align-items: flex-end;
-}
-
-.manual-ops-field {
-    flex: 1;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.manual-ops-label {
-    font-size: 0.7rem;
-    color: #888;
-    font-weight: 700;
+.cam-box:hover {
+    border-color: rgba(197, 160, 89, 0.4);
+    transform: translateY(-5px);
 }
 
-/* --- PESTAÑA: FINANZAS --- */
-.finance-main-grid {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 25px;
-    margin-bottom: 25px;
-}
-
-.finance-header {
+/* --- OVERLAY SUPERIOR --- */
+.cam-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 20px;
+    z-index: 10;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
 }
 
-.finance-filters {
+.cam-status {
     display: flex;
-    gap: 10px;
-    align-items: center;
+    flex-direction: column;
+    gap: 5px;
 }
 
-.finance-select {
-    width: auto !important;
-    padding: 8px 15px !important;
-    font-size: 0.8rem !important;
-    background: var(--gris-sidebar) !important;
-    border: 1px solid var(--border-light) !important;
-    color: var(--dorado) !important;
-    font-weight: 700 !important;
-}
-
-#custom-date-container {
-    background: var(--gris-sidebar);
-    padding: 5px 15px;
-    border-radius: 8px;
-    border: 1px solid var(--border-light);
-    display: none;
+.live-indicator {
+    background: #ef4444;
+    color: white;
+    font-size: 0.55rem;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 4px;
+    width: fit-content;
+    display: flex;
     align-items: center;
     gap: 5px;
 }
 
-#fin-date-range {
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 0.8rem;
-    outline: none;
-    width: 220px;
+.live-indicator::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1s infinite;
 }
 
-.finance-stats-col {
+.cam-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--blanco);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* --- CONTENEDOR DE VIDEO --- */
+.cam-feed-container {
+    flex: 1;
+    aspect-ratio: 16/9;
+    position: relative;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cam-feed-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+.cam-box:hover .cam-feed-container img {
+    opacity: 0.8;
+}
+
+/* EFECTO SCANLINE */
+.scan-line {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 2px;
+    background: rgba(197, 160, 89, 0.2);
+    box-shadow: 0 0 10px rgba(197, 160, 89, 0.5);
+    z-index: 5;
+    animation: scan 4s linear infinite;
+    pointer-events: none;
+}
+
+/* --- FOOTER DE CÁMARA (PATENTE) --- */
+.cam-footer {
+    background: #0a0a0a;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-light);
+}
+
+.plate-display {
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 5px;
 }
 
-/* --- CONFIGURACIÓN --- */
-.settings-row {
-    margin-top: 25px;
+.plate-label {
+    font-size: 0.6rem;
+    color: #555;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.plate-value {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--dorado);
+    text-shadow: 0 0 15px rgba(197, 160, 89, 0.3);
+}
+
+/* --- COLUMNA LATERAL (STATS) --- */
+.monitoring-side {
     display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stats-vertical {
+    display: flex;
+    flex-direction: column;
     gap: 15px;
 }
 
-#cfg-price {
-    max-width: 200px;
-    font-family: var(--font-mono);
-    font-weight: 700;
+.stat-card-premium {
+    background: linear-gradient(135deg, #111 0%, #080808 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.stat-card-premium:hover {
+    border-color: rgba(197, 160, 89, 0.2);
+    transform: translateX(5px);
+}
+
+.stat-card-premium.highlight {
+    background: linear-gradient(135deg, rgba(197, 160, 89, 0.1) 0%, #080808 100%);
+    border-color: rgba(197, 160, 89, 0.3);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--dorado);
     font-size: 1.2rem;
 }
 
-.danger-zone {
-    border-color: var(--danger) !important;
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
-.danger-zone-title {
-    color: var(--danger) !important;
+.stat-info .label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: #666;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.stat-info .value {
+    font-family: 'Montserrat';
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--blanco);
+}
+
+.stat-card-premium.highlight .value {
+    color: var(--dorado);
+}
+
+/* BARRAS DE PROGRESO EN STATS */
+.stat-progress {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+}
+
+.progress-bar {
+    width: 100%; height: 100%; background: rgba(255,255,255,0.05);
+}
+
+.progress-fill {
+    height: 100%; background: var(--secondary); transition: width 1s ease;
+}
+
+.progress-fill.warning { background: var(--dorado); }
+
+/* --- HEALTH CARD --- */
+.system-health-card {
+    padding: 20px;
+}
+
+.health-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.health-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #888;
+    font-weight: 600;
+}
+
+.health-item .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+}
+
+.health-item .dot.online {
+    background: var(--secondary);
+    box-shadow: 0 0 10px var(--secondary);
+}
+
+/* --- BOTONES ICONO PREMIUM --- */
+.btn-icon-premium {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--dorado);
+    cursor: pointer; transition: 0.3s;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.btn-icon-premium:hover {
+    background: var(--dorado);
+    color: var(--negro);
+    transform: scale(1.1);
+}
+
+/* --- ANIMACIONES --- */
+@keyframes scan {
+    0% { top: 0%; }
+    100% { top: 100%; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* RESPONSIVE MONITORING */
+@media (max-width: 1200px) {
+    .monitoring-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-vertical {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .camera-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- DASHBOARD HEADER REFACTOR (Command Center Premium) --- */
+
+.main-content-scroll header {
+    padding: 20px 40px;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(25px);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-title-premium {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.header-icon-box {
+    width: 48px;
+    height: 48px;
+    background: rgba(197, 160, 89, 0.1);
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dorado);
+    font-size: 1.3rem;
+    box-shadow: 0 0 20px rgba(197, 160, 89, 0.1);
+}
+
+.header-text-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-main-title {
+    font-family: 'Montserrat';
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #fff;
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.header-subtitle {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--dorado);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+    opacity: 0.8;
+}
+
+/* --- HEADER RIGHT: STATUS & INFO --- */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.system-status-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+}
+
+.health-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    background: none;
+    border: none;
+}
+
+.health-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #444;
+    position: relative;
+}
+
+.health-dot.online {
+    background: var(--secondary);
+    box-shadow: 0 0 12px var(--secondary);
+}
+
+.health-dot.online::after {
+    content: '';
+    position: absolute;
+    top: -4px; left: -4px; right: -4px; bottom: -4px;
+    border: 1px solid var(--secondary);
+    border-radius: 50%;
+    animation: pulseStatus 2s infinite;
+}
+
+.health-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #888;
+    letter-spacing: 1px;
+}
+
+.clock-display {
+    font-family: var(--font-mono);
+    color: var(--dorado);
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 0;
+    background: none;
+    border: none;
+    min-width: 100px;
+    text-align: right;
+}
+
+.admin-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--dorado);
+    color: #000;
+    padding: 8px 15px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+}
+
+@keyframes pulseStatus {
+    0% { transform: scale(1); opacity: 0.5; }
+    100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* RESPONSIVE HEADER */
+@media (max-width: 1024px) {
+    .main-content-scroll header {
+        padding: 15px 25px;
+    }
+    
+    .header-main-title {
+        font-size: 1.1rem;
+    }
+    
+    .system-status-group {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-right {
+        gap: 15px;
+    }
+    
+    .admin-badge span {
+        display: none;
+    }
+    
+    .admin-badge {
+        padding: 8px 12px;
+    }
+}
+
+/* --- COMPONENTES DE TARJETAS --- */
+.card-header-premium {
+    padding: 20px 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.card-header-premium h3 {
+    margin: 0;
+    color: var(--dorado);
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+/* --- DASHBOARD SETTINGS REFACTOR (Premium Control) --- */
+.settings-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 25px;
+    margin-top: 10px;
+}
+
+.rates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 180px));
+    gap: 20px;
+}
+
+.settings-content {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 20px;
+    padding: 25px;
+}
+
+.form-group-premium {
+    max-width: 180px;
+}
+
+.form-group-premium label {
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: #888;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: block;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 15px;
+    color: var(--dorado);
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.input-premium {
+    width: 100%;
+    padding: 12px 15px 12px 42px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    color: #ffffff;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-premium:focus {
+    border-color: var(--dorado);
+    background: rgba(197, 160, 89, 0.05);
+    box-shadow: 0 0 20px rgba(197, 160, 89, 0.1);
+    outline: none;
+}
+
+/* DANGER ZONE REFINEMENT */
+.danger-zone-card {
+    border: 1px solid rgba(239, 68, 68, 0.2) !important;
+    background: linear-gradient(180deg, rgba(239, 68, 68, 0.02) 0%, transparent 100%);
 }
 
 .danger-zone-text {
+    font-size: 0.8rem;
     color: #888;
-    font-size: 0.85rem;
-    margin: 15px 0 25px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.btn-full {
+    width: 100%;
+    justify-content: center;
+    padding: 15px !important;
+}
+
+@media (max-width: 1200px) {
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .rates-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .form-group-premium {
+        max-width: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .rates-grid {
+        grid-template-columns: 1fr;
+    }
 }

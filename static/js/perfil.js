@@ -55,48 +55,44 @@ async function loadPromotions() {
     const grid = document.getElementById('promotions-grid');
     if (!grid) return;
     
-    try {
-        const res = await fetch(`${API_BASE}/user/promotions`, { 
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } 
-        });
-        
-        if (!res.ok) throw new Error("Error en respuesta de API");
-        
-        const promos = await res.json();
-        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-        const currentPts = userData.puntos_acumulados || 0;
-
-        if (promos.length === 0) {
-            grid.innerHTML = `
-                <div class="empty-state-minimal" style="grid-column: 1/-1; padding: 50px;">
-                    <i class="fas fa-tags" style="font-size: 3rem; color: var(--primary); opacity: 0.3; margin-bottom: 20px;"></i>
-                    <p style="color: #888;">No hay promociones activas en este momento.</p>
-                </div>`;
-            return;
-        }
-
-        grid.innerHTML = promos.map(p => `
-            <div class="promo-card">
-                <div class="promo-header">
-                    <div class="promo-icon"><i class="${p.icono}"></i></div>
-                    <div class="promo-title">${p.titulo}</div>
-                </div>
-                <div class="promo-body">
-                    <p class="promo-desc">${p.descripcion}</p>
-                    <div class="promo-cost">${p.costo_puntos} <span>puntos</span></div>
-                </div>
-                <div class="promo-footer">
-                    <button class="btn-redeem" onclick="redeemPoints(${p.id}, ${p.costo_puntos})" 
-                        ${currentPts < p.costo_puntos ? 'disabled title="Puntos insuficientes"' : ''}>
-                        CANJEAR AHORA
-                    </button>
-                </div>
-            </div>
-        `).join('');
-    } catch (err) {
-        console.error("Error cargando promociones:", err);
+    const res = await apiClient.get('/user/promotions');
+    if (!res.ok) {
+        console.error("Error cargando promociones:", res.error);
         grid.innerHTML = '<p class="text-danger" style="grid-column: 1/-1; padding: 20px;">Error al cargar promociones.</p>';
+        return;
     }
+
+    const promos = res.data;
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const currentPts = userData.puntos_acumulados || 0;
+
+    if (promos.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-state-minimal" style="grid-column: 1/-1; padding: 50px;">
+                <i class="fas fa-tags" style="font-size: 3rem; color: var(--primary); opacity: 0.3; margin-bottom: 20px;"></i>
+                <p style="color: #888;">No hay promociones activas en este momento.</p>
+            </div>`;
+        return;
+    }
+
+    grid.innerHTML = promos.map(p => `
+        <div class="promo-card">
+            <div class="promo-header">
+                <div class="promo-icon"><i class="${p.icono}"></i></div>
+                <div class="promo-title">${p.titulo}</div>
+            </div>
+            <div class="promo-body">
+                <p class="promo-desc">${p.descripcion}</p>
+                <div class="promo-cost">${p.costo_puntos} <span>puntos</span></div>
+            </div>
+            <div class="promo-footer">
+                <button class="btn-redeem" onclick="redeemPoints(${p.id}, ${p.costo_puntos})" 
+                    ${currentPts < p.costo_puntos ? 'disabled title="Puntos insuficientes"' : ''}>
+                    CANJEAR AHORA
+                </button>
+            </div>
+        </div>
+    `).join('');
 }
 
 /**
@@ -106,63 +102,55 @@ async function loadPointsHistory() {
     const list = document.getElementById('points-history-list');
     if (!list) return;
 
-    try {
-        const res = await fetch(`${API_BASE}/user/points-history`, { headers: { 'Authorization': `Bearer ${token}` } });
-        const history = await res.json();
-        
-        let totalEarned = 0;
-        let totalRedeemed = 0;
-
-        if (history.length === 0) {
-            list.innerHTML = '<p style="padding:30px; text-align:center; color:#888;">No hay movimientos registrados.</p>';
-        } else {
-            list.innerHTML = history.map(h => {
-                const isPos = h.cantidad > 0;
-                if (isPos) totalEarned += h.cantidad;
-                else totalRedeemed += Math.abs(h.cantidad);
-
-                return `
-                    <div class="pts-item">
-                        <div class="pts-item-info">
-                            <span class="pts-item-reason">${h.motivo}</span>
-                            <span class="pts-item-date">${formatDate(h.fecha)}</span>
-                        </div>
-                        <span class="pts-item-amount ${isPos ? 'pts-positive' : 'pts-negative'}">
-                            ${isPos ? '+' : ''}${h.cantidad}
-                        </span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        const earnedEl = document.getElementById('total-earned-pts'); if (earnedEl) earnedEl.innerText = totalEarned;
-        const redeemedEl = document.getElementById('total-redeemed-pts'); if (redeemedEl) redeemedEl.innerText = totalRedeemed;
-    } catch (err) {
+    const res = await apiClient.get('/user/points-history');
+    if (!res.ok) {
         list.innerHTML = '<p class="text-danger">Error al cargar historial</p>';
+        return;
     }
+
+    const history = res.data;
+    let totalEarned = 0;
+    let totalRedeemed = 0;
+
+    if (history.length === 0) {
+        list.innerHTML = '<p style="padding:30px; text-align:center; color:#888;">No hay movimientos registrados.</p>';
+    } else {
+        list.innerHTML = history.map(h => {
+            const isPos = h.cantidad > 0;
+            if (isPos) totalEarned += h.cantidad;
+            else totalRedeemed += Math.abs(h.cantidad);
+
+            return `
+                <div class="pts-item">
+                    <div class="pts-item-info">
+                        <span class="pts-item-reason">${h.motivo}</span>
+                        <span class="pts-item-date">${formatDate(h.fecha)}</span>
+                    </div>
+                    <span class="pts-item-amount ${isPos ? 'pts-positive' : 'pts-negative'}">
+                        ${isPos ? '+' : ''}${h.cantidad}
+                    </span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    const earnedEl = document.getElementById('total-earned-pts'); if (earnedEl) earnedEl.innerText = totalEarned;
+    const redeemedEl = document.getElementById('total-redeemed-pts'); if (redeemedEl) redeemedEl.innerText = totalRedeemed;
 }
 
 /**
  * Procesa el canje de puntos por un beneficio.
  */
 async function redeemPoints(promoId, cost) {
-    if (!confirm(`¿Estás seguro de que querés canjear ${cost} puntos por este beneficio?`)) return;
+    const confirmCanje = await showConfirm('Confirmar Canje', `¿Estás seguro de que querés canjear ${cost} puntos por este beneficio?`);
+    if (!confirmCanje) return;
 
-    try {
-        const res = await fetch(`${API_BASE}/user/redeem/${promoId}`, { 
-            method: 'POST', 
-            headers: { 'Authorization': `Bearer ${token}` } 
-        });
-        const d = await res.json();
-        
-        if (res.ok) {
-            showToast(d.message);
-            await loadPointsData();
-        } else {
-            showToast(d.detail || 'Error al canjear');
-        }
-    } catch (err) {
-        showToast('Error de conexión');
+    const res = await apiClient.post(`/user/redeem/${promoId}`);
+    if (res.ok) {
+        showToast(res.data.message);
+        await loadPointsData();
+    } else {
+        showToast(res.error || 'Error al canjear');
     }
 }
 
@@ -180,12 +168,10 @@ function togglePointsHistory() {
  * Obtiene y renderiza los datos personales del usuario.
  */
 async function loadProfile() {
-    const res = await fetch(`${API_BASE}/user/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-    if (!res.ok) {
-        if (res.status === 401) logout();
-        return;
-    }
-    const user = await res.json();
+    const res = await apiClient.get('/user/me');
+    if (!res.ok) return;
+
+    const user = res.data;
     localStorage.setItem('userData', JSON.stringify(user));
     localStorage.setItem('nombre', toTitle(user.nombre));
     localStorage.setItem('apellido', toTitle(user.apellido));
@@ -211,13 +197,10 @@ async function loadProfile() {
     updatePointsProgress(user.puntos_acumulados || 0);
 
     // Carga de historial para estadísticas
-    try {
-        const resStays = await fetch(`${API_BASE}/user/payment-history`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (resStays.ok) {
-            const history = await resStays.json();
-            const staysEl = document.getElementById('acc-stat-stays'); if (staysEl) staysEl.innerText = history.length;
-        }
-    } catch(e) {}
+    const resStays = await apiClient.get('/user/payment-history');
+    if (resStays.ok) {
+        const staysEl = document.getElementById('acc-stat-stays'); if (staysEl) staysEl.innerText = resStays.data.length;
+    }
 
     // Llenado de campos del formulario
     const dispNombre = document.getElementById('display-nombre'); if (dispNombre) dispNombre.innerText = toTitle(user.nombre);
@@ -281,27 +264,17 @@ async function saveField(field, event) {
     btn.innerText = 'Guardando...';
     btn.disabled = true;
 
-    try {
-        const res = await fetch(`${API_BASE}/user/me`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ [field]: newValue })
-        });
-        
-        if (res.ok) {
-            showToast(`${toTitle(field)} actualizado correctamente`);
-            exitEditMode(field);
-            await loadProfile();
-        } else {
-            const d = await res.json();
-            showToast(d.detail || 'Error al guardar');
-        }
-    } catch (err) {
-        showToast('Error de conexión');
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
+    const res = await apiClient.put('/user/me', { [field]: newValue });
+    if (res.ok) {
+        showToast(`${toTitle(field)} actualizado correctamente`);
+        exitEditMode(field);
+        await loadProfile();
+    } else {
+        showToast(res.error || 'Error al guardar');
     }
+    
+    btn.innerText = originalText;
+    btn.disabled = false;
 }
 
 /**
@@ -323,31 +296,21 @@ async function changePassword(e) {
     btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Actualizando...';
     btn.disabled = true;
 
-    try {
-        const res = await fetch(`${API_BASE}/user/change-password`, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-            body: JSON.stringify({ old_password: current, new_password: newPass }) 
+    const res = await apiClient.post('/user/change-password', { current_password: current, new_password: newPass });
+    if (res.ok) {
+        showToast('Contraseña actualizada con éxito');
+        e.target.reset();
+        document.querySelectorAll('.req-item').forEach(el => {
+            el.classList.remove('satisfied');
+            el.querySelector('i').className = 'far fa-circle';
         });
-        
-        if (res.ok) {
-            showToast('Contraseña actualizada con éxito');
-            e.target.reset();
-            document.querySelectorAll('.req-item').forEach(el => {
-                el.classList.remove('satisfied');
-                el.querySelector('i').className = 'far fa-circle';
-            });
-            document.getElementById('password-strength').className = 'strength-meter';
-        } else {
-            const d = await res.json();
-            showToast(d.detail || 'Error al cambiar contraseña');
-        }
-    } catch (err) {
-        showToast('Error de conexión');
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        document.getElementById('password-strength').className = 'strength-meter';
+    } else {
+        showToast(res.error || 'Error al cambiar contraseña');
     }
+    
+    btn.innerHTML = originalText;
+    btn.disabled = false;
 }
 
 function togglePersonalInfo() {
@@ -394,26 +357,16 @@ async function processRecharge(e) {
     btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Procesando...';
     btn.disabled = true;
 
-    try {
-        const res = await fetch(`${API_BASE}/user/recharge-balance`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ monto: amount })
-        });
-        
-        if (res.ok) {
-            showToast(`¡Carga de $${amount.toFixed(2)} exitosa!`);
-            closeModal('rechargeModal');
-            e.target.reset();
-            await loadProfile(); 
-        } else {
-            const d = await res.json();
-            showToast(d.detail || 'Error al procesar la carga');
-        }
-    } catch (err) {
-        showToast('Error de conexión');
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+    const res = await apiClient.post('/user/recharge-balance', { monto: amount });
+    if (res.ok) {
+        showToast(`¡Carga de $${amount.toFixed(2)} exitosa!`);
+        closeModal('rechargeModal');
+        e.target.reset();
+        await loadProfile(); 
+    } else {
+        showToast(res.error || 'Error al procesar la carga');
     }
+    
+    btn.innerHTML = originalText;
+    btn.disabled = false;
 }

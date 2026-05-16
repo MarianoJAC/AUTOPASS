@@ -32,30 +32,26 @@ async function refreshReservationFormState() {
     if (!container || !container.classList.contains('open')) return;
 
     fetchRates();
-    try {
-        const res = await fetch(`${API_BASE}/user/vehicles`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (!res.ok) return;
-        const vehicles = await res.json();
-        
-        const noVehiclesSec = document.getElementById('reserva-no-vehicles');
-        const mainForm = document.getElementById('reserva-form-content');
+    const res = await apiClient.get('/user/vehicles');
+    if (!res.ok) return;
 
-        if (vehicles.length === 0) {
-            if (noVehiclesSec) noVehiclesSec.style.display = 'block';
-            if (mainForm) mainForm.style.display = 'none';
-        } else {
-            if (noVehiclesSec) noVehiclesSec.style.display = 'none';
-            if (mainForm) mainForm.style.display = 'block';
-            const selects = document.querySelectorAll('.res-vehicle');
-            selects.forEach(select => {
-                const currentVal = select.value;
-                select.innerHTML = '<option value="">Seleccioná vehículo...</option>' + 
-                    vehicles.map(v => `<option value="${v.patente}">${v.patente} - ${v.marca_modelo}</option>`).join('');
-                if (currentVal) select.value = currentVal;
-            });
-        }
-    } catch (err) {
-        console.error("Error al refrescar estado de reserva:", err);
+    const vehicles = res.data;
+    const noVehiclesSec = document.getElementById('reserva-no-vehicles');
+    const mainForm = document.getElementById('reserva-form-content');
+
+    if (vehicles.length === 0) {
+        if (noVehiclesSec) noVehiclesSec.style.display = 'block';
+        if (mainForm) mainForm.style.display = 'none';
+    } else {
+        if (noVehiclesSec) noVehiclesSec.style.display = 'none';
+        if (mainForm) mainForm.style.display = 'block';
+        const selects = document.querySelectorAll('.res-vehicle');
+        selects.forEach(select => {
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Seleccioná vehículo...</option>' + 
+                vehicles.map(v => `<option value="${v.patente}">${v.patente} - ${v.marca_modelo}</option>`).join('');
+            if (currentVal) select.value = currentVal;
+        });
     }
 }
 
@@ -93,9 +89,9 @@ function resetReservaForm() {
  * Prepara el formulario para editar una reserva existente.
  */
 async function prepareEditReservation(id) {
-    const res = await fetch(`${API_BASE}/user/reservations`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const res = await apiClient.get('/user/reservations');
     if (!res.ok) return;
-    const all = await res.json();
+    const all = res.data;
     const r = all.find(item => item.id === id);
     if (!r) return;
 
@@ -163,17 +159,15 @@ async function prepareEditReservation(id) {
  * Obtiene las tarifas vigentes del servidor.
  */
 async function fetchRates() {
-    try {
-        const res = await fetch(`${API_BASE}/admin/settings`);
-        if (res.ok) {
-            const settings = await res.json();
-            if (settings.precio_hora) currentRates.hora = settings.precio_hora;
-            if (settings.precio_dia) currentRates.dia = settings.precio_dia;
-            if (settings.precio_semana) currentRates.semana = settings.precio_semana;
-            if (settings.precio_quincena) currentRates.quincena = settings.precio_quincena;
-            if (settings.precio_mes) currentRates.mes = settings.precio_mes;
-        }
-    } catch(e) {}
+    const res = await apiClient.get('/admin/settings');
+    if (res.ok) {
+        const settings = res.data;
+        if (settings.precio_hora) currentRates.hora = settings.precio_hora;
+        if (settings.precio_dia) currentRates.dia = settings.precio_dia;
+        if (settings.precio_semana) currentRates.semana = settings.precio_semana;
+        if (settings.precio_quincena) currentRates.quincena = settings.precio_quincena;
+        if (settings.precio_mes) currentRates.mes = settings.precio_mes;
+    }
 }
 
 /**
@@ -325,38 +319,31 @@ async function createReservation(e) {
     btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> PROCESANDO...';
     btn.disabled = true;
 
-    try {
-        const url = editingReservaId ? `${API_BASE}/user/reservations/${editingReservaId}` : `${API_BASE}/user/reservations`;
-        const res = await fetch(url, {
-            method: editingReservaId ? 'PATCH' : 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ patente, fecha_inicio: inicio, fecha_fin: fin, sucursal_nombre: sucursal, tipo_estadia: tipo })
-        });
+    const payload = { patente, fecha_inicio: inicio, fecha_fin: fin, sucursal_nombre: sucursal, tipo_estadia: tipo };
+    const res = editingReservaId ? 
+        await apiClient.patch(`/user/reservations/${editingReservaId}`, payload) : 
+        await apiClient.post('/user/reservations', payload);
 
-        if (res.ok) {
-            showToast(editingReservaId ? '¡Reserva actualizada!' : '¡Reserva creada con éxito!');
-            resetReservaForm(); toggleReservaForm(); loadReservations();
-            if (typeof loadProfile === 'function') loadProfile();
-        } else {
-            const data = await res.json();
-            showToast(data.detail || 'Error al procesar reserva');
-        }
-    } catch (err) {
-        showToast('Error de conexión');
-    } finally {
-        btn.innerHTML = originalContent;
-        btn.disabled = false;
+    if (res.ok) {
+        showToast(editingReservaId ? '¡Reserva actualizada!' : '¡Reserva creada con éxito!');
+        resetReservaForm(); toggleReservaForm(); loadReservations();
+        if (typeof loadProfile === 'function') loadProfile();
+    } else {
+        showToast(res.error || 'Error al procesar reserva');
     }
+    
+    btn.innerHTML = originalContent;
+    btn.disabled = false;
 }
 
 /**
  * Obtiene y renderiza la lista de reservas activas e históricas.
  */
 async function loadReservations() {
-    const res = await fetch(`${API_BASE}/user/reservations`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const res = await apiClient.get('/user/reservations');
     if (!res.ok) return;
     
-    const all = await res.json();
+    const all = res.data;
     const active = all.filter(r => r.estado_reserva === 'Pendiente' || r.estado_reserva === 'Activa');
     historyData = all.filter(r => r.estado_reserva !== 'Pendiente' && r.estado_reserva !== 'Activa');
     
@@ -462,8 +449,9 @@ function renderReservaCard(r, isFeatured) {
  * Gestión de Pase Digital con QR.
  */
 async function showDigitalPass(id) {
-    const res = await fetch(`${API_BASE}/user/reservations`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const r = (await res.json()).find(item => item.id === id);
+    const res = await apiClient.get('/user/reservations');
+    if (!res.ok) return;
+    const r = res.data.find(item => item.id === id);
     if (!r) return;
 
     document.getElementById('ticket-id-display').innerText = `#${r.id.toString().padStart(6, '0')}`;
@@ -537,19 +525,26 @@ function historialPage(dir) { historialCurrentPage += dir; applyHistoryFilters()
 
 async function cancelReservation(id) {
     if (!await showConfirm('CANCELAR RESERVA', '¿Estás seguro? Esta acción no se puede deshacer.')) return;
-    try {
-        const res = await fetch(`${API_BASE}/user/reservations/${id}/cancel`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
-        if (res.ok) { showToast('Reserva cancelada'); loadReservations(); if (typeof loadProfile === 'function') loadProfile(); }
-    } catch (err) { showToast('Error de conexión'); }
+    const res = await apiClient.post(`/user/reservations/${id}/cancel`);
+    if (res.ok) { 
+        showToast('Reserva cancelada'); 
+        loadReservations(); 
+        if (typeof loadProfile === 'function') loadProfile(); 
+    } else {
+        showToast(res.error || 'Error al cancelar');
+    }
 }
 
 async function payReservation(id) {
     if (!await showConfirm('PAGAR RESERVA', '¿Deseás pagar con tu saldo AutoPass?')) return;
-    try {
-        const res = await fetch(`${API_BASE}/user/reservations/${id}/pay`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
-        if (res.ok) { showToast('¡Pago exitoso!'); loadReservations(); if (typeof loadProfile === 'function') loadProfile(); }
-        else { showToast((await res.json()).detail || 'Error en el pago'); }
-    } catch (err) { showToast('Error de conexión'); }
+    const res = await apiClient.post(`/user/reservations/${id}/pay`);
+    if (res.ok) { 
+        showToast('¡Pago exitoso!'); 
+        loadReservations(); 
+        if (typeof loadProfile === 'function') loadProfile(); 
+    } else { 
+        showToast(res.error || 'Error en el pago'); 
+    }
 }
 
 function toggleHistorial() {
@@ -562,6 +557,7 @@ function toggleHistorial() {
 
 // Refresco automático de estados
 setInterval(() => {
+    const token = localStorage.getItem('token');
     if (token && (document.getElementById('section-reservas')?.classList.contains('active') || document.getElementById('section-inicio')?.classList.contains('active'))) {
         loadReservations();
     }
