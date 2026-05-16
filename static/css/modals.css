@@ -4,8 +4,10 @@
     display: none; 
     position: fixed; 
     z-index: 2000; 
-    left: 0; top: 0; 
-    width: 100%; height: 100%; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
     background: rgba(0,0,0,0.85); 
     backdrop-filter: blur(10px); 
     overflow-y: auto; 
@@ -28,10 +30,18 @@
 }
 
 .close-btn { 
-    position: absolute; top: 15px; right: 15px; 
-    width: 35px; height: 35px; border-radius: 50%; 
-    display: flex; justify-content: center; align-items: center; 
-    cursor: pointer; color: #666; transition: 0.3s;
+    position: absolute; 
+    top: 15px; 
+    right: 15px; 
+    width: 35px; 
+    height: 35px; 
+    border-radius: 50%; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    cursor: pointer; 
+    color: #666; 
+    transition: 0.3s;
 }
 
 .close-btn:hover { 
@@ -68,7 +78,10 @@
     transition: 0.3s; 
 }
 
-.modal-subtitle { font-size: 0.85rem; color: #666; }
+.modal-subtitle { 
+    font-size: 0.85rem; 
+    color: #666; 
+}
 
 .toggle-password { 
     cursor: pointer; 
@@ -80,7 +93,10 @@
     transition: 0.3s;
     z-index: 10;
 }
-.toggle-password:hover { color: var(--dorado); }
+
+.toggle-password:hover { 
+    color: var(--dorado); 
+}
 
 .password-validation-area { 
     margin-top: -10px; 
@@ -102,9 +118,17 @@
     gap: 8px; 
 }
 
-.req-item i { font-size: 0.6rem; }
-.req-item.satisfied { color: var(--secondary); }
-.req-item.satisfied i { color: var(--secondary); }
+.req-item i { 
+    font-size: 0.6rem; 
+}
+
+.req-item.satisfied { 
+    color: var(--secondary); 
+}
+
+.req-item.satisfied i { 
+    color: var(--secondary); 
+}
 
 .strength-meter-container { 
     height: 4px; 
@@ -123,7 +147,7 @@
 .strength-meter.strength-medium { background: #f59e0b; width: 66%; }
 .strength-meter.strength-strong { background: var(--secondary); width: 100%; }
 
-/* CONFIRM MODAL SPECIAL STYLES */
+/* ESTILOS ESPECIALES DEL MODAL DE CONFIRMACIÓN */
 .confirm-modal-content {
     text-align: center;
     max-width: 400px;
@@ -163,7 +187,7 @@
     font-size: 0.75rem;
 }
 
-/* RESPONSIVO */
+/* DISEÑO RESPONSIVO */
 @media (max-width: 480px) {
     .modal-content { 
         padding: 30px 20px; 

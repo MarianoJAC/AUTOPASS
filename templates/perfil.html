@@ -19,6 +19,7 @@
         })();
     </script>
 
+    <!-- BARRA LATERAL (USUARIO) -->
     <aside class="sidebar" id="main-sidebar">
         <div class="sidebar-toggle" onclick="toggleSidebar()">
             <i class="fas fa-chevron-left"></i>
@@ -43,13 +44,17 @@
 
     <main class="main-content-scroll">
         <header>
-            <div class="header-left" style="flex-direction: row; align-items: center;">
+            <div class="header-left">
                 <button class="mobile-nav-toggle no-print" onclick="toggleMobileNav()">
-                    <i class="fas fa-bars-staggered"></i>
+                    <i class="fas fa-bars"></i>
                 </button>
-                <div class="header-text-group">
-                    <span class="text-label">Portal de Cliente</span>
-                    <h1 id="user-name">Hola, Cargando...</h1>
+                <div class="header-title-premium">
+                    <div class="header-icon-box">
+                        <i class="fas fa-id-badge"></i>
+                    </div>
+                    <div class="header-text-info">
+                        <h1 class="header-main-title">PORTAL DE CLIENTE</h1>
+                    </div>
                 </div>
             </div>
             <div class="header-right">
@@ -68,188 +73,250 @@
 
         <div class="content">
             <div class="content-wrapper">
+                
                 <!-- SECCIÓN: INICIO -->
                 <div id="section-inicio" class="profile-section active">
-                    <div class="card reserva-trigger-card" onclick="toggleReservaForm()">
-                        <div class="reserva-trigger-content">
-                            <div>
-                                <h1 class="text-uppercase" style="font-family: 'Montserrat'; font-weight: 900; margin: 0; font-size: 2rem;">RESERVAR AHORA</h1>
-                                <p class="text-bold" style="margin: 5px 0 0; opacity: 0.8;">Asegurá tu lugar en un clic</p>
-                            </div>
-                            <div class="flex-row">
-                                <i id="reserva-form-arrow" class="fas fa-chevron-down trigger-icon"></i>
-                                <i class="fas fa-calendar-plus calendar-icon-large"></i>
-                            </div>
-                        </div>
+                    <div class="greeting-premium">
+                        <h2 id="welcome-greeting">¡HOLA!</h2>
+                        <p>¿Qué planes tenés para hoy? Gestioná tu estacionamiento de forma rápida.</p>
                     </div>
 
-                    <div id="reserva-form-container">
-                        <div class="modern-reservation-card">
-                            <div class="card-header-premium">
-                                <div class="header-icon"><i class="fas fa-file-circle-plus"></i></div>
-                                <div class="header-text">
-                                    <h3>GENERAR NUEVA RESERVA</h3>
-                                    <p>Completá los datos para asegurar tu lugar</p>
+                    <div class="profile-main-grid">
+                        <!-- ACCIONES RÁPIDAS Y RESERVA -->
+                        <div class="grid-col">
+                            <div class="card reserva-trigger-card" onclick="toggleReservaForm()">
+                                <div class="reserva-trigger-content">
+                                    <div class="flex-col gap-5">
+                                        <h2 class="trigger-title">RESERVAR AHORA</h2>
+                                    </div>
+                                    <i id="reserva-form-arrow" class="fas fa-chevron-down"></i>
                                 </div>
                             </div>
 
-                            <!-- ESTADO SIN VEHÍCULOS (MODERNO PRO) -->
-                            <div id="reserva-no-vehicles" style="display: none; padding: 40px;">
-                                <div class="empty-state-minimal">
+                            <div id="reserva-form-container">
+                                <div class="modern-reservation-card">
+                                    <div class="card-header-premium">
+                                        <div class="header-icon"><i class="fas fa-calendar-plus"></i></div>
+                                        <div class="header-text">
+                                            <h3>GENERAR NUEVA RESERVA</h3>
+                                            <p>Asegurá tu lugar en segundos.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- ESTADO SIN VEHÍCULOS -->
+                                    <div id="reserva-no-vehicles" style="display: none; padding: 40px 30px;">
+                                        <div class="empty-state-premium">
+                                            <div class="empty-icon-box">
+                                                <i class="fas fa-car-rear main-icon"></i>
+                                                <div class="icon-pulse"></div>
+                                            </div>
+                                            <div id="quick-add-info">
+                                                <h4>¡UPS! NO TENÉS VEHÍCULOS</h4>
+                                                <p>Para reservar, primero vinculá una patente a tu cuenta.</p>
+                                                <button class="btn btn-primary btn-sm mt-15" onclick="showQuickAddVehicle()">
+                                                    <i class="fas fa-plus-circle"></i> AGREGAR
+                                                </button>
+                                            </div>
+
+                                            <div id="quick-add-form-container" style="display: none; width: 100%; max-width: 450px; margin: 0 auto;">
+                                                <h4 class="text-dorado">VINCULAR NUEVO VEHÍCULO</h4>
+                                                <form id="quick-add-vehicle-form" onsubmit="addVehicle(event, true)" class="form-compact-premium mt-20">
+                                                    <div class="flex-row gap-10 flex-wrap-mobile">
+                                                        <div class="form-group-premium flex-1">
+                                                            <label>Patente</label>
+                                                            <input type="text" name="patente" placeholder="ABC 123" required class="input-premium-sm uppercase">
+                                                        </div>
+                                                        <div class="form-group-premium flex-1">
+                                                            <label>Marca / Modelo</label>
+                                                            <input type="text" name="marca_modelo" placeholder="Ej: VW Gol" required class="input-premium-sm">
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-row justify-center mt-20 gap-15">
+                                                        <button type="button" class="btn btn-outline btn-sm" onclick="hideQuickAddVehicle()">CANCELAR</button>
+                                                        <button type="submit" class="btn btn-primary btn-sm">GUARDAR Y CONTINUAR</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- FORMULARIO DE RESERVA -->
+                                    <div id="reserva-form-content" style="padding: 30px;">
+                                        <form class="reservation-form-modern" onsubmit="createReservation(event)">
+                                            <div class="form-grid-premium">
+                                                <div class="form-group-premium">
+                                                    <label>Vehículo a Estacionar</label>
+                                                    <div class="select-wrapper-premium">
+                                                        <i class="fas fa-car"></i>
+                                                        <select class="res-vehicle" required>
+                                                            <option value="">Cargando flota...</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group-premium">
+                                                    <label>Punto AutoPass</label>
+                                                    <div class="select-wrapper-premium">
+                                                        <i class="fas fa-location-dot"></i>
+                                                        <select class="res-sede" required>
+                                                            <option value="AUTOPASS Ituzaingó">AUTOPASS Ituzaingó</option>
+                                                            <option value="AUTOPASS Castelar">AUTOPASS Castelar</option>
+                                                            <option value="AUTOPASS Morón">AUTOPASS Morón</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group-premium">
+                                                    <label>Modalidad de Estadía</label>
+                                                    <div class="select-wrapper-premium">
+                                                        <i class="fas fa-clock"></i>
+                                                        <select class="res-type" required>
+                                                            <option value="hora" selected>Por Hora</option>
+                                                            <option value="dia">Por Día (24hs)</option>
+                                                            <option value="semana">Semana Corrida</option>
+                                                            <option value="quincena">Quincena</option>
+                                                            <option value="mes">Mensual</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <!-- CAMPOS DINÁMICOS SEGÚN TIPO DE RESERVA -->
+                                                <div id="dynamic-fields-premium" class="full-width-premium">
+                                                    <div id="hourly-fields" class="dynamic-row-premium">
+                                                        <div class="form-group-premium">
+                                                            <label>Día</label>
+                                                            <input type="text" class="res-date-only input-premium" placeholder="Fecha...">
+                                                        </div>
+                                                        <div class="form-group-premium">
+                                                            <label>Hora Inicio</label>
+                                                            <input type="time" class="res-time-only input-premium" value="08:00">
+                                                        </div>
+                                                        <div class="form-group-premium">
+                                                            <label>Cantidad Horas</label>
+                                                            <input type="number" class="res-hours-qty input-premium" min="1" max="24" value="1">
+                                                        </div>
+                                                    </div>
+                                                    <div id="daily-fields" class="dynamic-row-premium" style="display:none;">
+                                                        <div class="form-group-premium">
+                                                            <label>Día de Estadía</label>
+                                                            <input type="text" class="res-day-only input-premium" placeholder="Seleccioná día...">
+                                                        </div>
+                                                    </div>
+                                                    <div id="weekly-fields" class="dynamic-row-premium" style="display:none;">
+                                                        <div class="form-group-premium">
+                                                            <label>Inicia el día</label>
+                                                            <input type="text" class="res-week-start input-premium" placeholder="Fecha inicio...">
+                                                        </div>
+                                                        <div class="form-group-premium">
+                                                            <label>Finaliza (Auto)</label>
+                                                            <input type="text" class="res-week-end input-premium-readonly" readonly>
+                                                        </div>
+                                                    </div>
+                                                    <div id="fortnight-fields" class="dynamic-row-premium" style="display:none;">
+                                                        <div class="form-group-premium">
+                                                            <label>Inicia el día</label>
+                                                            <input type="text" class="res-fortnight-start input-premium" placeholder="Fecha inicio...">
+                                                        </div>
+                                                        <div class="form-group-premium">
+                                                            <label>Finaliza (Auto)</label>
+                                                            <input type="text" class="res-fortnight-end input-premium-readonly" readonly>
+                                                        </div>
+                                                    </div>
+                                                    <div id="month-fields" class="dynamic-row-premium" style="display:none;">
+                                                        <div class="form-group-premium">
+                                                            <label>Inicia el día</label>
+                                                            <input type="text" class="res-month-start input-premium" placeholder="Fecha inicio...">
+                                                        </div>
+                                                        <div class="form-group-premium">
+                                                            <label>Finaliza (Auto)</label>
+                                                            <input type="text" class="res-month-end input-premium-readonly" readonly>
+                                                        </div>
+                                                    </div>
+                                                    <div id="standard-fields" class="dynamic-row-premium" style="display:none;">
+                                                        <div class="form-group-premium">
+                                                            <label>Inicio</label>
+                                                            <input type="text" class="res-start input-premium" placeholder="Fecha y hora...">
+                                                        </div>
+                                                        <div class="form-group-premium">
+                                                            <label>Fin</label>
+                                                            <input type="text" class="res-end input-premium" placeholder="Fecha y hora...">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="reservation-footer-premium">
+                                                <div class="price-summary-premium">
+                                                    <span class="total-label">Total Estimado:</span>
+                                                    <span class="total-amount" id="reserva-total-est">$ ---</span>
+                                                </div>
+                                                <button type="submit" class="btn-confirm-premium">
+                                                    <span>CONFIRMAR RESERVA</span>
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="quick-actions-grid mt-20">
+                                <div class="action-btn-premium" onclick="openRechargeModal()">
+                                    <i class="fas fa-wallet"></i>
+                                    <span>Cargar Saldo</span>
+                                </div>
+                                <div class="action-btn-premium" onclick="showSection('puntos', document.querySelector('.nav-item[onclick*=\'puntos\']'))">
+                                    <i class="fas fa-gift"></i>
+                                    <span>Beneficios</span>
+                                </div>
+                                <div class="action-btn-premium" onclick="showSection('vehiculos', document.querySelector('.nav-item[onclick*=\'vehiculos\']'))">
                                     <i class="fas fa-car-side"></i>
-                                    <p>No tenés vehículos vinculados.</p>
-                                    <button class="btn btn-primary btn-sm" onclick="showSection('vehiculos', document.querySelector('.nav-item[onclick*=\'vehiculos\']'))">VINCULAR AHORA</button>
+                                    <span>Mis Autos</span>
+                                </div>
+                                <div class="action-btn-premium" onclick="showToast('Ubicación de sedes próximamente...')">
+                                    <i class="fas fa-map-location-dot"></i>
+                                    <span>Mapa Sedes</span>
                                 </div>
                             </div>
+                        </div>
 
-                            <div id="reserva-form-content" style="padding: 30px;">
-                                <form class="reservation-form-modern" onsubmit="createReservation(event)">
-                                    <div class="form-grid-premium">
-                                        <div class="form-group-premium">
-                                            <label>Vehículo a Estacionar</label>
-                                            <div class="select-wrapper-premium">
-                                                <i class="fas fa-car"></i>
-                                                <select class="res-vehicle" required>
-                                                    <option value="">Cargando flota...</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="form-group-premium">
-                                            <label>Punto AutoPass</label>
-                                            <div class="select-wrapper-premium">
-                                                <i class="fas fa-location-dot"></i>
-                                                <select class="res-sede" required>
-                                                    <option value="AUTOPASS Ituzaingó">AUTOPASS Ituzaingó</option>
-                                                    <option value="AUTOPASS Castelar">AUTOPASS Castelar</option>
-                                                    <option value="AUTOPASS Morón">AUTOPASS Morón</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="form-group-premium">
-                                            <label>Modalidad de Estadía</label>
-                                            <div class="select-wrapper-premium">
-                                                <i class="fas fa-clock"></i>
-                                                <select class="res-type" required>
-                                                    <option value="hora" selected>Por Hora</option>
-                                                    <option value="dia">Por Día (24hs)</option>
-                                                    <option value="semana">Semana Corrida</option>
-                                                    <option value="quincena">Quincena</option>
-                                                    <option value="mes">Mensual</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- DINÁMICO: CAMPOS SEGÚN TIPO -->
-                                        <div id="dynamic-fields-premium" class="full-width-premium">
-                                            <!-- POR HORA -->
-                                            <div id="hourly-fields" class="dynamic-row-premium">
-                                                <div class="form-group-premium">
-                                                    <label>Día</label>
-                                                    <input type="text" class="res-date-only input-premium" placeholder="Fecha...">
-                                                </div>
-                                                <div class="form-group-premium">
-                                                    <label>Hora Inicio</label>
-                                                    <input type="time" class="res-time-only input-premium" value="08:00">
-                                                </div>
-                                                <div class="form-group-premium">
-                                                    <label>Cantidad Horas</label>
-                                                    <input type="number" class="res-hours-qty input-premium" min="1" max="24" value="1">
-                                                </div>
-                                            </div>
-
-                                            <!-- POR DÍA -->
-                                            <div id="daily-fields" class="dynamic-row-premium" style="display:none;">
-                                                <div class="form-group-premium">
-                                                    <label>Día de Estadía</label>
-                                                    <input type="text" class="res-day-only input-premium" placeholder="Seleccioná día...">
-                                                </div>
-                                            </div>
-
-                                            <!-- PERIODOS LARGOS -->
-                                            <div id="weekly-fields" class="dynamic-row-premium" style="display:none;">
-                                                <div class="form-group-premium">
-                                                    <label>Inicia el día</label>
-                                                    <input type="text" class="res-week-start input-premium" placeholder="Fecha inicio...">
-                                                </div>
-                                                <div class="form-group-premium">
-                                                    <label>Finaliza (Auto)</label>
-                                                    <input type="text" class="res-week-end input-premium-readonly" readonly>
-                                                </div>
-                                            </div>
-
-                                            <div id="fortnight-fields" class="dynamic-row-premium" style="display:none;">
-                                                <div class="form-group-premium">
-                                                    <label>Inicia el día</label>
-                                                    <input type="text" class="res-fortnight-start input-premium" placeholder="Fecha inicio...">
-                                                </div>
-                                                <div class="form-group-premium">
-                                                    <label>Finaliza (Auto)</label>
-                                                    <input type="text" class="res-fortnight-end input-premium-readonly" readonly>
-                                                </div>
-                                            </div>
-
-                                            <div id="month-fields" class="dynamic-row-premium" style="display:none;">
-                                                <div class="form-group-premium">
-                                                    <label>Inicia el día</label>
-                                                    <input type="text" class="res-month-start input-premium" placeholder="Fecha inicio...">
-                                                </div>
-                                                <div class="form-group-premium">
-                                                    <label>Finaliza (Auto)</label>
-                                                    <input type="text" class="res-month-end input-premium-readonly" readonly>
-                                                </div>
-                                            </div>
-
-                                            <div id="standard-fields" class="dynamic-row-premium" style="display:none;">
-                                                <div class="form-group-premium">
-                                                    <label>Inicio</label>
-                                                    <input type="text" class="res-start input-premium" placeholder="Fecha y hora...">
-                                                </div>
-                                                <div class="form-group-premium">
-                                                    <label>Fin</label>
-                                                    <input type="text" class="res-end input-premium" placeholder="Fecha y hora...">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- RESUMEN Y ACCIÓN -->
-                                    <div class="reservation-footer-premium">
-                                        <div class="price-summary-premium">
-                                            <span class="total-label">Total Estimado:</span>
-                                            <span class="total-amount" id="reserva-total-est">$ ---</span>
-                                        </div>
-                                        <button type="submit" class="btn-confirm-premium">
-                                            <span>CONFIRMAR RESERVA</span>
-                                            <i class="fas fa-chevron-right"></i>
-                                        </button>
-                                    </div>
-                                </form>
+                        <!-- ESTADÍSTICAS Y PROGRESO -->
+                        <div class="grid-col">
+                            <!-- PROGRESO DE PUNTOS -->
+                            <div class="points-progress-card">
+                                <div class="progress-header">
+                                    <span class="progress-title">Mi Progreso</span>
+                                    <span class="progress-target" id="points-next-reward">Prox: 500 pts</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div id="points-progress-bar" class="progress-bar-fill"></div>
+                                </div>
+                                <p class="progress-footer-text" id="points-progress-text">
+                                    ¡Estás muy cerca de tu próximo beneficio AutoPass!
+                                </p>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="grid-stats profile-stats-grid">
-                        <div class="stat-card">
-                            <div class="label">Vehículos Vinculados</div>
-                            <div class="value" id="stat-vehicles">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="label">Reservas Activas</div>
-                            <div class="value" id="stat-reservations">0</div>
+                            <div class="grid-stats-compact">
+                                <div class="stat-card">
+                                    <div class="label">Vehículos Vinculados</div>
+                                    <div class="value" id="stat-vehicles">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="label">Reservas Activas</div>
+                                    <div class="value" id="stat-reservations">0</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- SECCIÓN: VEHÍCULOS -->
+                <!-- SECCIÓN: MIS VEHÍCULOS -->
                 <div id="section-vehiculos" class="profile-section">
-                    <div class="card welcome-card">
+                    <div class="card welcome-card card-narrow">
                         <div class="welcome-msg">
                             <h1><i class="fas fa-car-rear"></i> MIS VEHÍCULOS</h1>
                         </div>
                     </div>
 
                     <div class="flex-col">
-                        <!-- FILA DE REGISTRO HORIZONTAL -->
                         <div class="register-row-modern">
                             <div class="register-trigger-card" onclick="toggleNuevoVinculo()">
                                 <i class="fas fa-plus-circle"></i> <span>AGREGAR</span>
@@ -258,30 +325,29 @@
 
                             <div id="vinculo-container">
                                 <div class="modern-form-card">
-                                    <form id="add-vehicle-form" onsubmit="addVehicle(event)" class="form-compact-row">
-                                        <div class="form-group">
-                                            <label class="text-label">Patente</label>
-                                            <div class="input-with-icon">
-                                                <i class="fas fa-id-card"></i>
-                                                <input type="text" name="patente" placeholder="ABC 123, AB 123 CD" required class="patente-input">
+                                    <form id="add-vehicle-form" onsubmit="addVehicle(event)" class="form-compact-premium" style="background: transparent; border: none; padding: 0; box-shadow: none; animation: none; width: 100%;">
+                                        <div class="flex-row gap-15 flex-wrap-mobile">
+                                            <div class="form-group-premium flex-1">
+                                                <label>Patente</label>
+                                                <input type="text" name="patente" placeholder="ABC 123" required class="input-premium-sm uppercase">
+                                            </div>
+                                            <div class="form-group-premium flex-1">
+                                                <label>Marca / Modelo</label>
+                                                <input type="text" name="marca_modelo" placeholder="Ej: VW Gol" required class="input-premium-sm">
+                                            </div>
+                                            <div class="flex-col justify-end">
+                                                <button type="submit" class="btn btn-primary btn-sm" style="height: 38px; width: 45px; padding: 0; font-weight: 800; display: flex; align-items: center; justify-content: center;" title="Vincular Vehículo">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="text-label">Marca y Modelo</label>
-                                            <div class="input-with-icon">
-                                                <i class="fas fa-car"></i>
-                                                <input type="text" name="marca_modelo" placeholder="Ej: VW Gol" required class="modelo-input">
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary btn-vincular-modern" title="Vincular vehículo"><i class="fas fa-check"></i></button>
                                     </form>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- LISTA: MIS VEHÍCULOS -->
                         <div class="card card-dynamic-width">
-                            <div class="card-title"><i class="fas fa-car-side"></i> MIS VEHÍCULOS</div>
+                            <div class="card-title"><i class="fas fa-car-side"></i> MI FLOTA</div>
                             <div id="vehicle-list">
                                 <p class="text-bold">Cargando flota...</p>
                             </div>
@@ -289,7 +355,7 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN: RESERVAS -->
+                <!-- SECCIÓN: MIS RESERVAS -->
                 <div id="section-reservas" class="profile-section">
                     <div class="card welcome-card">
                         <div class="welcome-msg">
@@ -297,7 +363,6 @@
                         </div>
                     </div>
 
-                    <!-- HEADER DE STATS RÁPIDAS -->
                     <div class="reserva-stats-grid">
                         <div class="res-stat-card">
                             <i class="fas fa-car-side"></i>
@@ -316,13 +381,11 @@
                     </div>
 
                     <div class="flex-col">
-                        <!-- SECCIÓN: ESTADÍA DESTACADA (EN CURSO) -->
                         <div id="container-res-featured" style="display: none;">
                             <div class="section-subtitle"><i class="fas fa-star"></i> ESTADÍA ACTUAL</div>
                             <div id="reservation-featured-list"></div>
                         </div>
 
-                        <!-- SECCIÓN: PRÓXIMAS RESERVAS (GRID) -->
                         <div class="section-subtitle"><i class="fas fa-calendar-list"></i> TUS PRÓXIMAS RESERVAS</div>
                         <div id="reservation-list-active" class="reserva-grid-modern">
                             <p class="text-bold">Cargando reservas...</p>
@@ -337,18 +400,18 @@
 
                         <div id="historial-container" class="historial-container">
                             <div class="card" style="padding: 0; overflow: hidden;">
-                                <div class="history-filters no-print" style="padding: 20px; border-bottom: 1px solid var(--border-light); display: flex; gap: 15px; align-items: flex-end; justify-content: center; background: rgba(255,255,255,0.02); flex-wrap: wrap;">
-                                    <div class="form-group" style="margin:0; width: 150px;">
-                                        <label class="text-label" style="font-size: 0.7rem;">Desde</label>
-                                        <input type="date" id="history-filter-from" class="form-control" style="background: #111; border: 1px solid #333; color: #fff; padding: 8px; font-size: 0.8rem; width: 100%;">
+                                <div class="history-filters-premium no-print">
+                                    <div class="filter-group-premium">
+                                        <label>Desde</label>
+                                        <input type="date" id="history-filter-from" class="filter-input-premium">
                                     </div>
-                                    <div class="form-group" style="margin:0; width: 150px;">
-                                        <label class="text-label" style="font-size: 0.7rem;">Hasta</label>
-                                        <input type="date" id="history-filter-to" class="form-control" style="background: #111; border: 1px solid #333; color: #fff; padding: 8px; font-size: 0.8rem; width: 100%;">
+                                    <div class="filter-group-premium">
+                                        <label>Hasta</label>
+                                        <input type="date" id="history-filter-to" class="filter-input-premium">
                                     </div>
-                                    <div style="display: flex; gap: 10px;">
-                                        <button class="btn btn-primary btn-sm" onclick="applyHistoryFilters()" style="padding: 10px 15px;" title="Filtrar"><i class="fas fa-filter"></i></button>
-                                        <button class="btn btn-outline btn-sm" onclick="resetHistoryFilters()" style="padding: 10px 15px;" title="Limpiar"><i class="fas fa-rotate-left"></i></button>
+                                    <div class="filter-actions-premium">
+                                        <button class="btn btn-primary btn-sm" onclick="applyHistoryFilters()" title="Filtrar"><i class="fas fa-filter"></i></button>
+                                        <button class="btn btn-outline btn-sm" onclick="resetHistoryFilters()" title="Limpiar"><i class="fas fa-rotate-left"></i></button>
                                     </div>
                                 </div>
                                 <div id="reservation-list-history" class="flex-col" style="gap: 0;">
@@ -402,7 +465,6 @@
 
                     <div class="section-subtitle"><i class="fas fa-tags"></i> PROMOCIONES Y BENEFICIOS</div>
                     <div id="promotions-grid" class="promotions-grid">
-                        <!-- Cargando... -->
                         <div class="loading-spinner">
                             <i class="fas fa-circle-notch fa-spin"></i> Cargando promociones...
                         </div>
@@ -426,179 +488,166 @@
 
                 <!-- SECCIÓN: MI CUENTA -->
                 <div id="section-perfil" class="profile-section">
-                    <div class="card welcome-card">
-                        <div class="welcome-msg">
-                            <h1><i class="fas fa-user-gear"></i> MI CUENTA</h1>
-                        </div>
-                    </div>
                     <div class="profile-grid">
-                        <!-- CARD: INFORMACIÓN PERSONAL -->
+                        <div class="card account-identity-card">
+                            <div class="profile-header-premium">
+                                <div class="avatar-circle">
+                                    <span id="user-initials">--</span>
+                                </div>
+                                <div class="profile-info-main">
+                                    <h1 id="profile-full-name">Cargando...</h1>
+                                    <p class="text-label mt-10" id="user-member-since">Miembro desde: --/--/----</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="card">
-                            <div class="card-title"><i class="fas fa-id-card"></i> INFORMACIÓN PERSONAL</div>
-                            <div class="flex-col">
-                                <!-- CAMPO: NOMBRE -->
-                                <div id="item-nombre">
-                                    <div class="display-mode">
-                                        <div class="flex-row justify-between align-center">
-                                            <div>
-                                                <label class="text-label">Nombre/s</label>
-                                                <div class="text-bold" id="display-nombre">---</div>
-                                            </div>
-                                            <button class="btn-edit" onclick="enterEditMode('nombre')"><i class="fas fa-pen"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="edit-mode">
-                                        <div class="input-with-icon">
-                                            <i class="fas fa-user"></i>
-                                            <input type="text" id="input-nombre" placeholder="Tu nombre">
-                                        </div>
-                                        <div class="edit-actions">
-                                            <button class="btn btn-sm btn-outline" onclick="exitEditMode('nombre')">Cancelar</button>
-                                            <button class="btn btn-sm btn-primary" onclick="saveField('nombre', event)">Guardar</button>
-                                        </div>
-                                    </div>
+                            <div class="personal-info-trigger" onclick="togglePersonalInfo()" style="cursor: pointer;">
+                                <div class="flex-row justify-between">
+                                    <div class="card-title" style="margin:0"><i class="fas fa-id-card"></i> INFORMACIÓN PERSONAL</div>
+                                    <i id="personal-info-arrow" class="fas fa-chevron-down"></i>
                                 </div>
-
-                                <!-- CAMPO: APELLIDO -->
-                                <div id="item-apellido">
-                                    <div class="display-mode">
-                                        <div class="flex-row justify-between align-center">
-                                            <div>
-                                                <label class="text-label">Apellido</label>
-                                                <div class="text-bold" id="display-apellido">---</div>
+                            </div>
+                            <div id="personal-info-container" class="personal-info-container">
+                                <div class="flex-col" style="margin-top: 20px;">
+                                    <div id="item-nombre">
+                                        <div class="display-mode">
+                                            <div class="flex-row justify-between align-center">
+                                                <div>
+                                                    <label class="text-label">Nombre/s</label>
+                                                    <div class="text-bold" id="display-nombre">---</div>
+                                                </div>
+                                                <button class="btn-edit" onclick="enterEditMode('nombre')"><i class="fas fa-pen"></i></button>
                                             </div>
-                                            <button class="btn-edit" onclick="enterEditMode('apellido')"><i class="fas fa-pen"></i></button>
                                         </div>
-                                    </div>
-                                    <div class="edit-mode">
-                                        <div class="input-with-icon">
-                                            <i class="fas fa-user-tag"></i>
-                                            <input type="text" id="input-apellido" placeholder="Tu apellido">
-                                        </div>
-                                        <div class="edit-actions">
-                                            <button class="btn btn-sm btn-outline" onclick="exitEditMode('apellido')">Cancelar</button>
-                                            <button class="btn btn-sm btn-primary" onclick="saveField('apellido', event)">Guardar</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- CAMPO: DNI -->
-                                <div id="item-dni">
-                                    <div class="display-mode">
-                                        <div class="flex-row justify-between align-center">
-                                            <div>
-                                                <label class="text-label">DNI</label>
-                                                <div class="text-bold" id="display-dni">---</div>
+                                        <div class="edit-mode">
+                                            <div class="input-with-icon"><i class="fas fa-user"></i><input type="text" id="input-nombre" placeholder="Tu nombre"></div>
+                                            <div class="edit-actions">
+                                                <button class="btn btn-sm btn-outline" onclick="exitEditMode('nombre')">Cancelar</button>
+                                                <button class="btn btn-sm btn-primary" onclick="saveField('nombre', event)">Guardar</button>
                                             </div>
-                                            <button class="btn-edit" onclick="enterEditMode('dni')"><i class="fas fa-pen"></i></button>
                                         </div>
                                     </div>
-                                    <div class="edit-mode">
-                                        <div class="input-with-icon">
-                                            <i class="fas fa-id-card"></i>
-                                            <input type="text" id="input-dni" placeholder="Tu DNI">
-                                        </div>
-                                        <div class="edit-actions">
-                                            <button class="btn btn-sm btn-outline" onclick="exitEditMode('dni')">Cancelar</button>
-                                            <button class="btn btn-sm btn-primary" onclick="saveField('dni', event)">Guardar</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- CAMPO: EMAIL -->
-                                <div id="item-email">
-                                    <div class="display-mode">
-                                        <div class="flex-row justify-between align-center">
-                                            <div>
-                                                <label class="text-label">Correo Electrónico</label>
-                                                <div class="text-bold" id="display-email">---</div>
+                                    <div id="item-apellido">
+                                        <div class="display-mode">
+                                            <div class="flex-row justify-between align-center">
+                                                <div>
+                                                    <label class="text-label">Apellido</label>
+                                                    <div class="text-bold" id="display-apellido">---</div>
+                                                </div>
+                                                <button class="btn-edit" onclick="enterEditMode('apellido')"><i class="fas fa-pen"></i></button>
                                             </div>
-                                            <button class="btn-edit" onclick="enterEditMode('email')"><i class="fas fa-pen"></i></button>
                                         </div>
-                                    </div>
-                                    <div class="edit-mode">
-                                        <div class="input-with-icon">
-                                            <i class="fas fa-envelope"></i>
-                                            <input type="email" id="input-email" placeholder="ejemplo@correo.com">
-                                        </div>
-                                        <div class="edit-actions">
-                                            <button class="btn btn-sm btn-outline" onclick="exitEditMode('email')">Cancelar</button>
-                                            <button class="btn btn-sm btn-primary" onclick="saveField('email', event)">Guardar</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- CAMPO: TELÉFONO -->
-                                <div id="item-telefono">
-                                    <div class="display-mode">
-                                        <div class="flex-row justify-between align-center">
-                                            <div>
-                                                <label class="text-label">Teléfono</label>
-                                                <div class="text-bold" id="display-telefono">---</div>
+                                        <div class="edit-mode">
+                                            <div class="input-with-icon"><i class="fas fa-user-tag"></i><input type="text" id="input-apellido" placeholder="Tu apellido"></div>
+                                            <div class="edit-actions">
+                                                <button class="btn btn-sm btn-outline" onclick="exitEditMode('apellido')">Cancelar</button>
+                                                <button class="btn btn-sm btn-primary" onclick="saveField('apellido', event)">Guardar</button>
                                             </div>
-                                            <button class="btn-edit" onclick="enterEditMode('telefono')"><i class="fas fa-pen"></i></button>
                                         </div>
                                     </div>
-                                    <div class="edit-mode">
-                                        <div class="input-with-icon">
-                                            <i class="fas fa-phone"></i>
-                                            <input type="tel" id="input-telefono" placeholder="Tu teléfono">
+                                    <div id="item-dni">
+                                        <div class="display-mode">
+                                            <div class="flex-row justify-between align-center">
+                                                <div>
+                                                    <label class="text-label">DNI</label>
+                                                    <div class="text-bold" id="display-dni">---</div>
+                                                </div>
+                                                <button class="btn-edit" onclick="enterEditMode('dni')"><i class="fas fa-pen"></i></button>
+                                            </div>
                                         </div>
-                                        <div class="edit-actions">
-                                            <button class="btn btn-sm btn-outline" onclick="exitEditMode('telefono')">Cancelar</button>
-                                            <button class="btn btn-sm btn-primary" onclick="saveField('telefono', event)">Guardar</button>
+                                        <div class="edit-mode">
+                                            <div class="input-with-icon"><i class="fas fa-id-card"></i><input type="text" id="input-dni" placeholder="Tu DNI"></div>
+                                            <div class="edit-actions">
+                                                <button class="btn btn-sm btn-outline" onclick="exitEditMode('dni')">Cancelar</button>
+                                                <button class="btn btn-sm btn-primary" onclick="saveField('dni', event)">Guardar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="item-email">
+                                        <div class="display-mode">
+                                            <div class="flex-row justify-between align-center">
+                                                <div>
+                                                    <label class="text-label">Correo Electrónico</label>
+                                                    <div class="text-bold" id="display-email">---</div>
+                                                </div>
+                                                <button class="btn-edit" onclick="enterEditMode('email')"><i class="fas fa-pen"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="edit-mode">
+                                            <div class="input-with-icon"><i class="fas fa-envelope"></i><input type="email" id="input-email" placeholder="ejemplo@correo.com"></div>
+                                            <div class="edit-actions">
+                                                <button class="btn btn-sm btn-outline" onclick="exitEditMode('email')">Cancelar</button>
+                                                <button class="btn btn-sm btn-primary" onclick="saveField('email', event)">Guardar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="item-telefono">
+                                        <div class="display-mode">
+                                            <div class="flex-row justify-between align-center">
+                                                <div>
+                                                    <label class="text-label">Teléfono</label>
+                                                    <div class="text-bold" id="display-telefono">---</div>
+                                                </div>
+                                                <button class="btn-edit" onclick="enterEditMode('telefono')"><i class="fas fa-pen"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="edit-mode">
+                                            <div class="input-with-icon"><i class="fas fa-phone"></i><input type="tel" id="input-telefono" placeholder="Tu teléfono"></div>
+                                            <div class="edit-actions">
+                                                <button class="btn btn-sm btn-outline" onclick="exitEditMode('telefono')">Cancelar</button>
+                                                <button class="btn btn-sm btn-primary" onclick="saveField('telefono', event)">Guardar</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- CARD: DESPLEGABLE SEGURIDAD -->
-                        <div class="card">
-                            <div class="security-trigger" onclick="toggleSecurity()" style="cursor: pointer;">
-                                <div class="flex-row justify-between">
-                                    <div class="card-title" style="margin:0"><i class="fas fa-key"></i> CAMBIAR CONTRASEÑA</div>
-                                    <i id="security-arrow" class="fas fa-chevron-down"></i>
+                        <div class="flex-col">
+                            <div class="card">
+                                <div class="security-trigger" onclick="toggleSecurity()" style="cursor: pointer;">
+                                    <div class="flex-row justify-between">
+                                        <div class="card-title" style="margin:0"><i class="fas fa-key"></i> CAMBIAR CONTRASEÑA</div>
+                                        <i id="security-arrow" class="fas fa-chevron-down"></i>
+                                    </div>
                                 </div>
-                            </div>
-                            <div id="security-container" class="security-container">
-                                <form onsubmit="changePassword(event)" class="form-compact" style="margin-top: 20px;">
-                                    <div class="form-group">
-                                        <label class="text-label">Contraseña Actual</label>
-                                        <div class="input-with-icon">
-                                            <i class="fas fa-lock"></i>
-                                            <input type="password" id="current-password" class="form-control" placeholder="********" required>
+                                <div id="security-container" class="security-container">
+                                    <form onsubmit="changePassword(event)" class="form-security-premium">
+                                        <div class="form-group-premium">
+                                            <label class="text-label">Contraseña Actual</label>
+                                            <div class="input-with-icon">
+                                                <i class="fas fa-lock"></i>
+                                                <input type="password" id="current-password" class="input-premium-sm" placeholder="********" required>
+                                                <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('current-password', this)"></i>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="text-label">Nueva Contraseña</label>
-                                        <div class="input-with-icon">
-                                            <i class="fas fa-key"></i>
-                                            <input type="password" id="new-password" class="form-control" placeholder="********" required>
+                                        <div class="form-group-premium">
+                                            <label class="text-label">Nueva Contraseña</label>
+                                            <div class="input-with-icon">
+                                                <i class="fas fa-key"></i>
+                                                <input type="password" id="new-password" class="input-premium-sm" placeholder="********" required>
+                                                <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('new-password', this)"></i>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="text-label">Confirmar Nueva Contraseña</label>
-                                        <div class="input-with-icon">
-                                            <i class="fas fa-check-double"></i>
-                                            <input type="password" id="confirm-new-password" class="form-control" placeholder="********" required>
+                                        <div class="form-group-premium">
+                                            <label class="text-label">Confirmar Nueva Contraseña</label>
+                                            <div class="input-with-icon">
+                                                <i class="fas fa-check-double"></i>
+                                                <input type="password" id="confirm-new-password" class="input-premium-sm" placeholder="********" required>
+                                                <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('confirm-new-password', this)"></i>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div class="password-requirements">
-                                        <div id="req-len" class="req-item"><i class="far fa-circle"></i> 8+ caracteres</div>
-                                        <div id="req-up" class="req-item"><i class="far fa-circle"></i> Una mayúscula</div>
-                                        <div id="req-spec" class="req-item"><i class="far fa-circle"></i> Un símbolo (!@#)</div>
-                                        <div id="req-match" class="req-item"><i class="far fa-circle"></i> Coinciden</div>
-                                    </div>
-                                    <div class="strength-meter-container">
-                                        <div id="password-strength" class="strength-meter"></div>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary btn-full" style="margin-top: 20px;">
-                                        <i class="fas fa-shield-check"></i> ACTUALIZAR CONTRASEÑA
-                                    </button>
-                                </form>
+                                        <div class="password-requirements">
+                                            <div id="req-len" class="req-item"><i class="far fa-circle"></i> 8+ caract.</div>
+                                            <div id="req-up" class="req-item"><i class="far fa-circle"></i> Mayúscula</div>
+                                            <div id="req-spec" class="req-item"><i class="far fa-circle"></i> Símbolo</div>
+                                            <div id="req-match" class="req-item"><i class="far fa-circle"></i> Coinciden</div>
+                                        </div>
+                                        <div class="strength-meter-container"><div id="password-strength" class="strength-meter"></div></div>
+                                        <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-shield-check"></i> ACTUALIZAR CONTRASEÑA</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -607,63 +656,31 @@
         </div>
     </main>
 
-    <!-- MODAL: PASE DIGITAL -->
+    <!-- MODALES Y OTROS COMPONENTES -->
     <div id="modal-pase-digital" class="modal-premium">
         <div class="modal-content-premium ticket-container" id="ticket-to-capture">
             <button class="modal-close-top no-print" onclick="closeDigitalPass()">&times;</button>
             <div class="ticket-header">
                 <img src="/static/images/logo.png" alt="AutoPass Logo" class="ticket-logo">
-                <div class="ticket-title-wrap">
-                    <span class="ticket-brand">AUTOPASS</span>
-                    <span class="ticket-tagline">PASE DIGITAL</span>
-                </div>
+                <div class="ticket-title-wrap"><span class="ticket-brand">AUTOPASS</span><span class="ticket-tagline">PASE DIGITAL</span></div>
             </div>
-            
             <div class="ticket-body">
-                <div class="ticket-qr-section">
-                    <div id="ticket-qr" class="qr-canvas"></div>
-                    <div class="ticket-id" id="ticket-id-display">#000000</div>
-                </div>
-                
+                <div class="ticket-qr-section"><div id="ticket-qr" class="qr-canvas"></div><div class="ticket-id" id="ticket-id-display">#000000</div></div>
                 <div class="ticket-info-grid">
-                    <div class="ticket-info-item">
-                        <label>PATENTE</label>
-                        <span id="ticket-patente" class="plate-style">---</span>
-                    </div>
-                    <div class="ticket-info-item">
-                        <label>VENCE</label>
-                        <span id="ticket-vence">---</span>
-                    </div>
-                    <div class="ticket-info-item full-width">
-                        <label>SUCURSAL</label>
-                        <span id="ticket-sucursal">---</span>
-                    </div>
-                    <div class="ticket-info-item full-width">
-                        <label>DIRECCIÓN</label>
-                        <span id="ticket-direccion" class="text-small">---</span>
-                    </div>
+                    <div class="ticket-info-item"><label>PATENTE</label><span id="ticket-patente" class="plate-style">---</span></div>
+                    <div class="ticket-info-item"><label>VENCE</label><span id="ticket-vence">---</span></div>
+                    <div class="ticket-info-item full-width"><label>SUCURSAL</label><span id="ticket-sucursal">---</span></div>
+                    <div class="ticket-info-item full-width"><label>DIRECCIÓN</label><span id="ticket-direccion" class="text-small">---</span></div>
                 </div>
             </div>
-            
             <div class="ticket-footer">
-                <div class="ticket-instructions">
-                    Presentá este código en el lector de la entrada si el reconocimiento de patente falla.
-                </div>
-                <div class="ticket-actions no-print">
-                    <button class="btn-ticket btn-download" onclick="shareTicket()">
-                        <i class="fas fa-share-nodes"></i> COMPARTIR PASE
-                    </button>
-                </div>
+                <div class="ticket-instructions">Presentá este código en el lector de la entrada si el reconocimiento de patente falla.</div>
+                <div class="ticket-actions no-print"><button class="btn-ticket btn-download" onclick="shareTicket()"><i class="fas fa-share-nodes"></i> COMPARTIR PASE</button></div>
             </div>
-            
-            <!-- Elementos decorativos del ticket -->
-            <div class="ticket-cutout left"></div>
-            <div class="ticket-cutout right"></div>
-            <div class="ticket-perf"></div>
+            <div class="ticket-cutout left"></div><div class="ticket-cutout right"></div><div class="ticket-perf"></div>
         </div>
     </div>
 
-    <!-- MODAL: CARGAR SALDO (TEMPORAL) -->
     <div id="rechargeModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('rechargeModal')"><i class="fas fa-xmark"></i></span>
@@ -672,30 +689,19 @@
                 <h2 style="margin-bottom: 5px;">CARGÁ TU SALDO</h2>
                 <p class="modal-subtitle">Ingresá el monto que deseás acreditar en tu cuenta.</p>
             </div>
-            
             <form id="rechargeForm" onsubmit="processRecharge(event)" style="margin-top: 25px;">
                 <div class="form-group">
                     <label>Monto a Cargar ($)</label>
-                    <div class="input-with-icon">
-                        <i class="fas fa-dollar-sign"></i>
-                        <input type="number" id="recharge-amount" placeholder="0.00" min="100" step="100" required autofocus>
-                    </div>
+                    <div class="input-with-icon"><i class="fas fa-dollar-sign"></i><input type="number" id="recharge-amount" placeholder="0.00" min="100" step="100" required autofocus></div>
                 </div>
-                
                 <div class="quick-amounts" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;">
                     <button type="button" class="btn btn-outline btn-sm" onclick="setRechargeAmount(1000)">$1000</button>
                     <button type="button" class="btn btn-outline btn-sm" onclick="setRechargeAmount(5000)">$5000</button>
                     <button type="button" class="btn btn-outline btn-sm" onclick="setRechargeAmount(10000)">$10000</button>
                 </div>
-
-                <button type="submit" class="btn btn-primary btn-full">
-                    <i class="fas fa-bolt"></i> ACREDITAR SALDO
-                </button>
+                <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-bolt"></i> ACREDITAR SALDO</button>
             </form>
-            
-            <div class="modal-text" style="font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 15px; margin-top: 25px;">
-                <i class="fas fa-shield-halved"></i> Transacción simulada para pruebas. Próximamente integración con Mercado Pago.
-            </div>
+            <div class="modal-text" style="font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 15px; margin-top: 25px;"><i class="fas fa-shield-halved"></i> Transacción simulada para pruebas. Próximamente integración con Mercado Pago.</div>
         </div>
     </div>
 {% endblock %}

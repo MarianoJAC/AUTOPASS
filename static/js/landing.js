@@ -1,47 +1,83 @@
-// --- LÓGICA ESPECÍFICA DE LA LANDING PAGE Y PÁGINAS PÚBLICAS ---
+/* --- AUTOPASS: LÓGICA DE LANDING PAGE Y PÁGINAS PÚBLICAS --- */
 
-// --- MENÚ MÓVIL ---
+// --- ESTADO GLOBAL ---
+let mapInstance = null;
+let IndiceCarruselActual = 0;
+let IntervaloCarrusel = null;
+
+// --- MENÚ MÓVIL (SIDEBAR LANDING) ---
 function toggleMobileMenu() {
     const nav = document.getElementById('nav-menu');
-    const btnIcon = document.querySelector('.mobile-menu-btn i');
-    if (nav) {
-        const isActive = nav.classList.toggle('active');
-        if (btnIcon) {
-            btnIcon.className = isActive ? 'fas fa-xmark' : 'fas fa-bars';
-        }
-        
-        // Cerrar menú al hacer clic en un enlace sin pisar el onclick original
-        if (isActive) {
-            const navLinks = nav.querySelectorAll('a');
-            navLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    nav.classList.remove('active');
-                    if (btnIcon) btnIcon.className = 'fas fa-bars';
-                }, { once: true });
-            });
-        }
+    const btn = document.querySelector('.mobile-menu-btn');
+    if (!nav) return;
+
+    const isActive = nav.classList.toggle('active');
+    if (btn) btn.classList.toggle('hidden', isActive);
+    
+    if (isActive) {
+        const links = nav.querySelectorAll('a, button.btn-nav');
+        links.forEach(link => {
+            link.onclick = () => {
+                nav.classList.remove('active');
+                if (btn) btn.classList.remove('hidden');
+            };
+        });
     }
 }
 
-// --- LÓGICA DEL CARRUSEL DE INICIO ---
+// Cierre al clickear fuera del menú móvil
+document.addEventListener('click', (e) => {
+    const nav = document.getElementById('nav-menu');
+    const btn = document.querySelector('.mobile-menu-btn');
+    
+    if (nav && nav.classList.contains('active')) {
+        const isOverlayClick = e.clientX > 260;
+        const isOutsideClick = !nav.contains(e.target);
+        const isNotButton = btn && !btn.contains(e.target);
+
+        if ((isOverlayClick || isOutsideClick) && isNotButton) {
+            nav.classList.remove('active');
+            if (btn) btn.classList.remove('hidden');
+        }
+    }
+});
+
+// --- UTILIDADES DE UI ---
+function handleHeaderScroll() {
+    const header = document.querySelector('header.header-landing');
+    if (!header) return;
+    header.classList.toggle('scrolled', window.scrollY > 50);
+}
+
+function checkAuthState() {
+    const guestActions = document.getElementById('auth-guest-actions');
+    const userActions = document.getElementById('auth-user-actions');
+    const token = localStorage.getItem('token');
+
+    if (token) {
+        if (guestActions) guestActions.style.display = 'none';
+        if (userActions) userActions.style.display = 'flex';
+    } else {
+        if (guestActions) guestActions.style.display = 'flex';
+        if (userActions) userActions.style.display = 'none';
+    }
+}
+
+// --- LÓGICA DEL CARRUSEL ---
 const DatosCarrusel = [
     { imagen: '/static/images/INICIO/trafico1.webp', leyenda: '¿Te agota tanto embotellamiento en Buenos Aires?' },
     { imagen: '/static/images/INICIO/trafico2.webp', leyenda: '¿Sentís que el tráfico continuo te consume la energía?' },
     { imagen: '/static/images/INICIO/trafico3.webp', leyenda: '¿Es frustrante perder horas en la autopista?' },
     { imagen: '/static/images/INICIO/estacionamiento1.webp', leyenda: '¿Te fastidia buscar lugar en la calle siempre?' },
     { imagen: '/static/images/INICIO/estacionamiento2.webp', leyenda: '¿Te molesta llegar y que no haya lugar?' },
-    { imagen: '/static/images/INICIO/estacionamiento3.webp', leyenda: 'AUTOPASS elimina el estres del estacionamiento en la ciudad.' },
+    { imagen: '/static/images/INICIO/estacionamiento3.webp', leyenda: 'AUTOPASS elimina el estrés del estacionamiento en la ciudad.' },
     { imagen: '/static/images/INICIO/estacionamiento4.webp', leyenda: 'Reserva tu cochera online en segundos con AUTOPASS.' }
 ];
 
-let IndiceCarruselActual = 0;
-let IntervaloCarrusel = null;
-
 function InicializarCarrusel() {
     const Contenedor = document.getElementById('contenedorCarrusel');
-    if (!Contenedor) return;
+    if (!Contenedor || Contenedor.children.length > 0) return;
 
-    // GENERAR ITEMS
     DatosCarrusel.forEach((dato, i) => {
         const Item = document.createElement('div');
         Item.className = `item-carrusel ${i === 0 ? 'activo' : ''}`;
@@ -63,11 +99,7 @@ function RotarCarrusel(Direccion) {
     if (Items.length === 0) return;
 
     Items[IndiceCarruselActual].classList.remove('activo');
-    IndiceCarruselActual += Direccion;
-    
-    if (IndiceCarruselActual >= Items.length) IndiceCarruselActual = 0;
-    if (IndiceCarruselActual < 0) IndiceCarruselActual = Items.length - 1;
-    
+    IndiceCarruselActual = (IndiceCarruselActual + Direccion + Items.length) % Items.length;
     Items[IndiceCarruselActual].classList.add('activo');
 }
 
@@ -76,27 +108,28 @@ function MoverCarrusel(Direccion) {
     IniciarTemporizadorCarrusel();
 }
 
+// --- REDIRECCIONES ---
 function irAReserva() {
     if (localStorage.getItem('token')) {
         window.location.href = '/perfil';
     } else {
-        openModal('registerModal');
+        if (typeof openModal === 'function') openModal('registerModal');
     }
 }
 
-// --- LÓGICA DEL MAPA ---
+// --- LÓGICA DEL MAPA (LEAFLET) ---
 function initMap() {
     const mapEl = document.getElementById('map');
-    if (!mapEl) return;
+    if (!mapEl || mapInstance) return;
 
     const hqCoords = [-34.5888, -58.3900];
-    const map = L.map('map').setView(hqCoords, 14);
+    mapInstance = L.map('map').setView(hqCoords, 14);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap',
         subdomains: 'abcd',
         maxZoom: 20
-    }).addTo(map);
+    }).addTo(mapInstance);
 
     const goldIcon = L.divIcon({
         className: 'custom-div-icon',
@@ -105,12 +138,13 @@ function initMap() {
         iconAnchor: [7, 7]
     });
 
-    L.marker(hqCoords, { icon: goldIcon }).addTo(map).bindPopup('<b>AUTOPASS HQ</b><br>Av. del Libertador 1200, CABA').openPopup();
+    L.marker(hqCoords, { icon: goldIcon }).addTo(mapInstance)
+        .bindPopup('<b>AUTOPASS HQ</b><br>Av. del Libertador 1200, CABA').openPopup();
 
     const points = [
-        { name: "AUTOPASS Ituzaingó", coords: [-34.6585, -58.6685], desc: "Punto de Acceso Estación Ituzaingó" },
-        { name: "AUTOPASS Castelar", coords: [-34.6485, -58.6350], desc: "Centro Comercial Castelar" },
-        { name: "AUTOPASS Morón", coords: [-34.6508, -58.6228], desc: "San Martín - Morón" }
+        { name: "AUTOPASS Ituzaingó", coords: [-34.6585, -58.6685], desc: "Estación Ituzaingó" },
+        { name: "AUTOPASS Castelar", coords: [-34.6485, -58.6350], desc: "Ctro. Comercial Castelar" },
+        { name: "AUTOPASS Morón", coords: [-34.6508, -58.6228], desc: "Área Central Morón" }
     ];
 
     points.forEach(p => {
@@ -120,12 +154,16 @@ function initMap() {
             iconSize: [12, 12],
             iconAnchor: [6, 6]
         });
-        L.marker(p.coords, { icon: branchIcon }).addTo(map).bindPopup(`<b>${p.name}</b><br>${p.desc}`);
+        L.marker(p.coords, { icon: branchIcon }).addTo(mapInstance).bindPopup(`<b>${p.name}</b><br>${p.desc}`);
     });
 }
 
-// Inicialización automática para páginas públicas
+// --- INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', () => {
+    checkAuthState();
+    handleHeaderScroll();
+    window.addEventListener('scroll', handleHeaderScroll);
+    
     if (document.getElementById('map')) initMap();
     if (document.getElementById('contenedorCarrusel')) InicializarCarrusel();
 });

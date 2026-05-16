@@ -3,13 +3,19 @@ import models
 from auth import get_password_hash
 import datetime
 
+# --- INICIALIZACIÓN DE DATOS BASE ---
+
 def populate_initial_data():
-    # Crear tablas usando la función modularizada
+    """
+    Crea las tablas de la base de datos e inserta los registros iniciales 
+    necesarios para el funcionamiento del sistema.
+    """
+    # 1. Crear tablas si no existen
     create_tables()
     
     db = SessionLocal()
     try:
-        # 1. Crear usuario Admin si no existe
+        # 2. Crear usuario Administrador predeterminado
         admin_email = "admin@autopass.com"
         if not db.query(models.User).filter(models.User.email == admin_email).first():
             admin_user = models.User(
@@ -22,18 +28,18 @@ def populate_initial_data():
                 rol="admin"
             )
             db.add(admin_user)
-            print("[+] Usuario Admin creado.")
+            print("[+] Usuario Administrador creado.")
 
-        # 2. Inicializar Aforo si no existe
+        # 3. Inicializar registro de Aforo (Capacidad del predio)
         if not db.query(models.ParkingAforo).first():
             db.add(models.ParkingAforo(
                 capacidad_total=20, 
                 ocupacion_actual=0, 
                 ultima_actualizacion=datetime.datetime.now().isoformat()
             ))
-            print("[+] Aforo inicializado.")
+            print("[+] Registro de aforo inicializado.")
 
-        # 3. Inicializar Settings si no existen
+        # 4. Inicializar tarifas predeterminadas (Settings)
         default_settings = {
             "precio_hora": 1500.0,
             "precio_dia": 15000.0,
@@ -44,12 +50,12 @@ def populate_initial_data():
         for clave, valor in default_settings.items():
             if not db.query(models.Settings).filter(models.Settings.clave == clave).first():
                 db.add(models.Settings(clave=clave, valor=valor))
-                print(f"[+] Configuración de {clave} inicializada a {valor}.")
+                print(f"[+] Configuración de {clave} establecida en ${valor}.")
 
         db.commit()
-        print("[OK] Base de datos inicializada correctamente.")
+        print("\n[OK] Base de datos configurada y lista para operar.")
     except Exception as e:
-        print(f"[ERROR] {e}")
+        print(f"❌ [ERROR] Falló la inicialización: {e}")
         db.rollback()
     finally:
         db.close()

@@ -1,9 +1,26 @@
-/* --- RESERVATION TRIGGER --- */
-.reserva-trigger-card { background: linear-gradient(135deg, #C5A059 0%, #a68545 100%); cursor: pointer; margin-bottom: 30px; border-radius: 16px; transition: 0.3s; }
-.reserva-trigger-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(197,160,89,0.2); }
-.reserva-trigger-content { padding: 20px; color: var(--negro); display: flex; justify-content: space-between; align-items: center; }
+/* --- ACTIVADOR DE RESERVA --- */
+.reserva-trigger-card { 
+    background: linear-gradient(135deg, #C5A059 0%, #a68545 100%); 
+    cursor: pointer; 
+    margin-bottom: 30px; 
+    border-radius: 16px; 
+    transition: 0.3s; 
+}
 
-/* --- RESERVATION FORM: PREMIUM REDESIGN --- */
+.reserva-trigger-card:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 30px rgba(197,160,89,0.2); 
+}
+
+.reserva-trigger-content { 
+    padding: 20px; 
+    color: var(--negro); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+/* --- FORMULARIO DE RESERVA: REDISEÑO PREMIUM --- */
 #reserva-form-container {
     max-height: 0;
     opacity: 0;
@@ -213,7 +230,7 @@
     transform: translateX(5px);
 }
 
-/* --- RESERVATIONS LIST: ULTRA PREMIUM DESIGN --- */
+/* --- LISTA DE RESERVAS: DISEÑO ULTRA PREMIUM --- */
 .reserva-card-ultra {
     background: rgba(22, 22, 22, 0.7);
     backdrop-filter: blur(12px);
@@ -238,11 +255,14 @@
     background: rgba(28, 28, 28, 0.85);
 }
 
-/* Glassmorphism Inner Glow */
+/* Brillo interno de Glassmorphism */
 .reserva-card-ultra::after {
     content: "";
     position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    height: 1px;
     background: linear-gradient(90deg, transparent, rgba(197, 160, 89, 0.3), transparent);
     pointer-events: none;
 }
@@ -286,7 +306,7 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
-/* PROGRESS BAR STYLES */
+/* ESTILOS DE BARRA DE PROGRESO */
 .reserva-timeline-container {
     margin: 10px 0;
     display: flex;
@@ -353,7 +373,7 @@
     animation: badgePulse 2s infinite;
 }
 
-/* PREMIUM PAYMENT STATUS BADGES */
+/* BADGES DE ESTADO DE PAGO PREMIUM */
 .status-badge-ultra.pagado {
     background: rgba(16, 185, 129, 0.15);
     color: #10b981;
@@ -373,7 +393,6 @@
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* PRICE TAG ENHANCEMENT */
 .price-container-ultra {
     display: flex;
     flex-direction: column;
@@ -505,7 +524,7 @@
     box-shadow: 0 5px 20px rgba(197, 160, 89, 0.3);
 }
 
-/* --- RESERVA LAYOUT UPGRADE --- */
+/* --- ACTUALIZACIÓN DE DISEÑO DE RESERVAS --- */
 .section-subtitle {
     font-size: 0.75rem;
     font-weight: 900;
@@ -541,7 +560,11 @@
     transition: 0.3s;
 }
 
-.res-stat-card:hover { background: rgba(197, 160, 89, 0.05); border-color: rgba(197, 160, 89, 0.2); }
+.res-stat-card:hover { 
+    background: rgba(197, 160, 89, 0.05); 
+    border-color: rgba(197, 160, 89, 0.2); 
+}
+
 .res-stat-card i { font-size: 1.4rem; color: var(--dorado); opacity: 0.8; }
 .res-stat-info { display: flex; flex-direction: column; }
 .res-stat-value { font-family: 'Montserrat'; font-weight: 900; font-size: 1.3rem; color: #fff; line-height: 1; }
@@ -566,7 +589,58 @@
     box-shadow: 0 0 20px rgba(197, 160, 89, 0.3);
 }
 
-/* --- HISTORIAL ITEMS: PREMIUM UPGRADE --- */
+.history-filters-premium {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(255,255,255,0.02);
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.filter-group-premium {
+    margin: 0;
+    width: 130px;
+}
+
+.filter-group-premium label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--dorado);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.filter-input-premium {
+    background: #111;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    width: 100%;
+    outline: none;
+    transition: 0.3s;
+    text-align: center;
+}
+
+.filter-input-premium:focus {
+    border-color: var(--dorado);
+}
+
+.filter-actions-premium {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* --- ELEMENTOS DE HISTORIAL: ACTUALIZACIÓN PREMIUM --- */
 .historial-item {
     padding: 20px 25px;
     border-bottom: 1px solid rgba(255,255,255,0.03);
@@ -631,11 +705,64 @@
     opacity: 0.7;
 }
 
-.hist-main-info { display: flex; flex-direction: column; gap: 4px; }
-.hist-title { font-size: 0.9rem; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
-.hist-subtitle { font-size: 0.7rem; color: #666; font-weight: 700; text-transform: uppercase; }
-.hist-amount-info { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.hist-value { font-family: 'Montserrat'; font-weight: 900; font-size: 0.9rem; color: #fff; }
+.hist-main-info { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 6px; 
+    align-items: center;
+    text-align: center;
+}
+
+.hist-title { 
+    font-size: 0.95rem; 
+    font-weight: 900; 
+    color: #fff; 
+    letter-spacing: 0.5px;
+    font-family: 'Montserrat';
+    text-transform: uppercase;
+}
+
+.hist-subtitle-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.hist-plate-badge {
+    background: rgba(197, 160, 89, 0.1);
+    color: var(--dorado);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    border: 1px solid rgba(197, 160, 89, 0.2);
+}
+
+.hist-date-info { 
+    font-size: 0.75rem; 
+    color: #777; 
+    font-weight: 600; 
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.hist-amount-info { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-end; 
+    gap: 4px; 
+}
+
+.hist-value { 
+    font-family: 'Montserrat'; 
+    font-weight: 900; 
+    font-size: 0.9rem; 
+    color: #fff; 
+}
 
 .status-pill {
     font-size: 0.6rem;
@@ -653,8 +780,14 @@
 .status-pill.cancelada { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
 .status-pill.vencida { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
 
-.historial-trigger { cursor: pointer; transition: all 0.3s; }
-.historial-trigger:hover { background: rgba(197, 160, 89, 0.05); }
+.historial-trigger { 
+    cursor: pointer; 
+    transition: all 0.3s; 
+}
+
+.historial-trigger:hover { 
+    background: rgba(197, 160, 89, 0.05); 
+}
 
 .historial-container {
     max-height: 0;
@@ -663,7 +796,11 @@
     transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
 }
 
-.historial-container.open { max-height: 1500px; opacity: 1; margin-top: 10px; }
+.historial-container.open { 
+    max-height: 1500px; 
+    opacity: 1; 
+    margin-top: 10px; 
+}
 
 .pagination {
     display: flex;
@@ -675,7 +812,13 @@
     border-top: 1px solid rgba(255,255,255,0.05);
 }
 
-.page-info { color: #666; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+.page-info { 
+    color: #666; 
+    font-weight: 700; 
+    font-size: 0.75rem; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+}
 
 .btn-pagination {
     padding: 6px 15px;
@@ -694,14 +837,126 @@
     gap: 8px;
 }
 
-.btn-pagination:hover:not(:disabled) { border-color: var(--dorado); color: var(--dorado); background: rgba(197, 160, 89, 0.05); }
-.btn-pagination:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-pagination:hover:not(:disabled) { 
+    border-color: var(--dorado); 
+    color: var(--dorado); 
+    background: rgba(197, 160, 89, 0.05); 
+}
 
-@media (max-width: 1100px) { .reserva-grid-modern { grid-template-columns: 1fr; } }
+.btn-pagination:disabled { 
+    opacity: 0.3; 
+    cursor: not-allowed; 
+}
+
+/* DISEÑO RESPONSIVO */
+@media (max-width: 1100px) { 
+    .reserva-grid-modern { grid-template-columns: 1fr; } 
+}
+
+@media (max-width: 992px) {
+    .form-grid-premium {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .full-width-premium {
+        grid-column: span 2;
+    }
+    .dynamic-row-premium {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 @media (max-width: 768px) {
     .reserva-stats-grid { grid-template-columns: 1fr; gap: 10px; }
-    .historial-item { grid-template-columns: 40px 1fr 100px; grid-template-rows: auto auto; padding: 15px; }
-    .btn-repeat-express { display: none; }
+    .historial-item { 
+        grid-template-columns: 45px 1fr auto; 
+        grid-template-areas: 
+            "icon main amount"
+            "icon actions actions";
+        padding: 15px; 
+        gap: 5px 15px;
+    }
+    .hist-icon { grid-area: icon; align-self: flex-start; margin-top: 5px; }
+    .hist-main-info { grid-area: main; text-align: left; }
+    .hist-amount-info { grid-area: amount; align-items: flex-end; }
+    .hist-actions-group { 
+        grid-area: actions; 
+        justify-content: flex-start; 
+        margin-top: 5px; 
+        padding-top: 5px;
+        border-top: 1px solid rgba(255,255,255,0.03);
+    }
+    .btn-repeat-express { display: flex !important; }
+}
+
+@media (max-width: 600px) {
+    .card-header-premium {
+        padding: 20px;
+        gap: 15px;
+    }
+    .header-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    .form-grid-premium {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .full-width-premium {
+        grid-column: span 1;
+    }
+    .dynamic-row-premium {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .reservation-footer-premium {
+        flex-direction: column;
+        gap: 25px;
+        text-align: center;
+    }
+    .btn-confirm-premium {
+        width: 100%;
+        justify-content: center;
+    }
+    .price-value-ultra {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-subtitle {
+        font-size: 0.65rem;
+        justify-content: center;
+        margin-left: 0;
+    }
+    .historial-item {
+        grid-template-columns: 1fr;
+        grid-template-areas: "icon" "main" "amount" "actions";
+        text-align: center;
+        gap: 12px;
+        padding: 20px;
+    }
+    .hist-icon {
+        grid-area: icon;
+        margin: 0 auto;
+    }
+    .hist-main-info { grid-area: main; }
+    .hist-amount-info {
+        grid-area: amount;
+        align-items: center;
+    }
+    .hist-actions-group {
+        grid-area: actions;
+        justify-content: center;
+        margin-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding-top: 15px;
+    }
+    .status-pill {
+        margin: 5px auto;
+    }
 }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }

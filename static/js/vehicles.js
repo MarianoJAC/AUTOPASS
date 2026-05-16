@@ -1,5 +1,8 @@
-// --- LÓGICA DE VEHÍCULOS ---
+/* --- LÓGICA DE GESTIÓN DE VEHÍCULOS --- */
 
+/**
+ * Carga la flota de vehículos del usuario desde el servidor.
+ */
 async function loadVehicles() {
     const list = document.getElementById('vehicle-list');
     const statVehicles = document.getElementById('stat-vehicles');
@@ -40,37 +43,22 @@ async function loadVehicles() {
             </div>
         `).join('');
 
-        // Actualizar selects en formularios de reserva
+        // Actualizar selectores en formularios de reserva
         const selects = document.querySelectorAll('.res-vehicle');
         selects.forEach(select => {
             select.innerHTML = '<option value="">Seleccioná tu vehículo...</option>' + 
                 vehicles.map(v => `<option value="${v.patente}">${v.patente} - ${v.marca_modelo}</option>`).join('');
         });
     } catch (err) {
-        console.error('Load vehicles failed:', err);
+        console.error('Error cargando vehículos:', err);
         list.innerHTML = '<p style="color: var(--danger);">Error al cargar flota.</p>';
     }
 }
 
-function showInlineAddVehicle() {
-    const msg = document.getElementById('empty-state-msg');
-    const form = document.getElementById('empty-state-form');
-    if (msg && form) {
-        msg.style.display = 'none';
-        form.style.display = 'block';
-    }
-}
-
-function hideInlineAddVehicle() {
-    const msg = document.getElementById('empty-state-msg');
-    const form = document.getElementById('empty-state-form');
-    if (msg && form) {
-        msg.style.display = 'flex';
-        form.style.display = 'none';
-    }
-}
-
-async function addVehicle(e) {
+/**
+ * Registra un nuevo vehículo en el sistema.
+ */
+async function addVehicle(e, isQuickAdd = false) {
     e.preventDefault();
     const form = e.target;
     const btn = form.querySelector('button[type="submit"]');
@@ -84,7 +72,7 @@ async function addVehicle(e) {
         return;
     }
 
-    // RESUMEN PARA CONFIRMACIÓN
+    // Resumen para confirmación visual
     const resumenHtml = `
         <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(197,160,89,0.2); margin-top: 10px;">
             <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
@@ -115,17 +103,10 @@ async function addVehicle(e) {
             showToast('Vehículo registrado con éxito');
             form.reset();
             
-            // Si estábamos en el modo inline, refrescar el formulario de reserva
-            const inlineForm = document.getElementById('empty-state-form');
-            if (inlineForm && inlineForm.style.display !== 'none') {
-                hideInlineAddVehicle();
-                // Llamar a toggleReservaForm para que revalide la flota y muestre el form de reserva
-                if (typeof toggleReservaForm === 'function') {
-                    // Forzamos el refresco cerrando y abriendo o simplemente llamando a la lógica
-                    const container = document.getElementById('reserva-form-container');
-                    container.classList.remove('open'); // Lo cerramos para que al abrirlo en la gestión de vehículos se actualice
-                    await toggleReservaForm(); // Esto detectará el nuevo auto y mostrará el form de reserva
-                }
+            if (isQuickAdd) {
+                const container = document.getElementById('reserva-form-container');
+                if (container) container.classList.remove('open');
+                await toggleReservaForm();
             } else {
                 toggleNuevoVinculo();
             }
@@ -142,6 +123,9 @@ async function addVehicle(e) {
     }
 }
 
+/**
+ * Elimina un vehículo previa confirmación.
+ */
 async function deleteVehicle(patente) {
     const confirmed = await showConfirm(
         'ELIMINAR VEHÍCULO',
@@ -158,6 +142,7 @@ async function deleteVehicle(patente) {
         if (res.ok) {
             showToast('Vehículo eliminado');
             await loadVehicles();
+            if (typeof refreshReservationFormState === 'function') refreshReservationFormState();
         } else {
             const data = await res.json();
             showToast(data.detail || 'Error al eliminar');
@@ -167,6 +152,9 @@ async function deleteVehicle(patente) {
     }
 }
 
+/**
+ * Despliega/Oculta el formulario de nuevo vehículo.
+ */
 function toggleNuevoVinculo() {
     const container = document.getElementById('vinculo-container');
     const trigger = document.querySelector('.register-trigger-card');
@@ -179,10 +167,8 @@ function toggleNuevoVinculo() {
     if (arrow) {
         const isMobile = window.innerWidth <= 900;
         if (isMobile) {
-            // En móvil: 90deg (abajo) -> 270deg (arriba)
             arrow.style.transform = isOpen ? 'rotate(270deg)' : 'rotate(90deg)';
         } else {
-            // En PC: 0deg (derecha) -> 180deg (atrás)
             arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
         }
     }

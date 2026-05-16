@@ -1,4 +1,5 @@
 /* --- MODAL PASE DIGITAL (TICKET PREMIUM GOLD & BLACK) --- */
+
 .modal-premium {
     display: none;
     position: fixed;
@@ -148,7 +149,7 @@
     text-shadow: 0 0 5px rgba(197, 160, 89, 0.2);
 }
 
-/* --- BOTÓN CERRAR SUPERIOR (Relativo al Ticket) --- */
+/* BOTÓN CERRAR SUPERIOR (Relativo al Ticket) */
 .modal-close-top {
     position: absolute;
     top: 15px;
@@ -245,7 +246,7 @@
     background: #161616;
 }
 
-/* Decoraciones Ticket */
+/* DECORACIONES DEL TICKET */
 .ticket-cutout {
     position: absolute;
     top: 50%;
@@ -260,6 +261,7 @@
 .ticket-cutout.left { 
     left: -18px; 
 }
+
 .ticket-cutout.right { 
     right: -18px; 
 }

@@ -2,6 +2,8 @@ from pydantic import BaseModel, field_validator
 from typing import Optional, List
 import re
 
+# --- ESQUEMAS DE VALIDACIÓN: ALPR Y ACCESO ---
+
 class PlateValidation(BaseModel):
     plate: str
     gate_id: str
@@ -16,6 +18,8 @@ class ParkingStatus(BaseModel):
     capacidad_total: int
     ocupacion_actual: int
     disponibilidad: int
+
+# --- ESQUEMAS DE USUARIO ---
 
 class UserBase(BaseModel):
     nombre: str
@@ -32,7 +36,7 @@ class UserBase(BaseModel):
     def validate_telefono(cls, v):
         clean = re.sub(r'[^0-9]', '', v)
         if len(clean) < 10:
-            raise ValueError('El teléfono debe contener al menos 10 dígitos')
+            raise ValueError('El teléfono debe contener al menos 10 dígitos (característica + número)')
         return v
 
 class UserUpdate(BaseModel):
@@ -49,7 +53,7 @@ class UserCreate(UserBase):
     @classmethod
     def validate_dni(cls, v):
         if not v.isdigit():
-            raise ValueError('El DNI debe contener únicamente números (sin puntos)')
+            raise ValueError('El DNI debe contener únicamente números (sin puntos ni espacios)')
         return v
 
     @field_validator('password')
@@ -87,6 +91,8 @@ class Token(BaseModel):
     token_type: str
     rol: str
     nombre: str
+
+# --- ESQUEMAS DE RESERVAS ---
 
 class ReservationCreate(BaseModel):
     user_id: int
@@ -134,6 +140,8 @@ class UserReservationResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# --- OTROS ESQUEMAS ---
 
 class RechargeBalance(BaseModel):
     monto: float

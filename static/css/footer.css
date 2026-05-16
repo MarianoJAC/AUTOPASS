@@ -1,4 +1,4 @@
-/* --- MODULAR FOOTER STYLES (v4.5) --- */
+/* --- ESTILOS DEL PIE DE PÁGINA MODULAR (v4.5) --- */
 
 .main-footer {
     background-color: #050505;
@@ -111,7 +111,7 @@
     border-color: var(--dorado);
 }
 
-/* App Buttons */
+/* BOTONES DE LA APLICACIÓN */
 .app-badges {
     display: flex;
     flex-direction: row;
@@ -162,7 +162,7 @@
     color: var(--dorado);
 }
 
-/* Responsive */
+/* DISEÑO RESPONSIVO */
 @media (max-width: 992px) {
     .footer-grid {
         grid-template-columns: 1fr 1fr;

@@ -18,18 +18,20 @@ from routes import parking, reports, system, admin, user, auth as auth_router_mo
 
 load_dotenv()
 
-# --- CONFIGURACIÓN DE LA APP ---
+# --- CONFIGURACIÓN DE LA APLICACIÓN ---
 app = FastAPI(title="AUTOPASS Professional API", version="4.5.0")
 templates = Jinja2Templates(directory="templates")
 
-# Directorios de Archivos
+# Directorio para almacenamiento de imágenes capturadas por ALPR
 IMAGE_DIR = "captured_images"
 if not os.path.exists(IMAGE_DIR):
     os.makedirs(IMAGE_DIR)
 
+# Montaje de archivos estáticos y multimedia
 app.mount("/images", StaticFiles(directory=IMAGE_DIR), name="images")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Configuración de CORS para permitir peticiones desde el frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -37,24 +39,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- MQTT SETUP ---
+# --- CONFIGURACIÓN DE COMUNICACIÓN IOT (MQTT) ---
 MQTT_BROKER = os.getenv("MQTT_BROKER", "broker.hivemq.com")
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
 
 mqtt_client = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2)
-app.mqtt_client = mqtt_client # Inyectamos en la app para acceso desde routers
+app.mqtt_client = mqtt_client # Inyección para acceso global desde los routers
 
 @app.on_event("startup")
 def startup_event():
+    """Inicialización de servicios al arrancar el servidor."""
     try:
         mqtt_client.connect_async(MQTT_BROKER, MQTT_PORT, 60)
         mqtt_client.loop_start()
-        # Crear tablas si no existen
+        # Inicialización de esquemas de base de datos
         models.Base.metadata.create_all(bind=engine)
     except Exception as e: 
-        print(f"Error en inicio (MQTT/DB): {e}")
+        print(f"Error en fase de inicio (MQTT/DB): {e}")
 
-# --- INCLUSIÓN DE ROUTERS ---
+# --- REGISTRO DE RUTAS (API) ---
 app.include_router(auth_router_mod)
 app.include_router(parking)
 app.include_router(reports)
@@ -62,7 +65,7 @@ app.include_router(system)
 app.include_router(admin)
 app.include_router(user)
 
-# --- SERVIDO DE PÁGINAS (Frontend con Jinja2) ---
+# --- SERVIDO DE PLANTILLAS JINJA2 (FRONTEND) ---
 @app.get("/", response_class=HTMLResponse)
 async def get_index(request: Request):
     return templates.TemplateResponse(request=request, name="index.html")

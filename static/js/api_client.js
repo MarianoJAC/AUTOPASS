@@ -1,10 +1,10 @@
+/* --- API CLIENT: CENTRALIZACIÓN DE PETICIONES --- */
 
 const API_BASE = '/v1';
-const token = localStorage.getItem('token');
 
 /**
- * API Client para centralizar peticiones de red.
- * Maneja automáticamente el token de autorización y errores comunes.
+ * Cliente API para centralizar peticiones de red.
+ * Maneja automáticamente el token de autorización y errores comunes (401).
  */
 const apiClient = {
     get: (url) => apiClient.request(url, 'GET'),
@@ -32,7 +32,7 @@ const apiClient = {
         try {
             const response = await fetch(`${API_BASE}${url}`, options);
             
-            // Si el token expiró o es inválido (401), redirigir al inicio
+            // Redirigir al inicio si la sesión expiró (401)
             if (response.status === 401) {
                 console.warn('Sesión expirada o no autorizada.');
                 localStorage.clear();

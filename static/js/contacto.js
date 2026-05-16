@@ -1,3 +1,5 @@
+/* --- LÓGICA: PÁGINA DE CONTACTO --- */
+
 document.addEventListener('DOMContentLoaded', () => {
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {

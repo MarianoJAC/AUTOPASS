@@ -1,102 +1,194 @@
 /* --- COMPONENTES DEL HEADER --- */
-.health-indicator { display: flex; gap: 10px; align-items: center; }
-.health-dot { width: 8px; height: 8px; background: gray; border-radius: 50%; transition: 0.3s; }
-.health-label { font-size: 0.7rem; color: #555; font-weight: 700; text-transform: uppercase; }
+.health-indicator {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
 
-.clock-display { font-weight: 700; font-size: 0.9rem; color: var(--dorado); }
+.health-dot {
+    width: 8px;
+    height: 8px;
+    background: gray;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.health-label {
+    font-size: 0.7rem;
+    color: #555;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.clock-display {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--dorado);
+}
 
 /* --- CONTENEDOR PRINCIPAL --- */
-.dashboard-content { padding: 30px 40px; }
+.dashboard-content {
+    padding: 30px 40px;
+}
 
 /* --- MONITOREO DE CÁMARAS --- */
-.camera-grid { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px; 
+.camera-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
-.cam-box { 
-    aspect-ratio: 16/9; 
-    background: #000; 
-    border-radius: 15px; 
-    position: relative; 
-    overflow: hidden; 
-    border: 1px solid var(--border-light); 
+.cam-box {
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-light);
 }
 
-.cam-box img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-    opacity: 0.8; 
+.cam-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
 }
 
-.cam-label { 
-    position: absolute; 
-    top: 15px; left: 15px; 
-    background: var(--dorado); 
-    color: var(--negro); 
-    padding: 5px 12px; 
-    border-radius: 8px; 
-    font-size: 0.7rem; 
-    font-weight: 800; 
-    z-index: 2; 
+.cam-label {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: var(--dorado);
+    color: var(--negro);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    z-index: 2;
 }
 
-.cam-plate { 
-    position: absolute; 
-    bottom: 15px; right: 15px; 
-    background: var(--blanco); 
-    color: var(--negro); 
-    padding: 8px 15px; 
-    border-radius: 8px; 
-    font-family: var(--font-mono); 
-    font-weight: 800; 
-    font-size: 1.4rem; 
-    z-index: 2; 
+.cam-plate {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background: var(--blanco);
+    color: var(--negro);
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.4rem;
+    z-index: 2;
 }
 
-/* --- TAB: OCCUPANCY (Manual Entry) --- */
-.manual-ops-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-.manual-ops-row { display: flex; gap: 15px; align-items: flex-end; }
-.manual-ops-field { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.manual-ops-label { font-size: 0.7rem; color: #888; font-weight: 700; }
-
-/* --- TAB: FINANCE --- */
-.finance-main-grid { display: grid; grid-template-columns: 1fr 350px; gap: 25px; margin-bottom: 25px; }
-.finance-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-.finance-filters { display: flex; gap: 10px; align-items: center; }
-.finance-select { width: auto !important; padding: 8px 15px !important; font-size: 0.8rem !important; background: var(--gris-sidebar) !important; border: 1px solid var(--border-light) !important; color: var(--dorado) !important; font-weight: 700 !important; }
-
-#custom-date-container { 
-    background: var(--gris-sidebar); 
-    padding: 5px 15px; 
-    border-radius: 8px; 
-    border: 1px solid var(--border-light); 
-    display: none; align-items: center; gap: 5px;
+/* --- PESTAÑA: OCUPACIÓN (Entrada Manual) --- */
+.manual-ops-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
 }
 
-#fin-date-range { 
-    background: transparent; 
-    border: none; 
-    color: #fff; 
-    font-size: 0.8rem; 
-    outline: none; 
+.manual-ops-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.manual-ops-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.manual-ops-label {
+    font-size: 0.7rem;
+    color: #888;
+    font-weight: 700;
+}
+
+/* --- PESTAÑA: FINANZAS --- */
+.finance-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.finance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.finance-filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.finance-select {
+    width: auto !important;
+    padding: 8px 15px !important;
+    font-size: 0.8rem !important;
+    background: var(--gris-sidebar) !important;
+    border: 1px solid var(--border-light) !important;
+    color: var(--dorado) !important;
+    font-weight: 700 !important;
+}
+
+#custom-date-container {
+    background: var(--gris-sidebar);
+    padding: 5px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    display: none;
+    align-items: center;
+    gap: 5px;
+}
+
+#fin-date-range {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 0.8rem;
+    outline: none;
     width: 220px;
 }
 
-.finance-stats-col { display: flex; flex-direction: column; gap: 25px; }
-
-/* --- SETTINGS --- */
-.settings-row { margin-top: 25px; display: flex; gap: 15px; }
-#cfg-price { 
-    max-width: 200px; 
-    font-family: var(--font-mono); 
-    font-weight: 700; 
-    color: var(--dorado); 
-    font-size: 1.2rem; 
+.finance-stats-col {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
 }
 
-.danger-zone { border-color: var(--danger) !important; }
-.danger-zone-title { color: var(--danger) !important; }
-.danger-zone-text { color: #888; font-size: 0.85rem; margin: 15px 0 25px; }
+/* --- CONFIGURACIÓN --- */
+.settings-row {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+}
+
+#cfg-price {
+    max-width: 200px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--dorado);
+    font-size: 1.2rem;
+}
+
+.danger-zone {
+    border-color: var(--danger) !important;
+}
+
+.danger-zone-title {
+    color: var(--danger) !important;
+}
+
+.danger-zone-text {
+    color: #888;
+    font-size: 0.85rem;
+    margin: 15px 0 25px;
+}

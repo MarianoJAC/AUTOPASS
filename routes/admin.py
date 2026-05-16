@@ -1,4 +1,5 @@
 import datetime
+import math
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -8,20 +9,28 @@ from database import get_db
 router = APIRouter(prefix="/v1", tags=["Admin & Settings"])
 
 def get_admin_user(current_user: models.User = Depends(auth.get_current_user)):
+    """Dependencia para verificar si el usuario tiene rol de administrador."""
     if current_user.rol != "admin":
         raise HTTPException(status_code=403, detail="No tiene permisos de administrador")
     return current_user
 
+# --- GESTIÓN DE USUARIOS ---
+
 @router.get("/admin/users")
 def list_users(db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """Retorna la lista completa de usuarios registrados."""
     return db.query(models.User).all()
+
+# --- GESTIÓN DE RESERVAS ---
 
 @router.get("/admin/reservations", response_model=List[schemas.UserReservationResponse])
 def list_reservations(sucursal: Optional[str] = Query(None), db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """Lista todas las reservas del sistema con opción de filtrado por sucursal."""
     q = db.query(models.Reservation)
     if sucursal:
         q = q.filter(models.Reservation.sucursal_nombre == sucursal)
     results = q.order_by(models.Reservation.id.desc()).all()
+    
     out = []
     for r in results:
         d = schemas.UserReservationResponse.model_validate(r)
@@ -35,8 +44,8 @@ def list_reservations(sucursal: Optional[str] = Query(None), db: Session = Depen
 
 @router.post("/admin/reservations")
 def create_admin_reservation(data: schemas.AdminReservationCreate, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """Permite al administrador crear una reserva manual para un usuario o cliente externo."""
     from services.billing_service import BillingService
-    import math
 
     if data.user_id:
         user = db.query(models.User).filter(models.User.id == data.user_id).first()
@@ -52,6 +61,7 @@ def create_admin_reservation(data: schemas.AdminReservationCreate, db: Session =
     if duration_hours <= 0:
         raise HTTPException(status_code=400, detail="La fecha de fin debe ser posterior a la de inicio")
 
+    # Cálculo de tarifa según modalidad
     rate = BillingService.get_rate(db, data.tipo_estadia)
     if data.tipo_estadia == "hora":
         monto = math.ceil(duration_hours) * rate
@@ -90,31 +100,33 @@ def create_admin_reservation(data: schemas.AdminReservationCreate, db: Session =
     db.add(new_res)
     db.commit()
     return {"status": "ok", "id": new_res.id, "monto": monto}
+
+# --- CONFIGURACIÓN DE TARIFAS ---
+
 @router.get("/admin/settings")
 def get_admin_settings(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
-    # Retorna un diccionario con todas las claves y valores de settings
+    """Retorna todas las configuraciones globales vigentes."""
     all_settings = db.query(models.Settings).all()
     return {s.clave: s.valor for s in all_settings}
 
-@router.get("/settings/prices")
-def get_prices(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
-    return {p.clave: p.valor for p in db.query(models.Settings).all()}
-
 @router.post("/settings/prices")
 def update_price(clave: str, valor: float, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """Actualiza o crea un valor de configuración (Ej: precio por hora)."""
     setting = db.query(models.Settings).filter(models.Settings.clave == clave).first()
     if setting: setting.valor = valor
     else: db.add(models.Settings(clave=clave, valor=valor))
     db.commit()
     return {"status": "ok"}
 
+# --- OPERACIONES MANUALES ---
+
 @router.post("/admin/manual-entry")
 def manual_entry(plate: str, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
-    import datetime, json, re
-    from routes.parking import normalize_plate, MQTT_TOPIC_ENTRADA
-    
+    """Registra un ingreso forzado de un vehículo al predio."""
+    from routes.parking import normalize_plate
     p = normalize_plate(plate)
     now = datetime.datetime.now()
+    
     ultimo = db.query(models.AccessLog).filter(models.AccessLog.patente_detectada == p).order_by(models.AccessLog.id.desc()).first()
     if ultimo and ultimo.tipo_evento == "ENTRADA":
         raise HTTPException(status_code=400, detail="El vehículo ya figura como ingresado")
@@ -123,25 +135,22 @@ def manual_entry(plate: str, db: Session = Depends(get_db), admin: models.User =
     aforo.ocupacion_actual += 1
     db.add(models.AccessLog(patente_detectada=p, tipo_evento="ENTRADA", fecha_hora=now.isoformat()))
     db.commit()
-    
-    # Podríamos inyectar el cliente mqtt aquí también, o usar un evento
-    return {"status": "ok", "message": f"Ingreso manual: {p}"}
+    return {"status": "ok", "message": f"Ingreso manual registrado: {p}"}
 
 @router.post("/admin/manual-exit")
 def manual_exit(plate: str, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
-    import datetime
-    from routes.parking import normalize_plate, MQTT_TOPIC_SALIDA
-    
+    """Registra una salida manual. Requiere que la deuda esté previamente saldada."""
+    from routes.parking import normalize_plate
     p = normalize_plate(plate)
+    
     ultimo = db.query(models.AccessLog).filter(models.AccessLog.patente_detectada == p).order_by(models.AccessLog.id.desc()).first()
     if not ultimo or ultimo.tipo_evento != "ENTRADA":
         raise HTTPException(status_code=400, detail="El vehículo no figura en el predio")
     if not ultimo.pago_confirmado:
-        raise HTTPException(status_code=403, detail="DEUDA PENDIENTE. Debe cobrar antes de permitir la salida.")
+        raise HTTPException(status_code=403, detail="DEUDA PENDIENTE. Debe procesar el cobro antes de permitir la salida.")
     
     aforo = db.query(models.ParkingAforo).first()
     if aforo.ocupacion_actual > 0: aforo.ocupacion_actual -= 1
     db.add(models.AccessLog(patente_detectada=p, tipo_evento="SALIDA", fecha_hora=datetime.datetime.now().isoformat(), pago_confirmado=True))
     db.commit()
-    
-    return {"status": "ok", "message": f"Salida manual: {p}"}
+    return {"status": "ok", "message": f"Salida manual registrada: {p}"}

@@ -3,7 +3,10 @@ from sqlalchemy.orm import relationship
 from database import Base
 import datetime
 
+# --- MODELOS DEL SISTEMA: AUTOPASS ---
+
 class User(Base):
+    """Modelo para la gestión de usuarios y administradores."""
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String)
@@ -11,19 +14,20 @@ class User(Base):
     dni = Column(String, unique=True, index=True)
     telefono = Column(String)
     email = Column(String, unique=True, index=True)
-    patente = Column(String, nullable=True) # Patente principal
+    patente = Column(String, nullable=True) # Referencia rápida de patente principal
     direccion = Column(String, nullable=True)
     password_hash = Column(String)
     rol = Column(String, default="user") # 'admin' o 'user'
-    direccion = Column(String, nullable=True)
     puntos_acumulados = Column(Integer, default=0)
     saldo = Column(Float, default=0.0)
 
+    # Relaciones
     vehicles = relationship("Vehicle", back_populates="owner")
     reservations = relationship("Reservation", back_populates="user")
     points_logs = relationship("PointsLog", back_populates="user")
 
 class Vehicle(Base):
+    """Entidad para la gestión de flota por usuario."""
     __tablename__ = "vehicles"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
@@ -33,15 +37,16 @@ class Vehicle(Base):
     owner = relationship("User", back_populates="vehicles")
 
 class Reservation(Base):
+    """Registro de estadías programadas o recurrentes."""
     __tablename__ = "reservations"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     patente = Column(String)
     fecha_inicio = Column(String)
     fecha_fin = Column(String)
-    dias_semana = Column(String, nullable=True) # Almacena "0,1,2" (0=Lunes, etc.)
+    dias_semana = Column(String, nullable=True) # Almacenamiento serializado: "0,1,2" (0=Lunes...)
     monto_total = Column(Float)
-    mp_preference_id = Column(String, nullable=True)
+    mp_preference_id = Column(String, nullable=True) # ID de integración con Mercado Pago
     estado_pago = Column(String, default="Pendiente")
     estado_reserva = Column(String, default="Pendiente")
     sucursal_nombre = Column(String, nullable=True)
@@ -53,6 +58,7 @@ class Reservation(Base):
     access_logs = relationship("AccessLog", back_populates="reservation")
 
 class ParkingAforo(Base):
+    """Control de capacidad y ocupación en tiempo real."""
     __tablename__ = "parking_aforo"
     id = Column(Integer, primary_key=True, index=True)
     capacidad_total = Column(Integer, default=20)
@@ -60,6 +66,7 @@ class ParkingAforo(Base):
     ultima_actualizacion = Column(String)
 
 class PointsLog(Base):
+    """Historial de movimientos del sistema de fidelización."""
     __tablename__ = "points_log"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
@@ -70,6 +77,7 @@ class PointsLog(Base):
     user = relationship("User", back_populates="points_logs")
 
 class Coupon(Base):
+    """Gestión de cupones de descuento para reservas."""
     __tablename__ = "coupons"
     id = Column(Integer, primary_key=True, index=True)
     codigo = Column(String, unique=True, index=True)
@@ -78,6 +86,7 @@ class Coupon(Base):
     activo = Column(Boolean, default=True)
 
 class Promotion(Base):
+    """Catálogo de beneficios canjeables por puntos."""
     __tablename__ = "promotions"
     id = Column(Integer, primary_key=True, index=True)
     titulo = Column(String)
@@ -88,12 +97,14 @@ class Promotion(Base):
     activa = Column(Boolean, default=True)
 
 class Settings(Base):
+    """Configuraciones globales del sistema (precios, parámetros)."""
     __tablename__ = "settings"
     id = Column(Integer, primary_key=True, index=True)
     clave = Column(String, unique=True)
     valor = Column(Float)
 
 class AccessLog(Base):
+    """Auditoría visual y cronológica de accesos (ALPR)."""
     __tablename__ = "access_logs"
     id = Column(Integer, primary_key=True, index=True)
     patente_detectada = Column(String)

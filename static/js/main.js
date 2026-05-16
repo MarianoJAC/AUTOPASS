@@ -1,4 +1,8 @@
-// --- UTILIDADES GLOBALES ---
+/* --- UTILIDADES GLOBALES Y MANEJO DE UI --- */
+
+/**
+ * Convierte un string a Formato de Título (Capitalización de cada palabra).
+ */
 const toTitle = s => {
     if (!s || typeof s !== 'string') return '---';
     return s.toLowerCase()
@@ -8,6 +12,9 @@ const toTitle = s => {
             .join(' ');
 };
 
+/**
+ * Formatea una fecha ISO a formato legible (DD/MM/YYYY HH:MM).
+ */
 function formatDate(isoStr) {
     if (!isoStr) return '---';
     const d = new Date(isoStr);
@@ -19,7 +26,7 @@ function formatDate(isoStr) {
     return `${day}/${month}/${year} ${hours}:${mins}`;
 }
 
-// --- LÓGICA DE SIDEBAR ---
+// --- LÓGICA DE BARRA LATERAL (SIDEBAR) ---
 function toggleMobileNav() {
     const sidebar = document.getElementById('main-sidebar');
     const overlay = document.getElementById('sidebar-overlay');
@@ -48,6 +55,7 @@ function toggleSidebar() {
     localStorage.setItem('sidebarCollapsed', isCollapsed);
 }
 
+// --- GESTIÓN DE AUTENTICACIÓN EN UI ---
 function updateAuthNav() {
     const loggedIn = !!localStorage.getItem('token');
     const login = document.getElementById('nav-login');
@@ -66,23 +74,11 @@ function updateAuthNav() {
     if (logout) logout.style.display = loggedIn ? 'inline-block' : 'none';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    updateAuthNav();
-
-    // Restaurar estado del sidebar
-    if (localStorage.getItem('sidebarCollapsed') === 'true') {
-        const layout = document.querySelector('.layout-with-sidebar');
-        const sidebar = document.querySelector('.sidebar');
-        const toggleIcon = document.querySelector('.sidebar-toggle i');
-        if (layout && sidebar) {
-            layout.classList.add('collapsed');
-            sidebar.classList.add('collapsed');
-            if (toggleIcon) toggleIcon.className = 'fas fa-chevron-right';
-        }
-    }
-});
-
-function switchModal(oldId, newId) { closeModal(oldId); openModal(newId); }
+// --- MANEJO DE MODALES ---
+function switchModal(oldId, newId) { 
+    closeModal(oldId); 
+    openModal(newId); 
+}
 
 function togglePasswordVisibility(inputId, iconEl) {
     const input = document.getElementById(inputId);
@@ -107,25 +103,20 @@ function closeModal(id) {
     document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
 }
 
-// Close modal on Escape key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        document.querySelectorAll('.modal[style*="display: block"]').forEach(m => {
-            m.style.display = 'none';
-            m.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
-        });
-    }
-});
-
 function logout() {
     localStorage.clear();
     window.location.href = '/';
 }
 
+// --- NOTIFICACIONES Y CONFIRMACIONES ---
 function showToast(msg) {
-    const container = document.getElementById('toast-container'); if (!container) return;
-    const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
-    container.appendChild(t); setTimeout(() => t.remove(), 3000);
+    const container = document.getElementById('toast-container'); 
+    if (!container) return;
+    const t = document.createElement('div'); 
+    t.className = 'toast'; 
+    t.innerText = msg;
+    container.appendChild(t); 
+    setTimeout(() => t.remove(), 3000);
 }
 
 function showConfirm(title, msg) {
@@ -159,7 +150,33 @@ function showConfirm(title, msg) {
         btnOk.onclick = () => handleResponse(true);
         btnCancel.onclick = () => handleResponse(false);
         
-        // También cerrar con escape o clic fuera
         modal.onclick = (e) => { if(e.target === modal) handleResponse(false); };
     });
 }
+
+// --- INICIALIZACIÓN GLOBAL ---
+document.addEventListener('DOMContentLoaded', () => {
+    updateAuthNav();
+
+    // Restaurar estado del sidebar colapsado
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+        const layout = document.querySelector('.layout-with-sidebar');
+        const sidebar = document.querySelector('.sidebar');
+        const toggleIcon = document.querySelector('.sidebar-toggle i');
+        if (layout && sidebar) {
+            layout.classList.add('collapsed');
+            sidebar.classList.add('collapsed');
+            if (toggleIcon) toggleIcon.className = 'fas fa-chevron-right';
+        }
+    }
+});
+
+// Cerrar modales con tecla Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal[style*="display: block"]').forEach(m => {
+            m.style.display = 'none';
+            m.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+        });
+    }
+});

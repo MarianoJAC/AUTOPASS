@@ -1,8 +1,8 @@
-// --- LÓGICA DEL PERFIL Y DASHBOARD ---
+/* --- LÓGICA DEL PERFIL DE USUARIO Y DASHBOARD --- */
 
-// Inicialización
+// Inicialización de componentes al cargar el portal
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DASHBOARD / RELOJ ---
+    // Reloj dinámico para el Dashboard (Admin)
     const clockEl = document.getElementById('clock');
     if (clockEl) {
         setInterval(() => {
@@ -10,15 +10,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    // --- INICIALIZACIÓN DE PERFIL ---
-    if (document.getElementById('user-name') && localStorage.getItem('token')) {
+    // Carga inicial de datos si hay sesión activa
+    if (document.getElementById('balance-val') && localStorage.getItem('token')) {
         loadProfile();
         if (typeof loadVehicles === 'function') loadVehicles();
+        if (typeof loadReservations === 'function') loadReservations();
         if (typeof initReservationForm === 'function') initReservationForm();
     }
 });
 
-// --- SIDEBAR ---
+/**
+ * Cambia la sección visible en el panel lateral (Sidebar).
+ */
 function showSection(sectionId, el) {
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     el.classList.add('active');
@@ -26,25 +29,33 @@ function showSection(sectionId, el) {
     const sectionEl = document.getElementById(`section-${sectionId}`);
     if (sectionEl) sectionEl.classList.add('active');
     
+    // Acciones específicas por sección
     if (sectionId === 'reservas' && typeof loadReservations === 'function') loadReservations();
     if (sectionId === 'puntos') loadPointsData();
-    if (sectionId === 'inicio') loadProfile();
+    if (sectionId === 'inicio') {
+        loadProfile();
+        if (typeof loadReservations === 'function') loadReservations();
+        if (typeof refreshReservationFormState === 'function') refreshReservationFormState();
+    }
     if (sectionId === 'perfil') loadProfile();
 }
 
-// --- PUNTOS ---
+// --- GESTIÓN DE PUNTOS AUTOPASS ---
+
 async function loadPointsData() {
-    await loadProfile(); // Esperamos a tener los datos del usuario actualizados
+    await loadProfile(); 
     loadPromotions();
     loadPointsHistory();
 }
 
+/**
+ * Carga el catálogo de beneficios disponibles.
+ */
 async function loadPromotions() {
     const grid = document.getElementById('promotions-grid');
     if (!grid) return;
     
     try {
-        console.log("Cargando promociones...");
         const res = await fetch(`${API_BASE}/user/promotions`, { 
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } 
         });
@@ -84,10 +95,13 @@ async function loadPromotions() {
         `).join('');
     } catch (err) {
         console.error("Error cargando promociones:", err);
-        grid.innerHTML = '<p class="text-danger" style="grid-column: 1/-1; padding: 20px;">Error al cargar promociones. Por favor, reintentá.</p>';
+        grid.innerHTML = '<p class="text-danger" style="grid-column: 1/-1; padding: 20px;">Error al cargar promociones.</p>';
     }
 }
 
+/**
+ * Carga el historial de movimientos de puntos.
+ */
 async function loadPointsHistory() {
     const list = document.getElementById('points-history-list');
     if (!list) return;
@@ -100,7 +114,7 @@ async function loadPointsHistory() {
         let totalRedeemed = 0;
 
         if (history.length === 0) {
-            list.innerHTML = '<p style="padding:30px; text-align:center; color:#888;">No hay movimientos de puntos registrados.</p>';
+            list.innerHTML = '<p style="padding:30px; text-align:center; color:#888;">No hay movimientos registrados.</p>';
         } else {
             list.innerHTML = history.map(h => {
                 const isPos = h.cantidad > 0;
@@ -123,13 +137,14 @@ async function loadPointsHistory() {
 
         const earnedEl = document.getElementById('total-earned-pts'); if (earnedEl) earnedEl.innerText = totalEarned;
         const redeemedEl = document.getElementById('total-redeemed-pts'); if (redeemedEl) redeemedEl.innerText = totalRedeemed;
-        
-        // El valor principal se actualiza vía loadProfile() que corre en paralelo en loadPointsData()
     } catch (err) {
         list.innerHTML = '<p class="text-danger">Error al cargar historial</p>';
     }
 }
 
+/**
+ * Procesa el canje de puntos por un beneficio.
+ */
 async function redeemPoints(promoId, cost) {
     if (!confirm(`¿Estás seguro de que querés canjear ${cost} puntos por este beneficio?`)) return;
 
@@ -142,7 +157,7 @@ async function redeemPoints(promoId, cost) {
         
         if (res.ok) {
             showToast(d.message);
-            await loadPointsData(); // Recargar todo
+            await loadPointsData();
         } else {
             showToast(d.detail || 'Error al canjear');
         }
@@ -159,7 +174,11 @@ function togglePointsHistory() {
     if (arrow) arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
-// --- PERFIL ---
+// --- GESTIÓN DEL PERFIL DE USUARIO ---
+
+/**
+ * Obtiene y renderiza los datos personales del usuario.
+ */
 async function loadProfile() {
     const res = await fetch(`${API_BASE}/user/me`, { headers: { 'Authorization': `Bearer ${token}` } });
     if (!res.ok) {
@@ -170,10 +189,37 @@ async function loadProfile() {
     localStorage.setItem('userData', JSON.stringify(user));
     localStorage.setItem('nombre', toTitle(user.nombre));
     localStorage.setItem('apellido', toTitle(user.apellido));
-    document.getElementById('user-name').innerText = `Hola, ${toTitle(user.nombre)}`;
+    
+    // Actualización de UI Global
+    const welcomeEl = document.getElementById('welcome-greeting');
+    if (welcomeEl) welcomeEl.innerText = `¡HOLA, ${user.nombre.toUpperCase()}!`;
+    
     const pts = document.getElementById('points-val'); if (pts) pts.innerText = user.puntos_acumulados || 0;
     const pagePts = document.getElementById('points-page-val'); if (pagePts) pagePts.innerText = user.puntos_acumulados || 0;
     const balance = document.getElementById('balance-val'); if (balance) balance.innerText = `$${(user.saldo || 0).toFixed(2)}`;
+    
+    const initials = (user.nombre[0] || '') + (user.apellido[0] || '');
+    const initialsEl = document.getElementById('user-initials'); if (initialsEl) initialsEl.innerText = initials.toUpperCase();
+    const fullNameEl = document.getElementById('profile-full-name'); if (fullNameEl) fullNameEl.innerText = `${toTitle(user.nombre)} ${toTitle(user.apellido)}`;
+    
+    const memberSinceEl = document.getElementById('user-member-since');
+    if (memberSinceEl) {
+        const date = user.created_at ? new Date(user.created_at) : new Date();
+        memberSinceEl.innerText = `Miembro desde: ${date.toLocaleDateString()}`;
+    }
+
+    updatePointsProgress(user.puntos_acumulados || 0);
+
+    // Carga de historial para estadísticas
+    try {
+        const resStays = await fetch(`${API_BASE}/user/payment-history`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (resStays.ok) {
+            const history = await resStays.json();
+            const staysEl = document.getElementById('acc-stat-stays'); if (staysEl) staysEl.innerText = history.length;
+        }
+    } catch(e) {}
+
+    // Llenado de campos del formulario
     const dispNombre = document.getElementById('display-nombre'); if (dispNombre) dispNombre.innerText = toTitle(user.nombre);
     const dispApellido = document.getElementById('display-apellido'); if (dispApellido) dispApellido.innerText = toTitle(user.apellido);
     const dispEmail = document.getElementById('display-email'); if (dispEmail) dispEmail.innerText = user.email;
@@ -181,59 +227,43 @@ async function loadProfile() {
     if (dispTel) dispTel.innerText = (user.telefono || '').replace(/(\d{2})(\d{4})(\d+)/, "$1 $2 $3");
     const dispDni = document.getElementById('display-dni');
     if (dispDni && user.dni) dispDni.innerText = user.dni.toString().replace(/(\d{2})(\d{3})(\d{3})/, "$1.$2.$3");
-    initPasswordValidation('new-password', 'confirm-new-password');
 }
 
-function initPasswordValidation(passId, confirmId, strengthId = 'password-strength', reqLenId = 'req-len', reqUpId = 'req-up', reqSpecId = 'req-spec', reqMatchId = 'req-match') {
-    const regPass = document.getElementById(passId);
-    const regPassConfirm = document.getElementById(confirmId);
-    const strengthMeter = document.getElementById(strengthId);
-    const reqLen = document.getElementById(reqLenId);
-    const reqUp = document.getElementById(reqUpId);
-    const reqSpec = document.getElementById(reqSpecId);
-    const reqMatch = document.getElementById(reqMatchId);
+/**
+ * Actualiza visualmente la barra de progreso de fidelización.
+ */
+function updatePointsProgress(currentPts) {
+    const progressBar = document.getElementById('points-progress-bar');
+    const targetEl = document.getElementById('points-next-reward');
+    const footerText = document.getElementById('points-progress-text');
+    
+    if (!progressBar) return;
 
-    if (regPass && strengthMeter) {
-        const validatePass = () => {
-            const val = regPass.value;
-            const confirmVal = regPassConfirm ? regPassConfirm.value : "";
-            strengthMeter.className = 'strength-meter';
-            const isLen = val.length >= 8;
-            const isUp = /[A-Z]/.test(val);
-            const isSpec = /[!@#$%^&*(),.?":{}|<>]/.test(val);
-            const isMatch = val.length > 0 && val === confirmVal;
-
-            const updateReq = (el, condition) => {
-                if (!el) return;
-                if (condition) { el.classList.add('satisfied'); el.querySelector('i').className = 'fas fa-check-circle'; }
-                else { el.classList.remove('satisfied'); el.querySelector('i').className = 'far fa-circle'; }
-            };
-            updateReq(reqLen, isLen); updateReq(reqUp, isUp); updateReq(reqSpec, isSpec); updateReq(reqMatch, isMatch);
-            if (val.length === 0) return;
-            let strength = (isLen ? 1 : 0) + (isUp ? 1 : 0) + (isSpec ? 1 : 0);
-            if (strength === 1) strengthMeter.classList.add('strength-weak');
-            if (strength === 2) strengthMeter.classList.add('strength-medium');
-            if (strength === 3) strengthMeter.classList.add('strength-strong');
-        };
-        regPass.addEventListener('input', validatePass);
-        if (regPassConfirm) regPassConfirm.addEventListener('input', validatePass);
+    const targets = [500, 1000, 2500, 5000, 10000];
+    const nextTarget = targets.find(t => t > currentPts) || targets[targets.length - 1];
+    const prevTarget = targets[targets.indexOf(nextTarget) - 1] || 0;
+    
+    const progress = ((currentPts - prevTarget) / (nextTarget - prevTarget)) * 100;
+    progressBar.style.width = `${Math.min(100, progress)}%`;
+    
+    if (targetEl) targetEl.innerText = `Prox: ${nextTarget} pts`;
+    if (footerText) {
+        const remaining = nextTarget - currentPts;
+        footerText.innerText = remaining > 0 ? 
+            `¡Te faltan solo ${remaining} puntos para tu próximo beneficio AutoPass!` : 
+            `¡Llegaste al nivel máximo! Canjeá tus puntos por estadías gratis.`;
     }
 }
 
+/**
+ * Manejo de edición de campos individuales.
+ */
 function enterEditMode(field) {
     const item = document.getElementById(`item-${field}`);
     item.querySelector('.display-mode').style.display = 'none';
     item.querySelector('.edit-mode').style.display = 'flex';
-    
-    let value = document.getElementById(`display-${field}`).innerText;
-    
-    // Si es DNI, quitamos los puntos. Para nombres, preservamos espacios.
-    if (field === 'dni') {
-        value = value.replace(/\./g, '');
-    }
-    // Quitamos espacios solo al inicio y al final (trim)
-    value = value.trim();
-    
+    let value = document.getElementById(`display-${field}`).innerText.trim();
+    if (field === 'dni') value = value.replace(/\./g, '');
     document.getElementById(`input-${field}`).value = value;
 }
 
@@ -274,6 +304,9 @@ async function saveField(field, event) {
     }
 }
 
+/**
+ * Procesa el cambio de contraseña.
+ */
 async function changePassword(e) {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
@@ -300,7 +333,6 @@ async function changePassword(e) {
         if (res.ok) {
             showToast('Contraseña actualizada con éxito');
             e.target.reset();
-            // Reset de indicadores visuales
             document.querySelectorAll('.req-item').forEach(el => {
                 el.classList.remove('satisfied');
                 el.querySelector('i').className = 'far fa-circle';
@@ -318,6 +350,14 @@ async function changePassword(e) {
     }
 }
 
+function togglePersonalInfo() {
+    const container = document.getElementById('personal-info-container');
+    const arrow = document.getElementById('personal-info-arrow');
+    if (!container) return;
+    const isOpen = container.classList.toggle('open');
+    if (arrow) arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
 function toggleSecurity() {
     const container = document.getElementById('security-container');
     const arrow = document.getElementById('security-arrow');
@@ -326,7 +366,8 @@ function toggleSecurity() {
     if (arrow) arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
-// --- CARGA DE SALDO (TEMPORAL) ---
+// --- CARGA DE SALDO ---
+
 function openRechargeModal() {
     const modal = document.getElementById('rechargeModal');
     if (modal) {
@@ -361,11 +402,10 @@ async function processRecharge(e) {
         });
         
         if (res.ok) {
-            const data = await res.json();
             showToast(`¡Carga de $${amount.toFixed(2)} exitosa!`);
             closeModal('rechargeModal');
             e.target.reset();
-            await loadProfile(); // Actualizar saldo en UI
+            await loadProfile(); 
         } else {
             const d = await res.json();
             showToast(d.detail || 'Error al procesar la carga');

@@ -1,5 +1,8 @@
 /* --- LÓGICA DE NEGOCIO: AUTENTICACIÓN (LOGIN Y REGISTRO) --- */
 
+/**
+ * Inicializa la validación visual de la fortaleza de la contraseña.
+ */
 function initPasswordValidation(passId, confirmId, strengthId, reqLenId, reqUpId, reqSpecId, reqMatchId) {
     const regPass = document.getElementById(passId);
     const regPassConfirm = document.getElementById(confirmId);
@@ -22,8 +25,13 @@ function initPasswordValidation(passId, confirmId, strengthId, reqLenId, reqUpId
 
             const updateReq = (el, condition) => {
                 if (!el) return;
-                if (condition) { el.classList.add('satisfied'); el.querySelector('i').className = 'fas fa-check-circle'; }
-                else { el.classList.remove('satisfied'); el.querySelector('i').className = 'far fa-circle'; }
+                if (condition) { 
+                    el.classList.add('satisfied'); 
+                    el.querySelector('i').className = 'fas fa-check-circle'; 
+                } else { 
+                    el.classList.remove('satisfied'); 
+                    el.querySelector('i').className = 'far fa-circle'; 
+                }
             };
             
             updateReq(reqLen, isLen); 
@@ -42,11 +50,12 @@ function initPasswordValidation(passId, confirmId, strengthId, reqLenId, reqUpId
     }
 }
 
-// Inicializar validación en el modal
+// Inicialización de validaciones al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
     initPasswordValidation('reg-password', 'reg-password-confirm', 'reg-password-strength', 'reg-req-len', 'reg-req-up', 'reg-req-spec', 'reg-req-match');
 });
 
+// Manejo del formulario de Login
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
     loginForm.onsubmit = async (e) => {
@@ -90,6 +99,7 @@ if (loginForm) {
     };
 }
 
+// Manejo del formulario de Registro
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
     registerForm.onsubmit = async (e) => {
@@ -103,6 +113,7 @@ if (registerForm) {
         const email = document.getElementById('reg-email').value;
         const telefono = document.getElementById('reg-tel').value.replace(/\D/g, '');
 
+        // Validaciones de seguridad y formato
         if (password !== passwordConfirm) {
             errorMsg.innerText = 'Las contraseñas no coinciden';
             errorMsg.style.display = 'block';

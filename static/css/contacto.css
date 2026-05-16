@@ -1,13 +1,16 @@
-/* --- CONTACT PAGE STYLES (Smart Support Center) --- */
+/* --- ESTILOS DE LA PÁGINA DE CONTACTO (Centro de Soporte) --- */
 
 .contact-layout {
-    max-width: 1200px; margin: 0 auto;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 60px 20px 100px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
     align-items: start;
 }
 
-/* Info Section */
+/* SECCIÓN DE INFORMACIÓN */
 .support-badge {
     display: inline-flex;
     align-items: center;
@@ -114,7 +117,7 @@
     line-height: 1.6;
 }
 
-/* Form Container */
+/* CONTENEDOR DEL FORMULARIO */
 .contact-form-container {
     background: var(--gris-card);
     padding: 50px;
@@ -152,7 +155,7 @@
     resize: none;
 }
 
-/* Responsive */
+/* DISEÑO RESPONSIVO */
 @media (max-width: 992px) {
     .contact-layout {
         grid-template-columns: 1fr;

@@ -1,4 +1,3 @@
-
 import datetime
 from sqlalchemy.orm import Session
 import models
@@ -7,10 +6,12 @@ from repositories.reservation_repository import ReservationRepository
 from repositories.user_repository import UserRepository
 from fastapi import HTTPException
 
+# --- SERVICIO DE GESTIÓN DE RESERVAS ---
+
 class ReservationService:
     @staticmethod
     def auto_finalize_reservations(db: Session, user_id: int):
-        """Finaliza automáticamente reservas pasadas del usuario."""
+        """Marca como completadas las reservas cuyo tiempo de estadía ya expiró."""
         now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         past_reservations = ReservationRepository.get_past_reservations(db, user_id, now_str)
         
@@ -21,66 +22,63 @@ class ReservationService:
 
     @staticmethod
     def pay_reservation(db: Session, user: models.User, res_id: int):
-        """Procesa el pago de una reserva usando el saldo del usuario."""
+        """Abona una reserva utilizando el saldo disponible del usuario."""
         res = ReservationRepository.get_by_user_and_id(db, user.id, res_id)
         
         if not res: 
             raise HTTPException(status_code=404, detail="Reserva no encontrada")
         
         if res.estado_pago == "Pagado":
-            return {"status": "ok", "message": "La reserva ya figura como pagada"}
+            return {"status": "ok", "message": "La reserva ya ha sido abonada"}
         
         if user.saldo < res.monto_total:
-            raise HTTPException(status_code=400, detail="Saldo insuficiente para pagar esta reserva")
+            raise HTTPException(status_code=400, detail="Saldo insuficiente en su cuenta AutoPass")
         
-        # Deducir saldo y marcar como pagado
+        # Deducción de saldo y actualización de estado
         user.saldo -= res.monto_total
         res.estado_pago = "Pagado"
         
-        # Acreditar puntos AutoPass
+        # Acreditación de puntos por lealtad
         puntos_ganados = BillingService.calculate_points(res.monto_total)
         user.puntos_acumulados += puntos_ganados
         
-        # Registrar en historial de puntos (se podría crear PointsRepository luego)
-        log_pts = models.PointsLog(
+        db.add(models.PointsLog(
             user_id=user.id,
             cantidad=puntos_ganados,
             motivo=f"Reserva: {res.patente}",
             fecha=datetime.datetime.now().isoformat()
-        )
-        db.add(log_pts)
+        ))
+        
         db.commit()
-        return {"status": "ok", "message": "Reserva pagada con éxito y puntos acreditados", "puntos_ganados": puntos_ganados}
+        return {"status": "ok", "message": "Reserva abonada con éxito", "puntos_ganados": puntos_ganados}
 
     @staticmethod
     def cancel_reservation(db: Session, user: models.User, res_id: int):
-        """Cancela una reserva y reembolsa el saldo si correspondiera."""
+        """Cancela una reserva activa y gestiona reembolsos si correspondiera."""
         res = ReservationRepository.get_by_user_and_id(db, user.id, res_id)
         
         if not res: 
             raise HTTPException(status_code=404, detail="Reserva no encontrada")
         
         if res.estado_reserva == "Cancelada":
-            return {"status": "ok", "message": "La reserva ya está cancelada"}
+            return {"status": "ok", "message": "La reserva ya se encuentra cancelada"}
             
-        # Reembolso si estaba pagada
+        # Proceso de reembolso para reservas prepagas
         if res.estado_pago == "Pagado":
             user.saldo += res.monto_total
             
-            # Deducir puntos otorgados
+            # Ajuste de puntos acreditados
             puntos_a_descontar = BillingService.calculate_points(res.monto_total)
             user.puntos_acumulados -= puntos_a_descontar
             
-            # Registrar el descuento en el historial
-            log_pts = models.PointsLog(
+            db.add(models.PointsLog(
                 user_id=user.id,
                 cantidad=-puntos_a_descontar,
-                motivo=f"Cancelación Reserva: {res.patente}",
+                motivo=f"Cancelación de Reserva: {res.patente}",
                 fecha=datetime.datetime.now().isoformat()
-            )
-            db.add(log_pts)
+            ))
             
         res.estado_reserva = "Cancelada"
         res.estado_pago = "Cancelado"
         db.commit()
-        return {"status": "ok", "message": "Reserva cancelada, saldo reembolsado y puntos ajustados"}
+        return {"status": "ok", "message": "Reserva cancelada y saldo reembolsado"}

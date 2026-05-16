@@ -82,11 +82,14 @@ graph TD
 
 ### 🎨 Si vas a editar el Estilo (CSS/HTML):
 - **Herencia**: No repitas el Navbar o Footer, edita `base.html` si el cambio es global.
-- **Voseo**: Todo texto debe usar voseo argentino (Ej: "Cargá tu saldo" en vez de "Cargue su saldo").
-- **Clases**: Evitá estilos inline (`style="..."`). Usá clases en el CSS correspondiente.
+- **Tipografía**: Se utiliza **Montserrat** como fuente principal del sistema y **Inter** para textos de lectura larga.
+- **Escala Tipográfica**: Usar siempre las variables de `:root` (`--text-xs` a `--text-xl`) para mantener la consistencia.
+- **Voseo**: Todo texto debe usar voseo argentino (Ej: "Cargá tu saldo").
+- **Glassmorphism**: En páginas públicas, usar `background: rgba(10, 10, 10, 0.85)` con `backdrop-filter: blur(25px)`.
 - **Responsive**: 
-    - Móvil (< 768px): Sidebar oculto tras menú hamburguesa con overlay.
-    - Móvil (< 600px): Cabecera centrada, badges de cuenta uniformes (220px) y apilados verticalmente.
+    - Desktop: Sidebar de 240px (Perfil) / Header dinámico (Landing).
+    - Móvil (< 1024px): Sidebar lateral izquierdo de 260px con Title Case y cabecera de marca.
+    - Móvil (< 768px): Header centrado con menú hamburguesa flotante a la izquierda. Inputs de formulario a 100% de ancho.
 
 ### 🧠 Si vas a editar la Lógica (JS):
 - **Nomenclatura**: Usar `camelCase` para funciones (Ej: `loadReservations`).

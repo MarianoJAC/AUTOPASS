@@ -1,4 +1,4 @@
-/* ESTILOS SECCIÓN PUNTOS AUTOPASS - ALINEADO CON ESTILO GLOBAL */
+/* --- ESTILOS SECCIÓN PUNTOS AUTOPASS --- */
 
 .points-overview-grid {
     display: grid;
@@ -290,6 +290,7 @@
 .pts-positive { 
     color: var(--dorado); 
 }
+
 .pts-negative { 
     color: var(--danger); 
 }

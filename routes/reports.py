@@ -7,14 +7,17 @@ from database import get_db
 
 router = APIRouter(prefix="/v1/reports", tags=["Reports & Analytics"])
 
-# Dependencia de Administrador (se puede mover a una utilidad común)
 def get_admin_user(current_user: models.User = Depends(auth.get_current_user)):
+    """Verifica permisos de administrador."""
     if current_user.rol != "admin":
         raise HTTPException(status_code=403, detail="No tiene permisos de administrador")
     return current_user
 
+# --- ANALÍTICA FINANCIERA ---
+
 @router.get("/financial-summary")
 def get_financial_summary(period: str = "total", start: str = None, end: str = None, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """Calcula el resumen de recaudación para un periodo determinado."""
     q_base = db.query(func.sum(models.AccessLog.costo_estadia)).filter(models.AccessLog.pago_confirmado == True)
     q_count = db.query(models.AccessLog).filter(models.AccessLog.pago_confirmado == True, models.AccessLog.costo_estadia > 0)
     
@@ -50,6 +53,7 @@ def get_financial_summary(period: str = "total", start: str = None, end: str = N
 
 @router.get("/payment-history")
 def get_payment_history(period: str = "total", start: str = None, end: str = None, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """Lista el historial cronológico de transacciones confirmadas."""
     q = db.query(models.AccessLog).filter(models.AccessLog.pago_confirmado == True, models.AccessLog.costo_estadia > 0)
     
     start_date = start
@@ -66,15 +70,16 @@ def get_payment_history(period: str = "total", start: str = None, end: str = Non
         elif period == "year":
             start_date = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
         
-    if start_date:
-        q = q.filter(models.AccessLog.fecha_hora >= start_date)
-    if end_date:
-        q = q.filter(models.AccessLog.fecha_hora <= end_date)
+    if start_date: q = q.filter(models.AccessLog.fecha_hora >= start_date)
+    if end_date: q = q.filter(models.AccessLog.fecha_hora <= end_date)
 
     return q.order_by(models.AccessLog.id.desc()).all()
 
+# --- AUDITORÍA DE ACCESOS ---
+
 @router.get("/access")
 def get_reports_access(patente: str = None, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """Consulta el historial de eventos ALPR, con opción de búsqueda por patente."""
     q = db.query(models.AccessLog)
     if patente: q = q.filter(models.AccessLog.patente_detectada.like(f"%{patente.upper()}%"))
     return q.order_by(models.AccessLog.id.desc()).all()

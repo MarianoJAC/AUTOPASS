@@ -8,39 +8,37 @@ router = APIRouter(prefix="/v1/auth", tags=["Authentication"])
 
 @router.post("/register")
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    """Procesa el registro de un nuevo usuario con datos normalizados."""
     from routes.parking import normalize_name, normalize_dni
-    # Verificar si el email ya existe
+    
+    # Verificación de duplicidad de correo
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Email ya registrado")
+        raise HTTPException(status_code=400, detail="El correo electrónico ya se encuentra registrado")
     
-    # Hashear contraseña
-    hashed_password = auth.get_password_hash(user.password)
-    
-    # Crear nuevo usuario con datos normalizados
+    # Creación de usuario con hash de seguridad
     new_user = models.User(
         nombre=normalize_name(user.nombre),
         apellido=normalize_name(user.apellido),
         dni=normalize_dni(user.dni),
         telefono=user.telefono,
         email=user.email.lower().strip(),
-        password_hash=hashed_password,
-        rol="user" # Rol por defecto
+        password_hash=auth.get_password_hash(user.password),
+        rol="user"
     )
     
     db.add(new_user)
     db.commit()
-    db.refresh(new_user)
-    
     return {"status": "ok", "message": "Usuario registrado exitosamente"}
 
 @router.post("/login")
 def login(form_data: schemas.UserLogin, db: Session = Depends(get_db)):
+    """Autentica al usuario y retorna un token JWT de acceso."""
     user = auth.authenticate_user(db, form_data.email, form_data.password)
     if not user:
         raise HTTPException(
             status_code=401,
-            detail="Email o contraseña incorrectos",
+            detail="Credenciales inválidas. Verificá tu correo y contraseña.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
