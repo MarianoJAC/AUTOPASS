@@ -79,6 +79,8 @@ graph TD
 ### 🛡️ Seguridad y Backend:
 - **Protección de Rutas**: Usar la dependencia `get_admin_user` para endpoints que requieran permisos elevados.
 - **Esquemas**: Si añadís campos al backend, actualizá `schemas.py` para evitar errores de validación (Internal Server Errors).
+- **Acceso Híbrido**: La validación de QR debe seguir el formato `AUTOPASS|ID:{id}|PLATE:{patente}` para ser procesada por el endpoint `/access/validate-qr`.
+- **Workers de Fondo**: Cualquier tarea de mantenimiento periódico debe registrarse en `main.py` mediante hilos (`threading`) para no bloquear el bucle de eventos de FastAPI.
 
 ---
 *Este documento es dinámico. Mantenelo actualizado tras cada refactorización importante.*

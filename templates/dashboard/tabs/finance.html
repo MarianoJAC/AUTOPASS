@@ -33,8 +33,10 @@
         <div class="finance-analytics-row">
             <div class="card chart-card">
                 <div class="card-header-premium">
-                    <i class="fas fa-chart-line" style="color: var(--dorado);"></i>
-                    <h3>TENDENCIA DE INGRESOS</h3>
+                    <div class="header-info-group">
+                        <div class="header-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="header-text"><h3>TENDENCIA DE INGRESOS</h3></div>
+                    </div>
                     <div class="header-actions">
                         <select id="fin-period" class="select-premium-sm" onchange="loadFinanceData()">
                             <option value="day">HOY</option>
@@ -53,8 +55,10 @@
         <!-- SECCIÓN INFERIOR: HISTORIAL DETALLADO -->
         <div class="card mt-25">
             <div class="card-header-premium">
-                <i class="fas fa-list-check" style="color: var(--dorado);"></i>
-                <h3>HISTORIAL DE PAGOS CONFIRMADOS</h3>
+                <div class="header-info-group">
+                    <div class="header-icon"><i class="fas fa-list-check"></i></div>
+                    <div class="header-text"><h3>HISTORIAL DE PAGOS CONFIRMADOS</h3></div>
+                </div>
                 <div class="header-actions">
                     <button class="btn btn-outline btn-sm" onclick="exportFinanceData()">
                         <i class="fas fa-download"></i> EXPORTAR

@@ -511,9 +511,23 @@
     padding: 20px 25px;
     display: flex;
     align-items: center;
-    gap: 15px;
+    justify-content: space-between;
+    gap: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     background: rgba(255, 255, 255, 0.01);
+}
+
+.header-info-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.card-header-premium .header-icon i,
+.card-header-premium > i {
+    color: var(--dorado) !important;
+    font-size: 1.1rem;
 }
 
 .card-header-premium h3 {
@@ -523,6 +537,43 @@
     font-weight: 800;
     letter-spacing: 1.5px;
     text-transform: uppercase;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.search-box-premium {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box-premium i {
+    position: absolute;
+    left: 12px;
+    color: var(--dorado);
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+
+.search-box-premium input {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 8px 15px 8px 35px;
+    color: #fff;
+    font-size: 0.8rem;
+    width: 200px;
+    transition: all 0.3s;
+    outline: none;
+}
+
+.search-box-premium input:focus {
+    border-color: var(--dorado);
+    width: 250px;
 }
 
 /* --- DASHBOARD SETTINGS REFACTOR (Premium Control) --- */
@@ -679,18 +730,39 @@
 
 .kpi-trend { position: absolute; top: 15px; right: 20px; font-size: 0.7rem; font-weight: 900; }
 
+/* AJUSTES DE TABLA DE RESERVAS */
+#tab-admin-reservations table th:nth-child(3),
+#tab-admin-reservations table td:nth-child(3) {
+    min-width: 140px;
+}
+
 .chart-wrapper { padding: 25px; height: 350px; }
 
 .select-premium-sm {
     background: rgba(0,0,0,0.5);
     border: 1px solid var(--border-light);
     color: var(--dorado);
-    padding: 6px 12px;
+    padding: 6px 12px 6px 30px;
     border-radius: 8px;
     font-size: 0.75rem;
     font-weight: 700;
     cursor: pointer;
     outline: none;
+    appearance: none;
+}
+
+.filter-group-premium {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.filter-group-premium i {
+    position: absolute;
+    left: 10px;
+    color: var(--dorado);
+    font-size: 0.8rem;
+    pointer-events: none;
 }
 
 @media (max-width: 1000px) {

@@ -122,6 +122,68 @@ def exit_plate(data: schemas.PlateValidation, db: Session = Depends(get_db), req
         
     return {"status": "allowed", "action": "OPEN_GATE", "message": f"Salida autorizada. Adiós {p}"}
 
+@router.post("/access/validate-qr", response_model=schemas.AccessResponse)
+def validate_qr(data: schemas.QRValidation, db: Session = Depends(get_db), request: Request = None):
+    """Valida un Pase Digital (QR) presentado en el tótem."""
+    try:
+        parts = data.qr_data.split('|')
+        if len(parts) < 3 or parts[0] != "AUTOPASS":
+            return {"status": "error", "message": "Formato de QR inválido"}
+        
+        # Extraer ID y Patente del formato "AUTOPASS|ID:123|PLATE:ABC123"
+        reserva_id = int(parts[1].split(':')[1])
+        patente = normalize_plate(parts[2].split(':')[1])
+        
+        reserva = db.query(models.Reservation).filter(models.Reservation.id == reserva_id).first()
+        if not reserva:
+            return {"status": "error", "message": "Reserva no encontrada"}
+        
+        if normalize_plate(reserva.patente) != patente:
+            return {"status": "error", "message": "La patente del QR no coincide con la reserva"}
+
+        if reserva.estado_pago != "Pagado":
+            return {"status": "denied", "message": "La reserva no ha sido abonada"}
+
+        now = datetime.datetime.now()
+        is_entry = "ENTRADA" in data.gate_id.upper()
+        
+        if is_entry:
+            if reserva.estado_reserva == "Activa":
+                return {"status": "denied", "message": "El vehículo ya se encuentra dentro del predio"}
+            if reserva.estado_reserva == "Completada":
+                 return {"status": "denied", "message": "Esta reserva ya fue utilizada y completada"}
+            
+            aforo = db.query(models.ParkingAforo).first()
+            if aforo.ocupacion_actual >= aforo.capacidad_total:
+                return {"status": "denied", "message": "Capacidad máxima alcanzada"}
+
+            aforo.ocupacion_actual += 1
+            reserva.estado_reserva = "Activa"
+            db.add(models.AccessLog(patente_detectada=patente, tipo_evento="ENTRADA", fecha_hora=now.isoformat(), reserva_id=reserva.id, pago_confirmado=True))
+            db.commit()
+            
+            if request and hasattr(request.app, 'mqtt_client'):
+                request.app.mqtt_client.publish(MQTT_TOPIC_ENTRADA, json.dumps({"command": "OPEN", "plate": patente, "method": "QR", "timestamp": now.isoformat()}))
+                
+            return {"status": "allowed", "action": "OPEN_GATE", "message": f"QR Válido. Bienvenido {patente}"}
+        else:
+            if reserva.estado_reserva != "Activa":
+                return {"status": "error", "message": "No se registra un ingreso activo para esta reserva"}
+                
+            aforo = db.query(models.ParkingAforo).first()
+            if aforo.ocupacion_actual > 0: aforo.ocupacion_actual -= 1
+            reserva.estado_reserva = "Completada"
+            db.add(models.AccessLog(patente_detectada=patente, tipo_evento="SALIDA", fecha_hora=now.isoformat(), reserva_id=reserva.id, pago_confirmado=True))
+            db.commit()
+            
+            if request and hasattr(request.app, 'mqtt_client'):
+                request.app.mqtt_client.publish(MQTT_TOPIC_SALIDA, json.dumps({"command": "OPEN", "plate": patente, "method": "QR", "timestamp": now.isoformat()}))
+                
+            return {"status": "allowed", "action": "OPEN_GATE", "message": f"QR Válido. Adiós {patente}"}
+            
+    except Exception as e:
+        return {"status": "error", "message": f"Error procesando QR: {str(e)}"}
+
 @router.post("/access/pay-stay")
 def pay_stay(plate: str, db: Session = Depends(get_db)):
     """Procesa el pago de una estadía en curso utilizando el saldo del usuario."""

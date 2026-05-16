@@ -1,53 +1,89 @@
 <!-- PESTAÑA: OCUPACIÓN ACTUAL -->
 <div id="tab-occupancy" class="tab-view" style="display: none;">
-    <div class="card">
-        <div class="card-header-premium">
-            <div class="header-icon"><i class="fas fa-keyboard"></i></div>
-            <div class="header-text">
-                <h3>OPERACIONES MANUALES DE BARRERA</h3>
-                <p>Registrá ingresos o salidas de vehículos que no posean patente legible.</p>
+    <!-- KPIS DE OCUPACIÓN -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-car"></i></div>
+            <div class="kpi-data">
+                <span class="label">Vehículos Adentro</span>
+                <span class="value" id="occ-stat-count">0</span>
             </div>
         </div>
-        <div class="manual-ops-row mt-20">
-            <div class="form-group-premium flex-1">
-                <label>PATENTE DEL VEHÍCULO</label>
-                <div class="input-with-icon">
-                    <i class="fas fa-car"></i>
-                    <input type="text" id="manual-plate" placeholder="Ej: AA123BB" class="input-premium uppercase">
-                </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-hourglass-half"></i></div>
+            <div class="kpi-data">
+                <span class="label">Promedio Estadía</span>
+                <span class="value" id="occ-stat-avg-time">--</span>
             </div>
-            <button class="btn btn-primary" onclick="manualEntry()" style="height: 54px;">
-                <i class="fas fa-sign-in-alt"></i> REGISTRAR INGRESO
-            </button>
-            <button class="btn btn-outline btn-warning" onclick="manualExit()" style="height: 54px;">
-                <i class="fas fa-sign-out-alt"></i> REGISTRAR SALIDA
-            </button>
+        </div>
+        <div class="kpi-card highlight">
+            <div class="kpi-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div class="kpi-data">
+                <span class="label">Deuda Exigible</span>
+                <span class="value" id="occ-stat-debt">$0</span>
+            </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header-premium">
-            <div class="header-icon"><i class="fas fa-car-side"></i></div>
-            <div class="header-text">
-                <h3>VEHÍCULOS ACTUALMENTE EN EL PREDIO</h3>
-                <p>Listado detallado de vehículos con estadía activa.</p>
-            </div>
-            <div class="header-actions">
-                <div class="search-box-premium">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="occ-search" placeholder="Buscar patente..." onkeyup="filterTable('occ-list', this.value)">
+    <div class="monitoring-grid" style="grid-template-columns: 1fr; gap: 25px;">
+        <!-- OPERACIONES MANUALES -->
+        <div class="card">
+            <div class="card-header-premium">
+                <div class="header-icon"><i class="fas fa-keyboard"></i></div>
+                <div class="header-text">
+                    <h3>OPERACIONES MANUALES DE BARRERA</h3>
+                    <p>Registrá ingresos o salidas de vehículos que no posean patente legible.</p>
                 </div>
             </div>
+            <div class="manual-ops-row mt-20" style="display: flex; gap: 15px; align-items: flex-end; padding: 0 25px 25px;">
+                <div class="form-group-premium" style="flex: 1; max-width: none;">
+                    <label>PATENTE DEL VEHÍCULO</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-car"></i>
+                        <input type="text" id="manual-plate" placeholder="Ej: AA123BB" class="input-premium uppercase">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="manualEntry()" style="height: 48px; padding: 0 25px;">
+                    <i class="fas fa-sign-in-alt"></i> REGISTRAR INGRESO
+                </button>
+                <button class="btn btn-outline btn-warning" onclick="manualExit()" style="height: 48px; padding: 0 25px;">
+                    <i class="fas fa-sign-out-alt"></i> REGISTRAR SALIDA
+                </button>
+            </div>
         </div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr><th>Patente</th><th>Ingreso</th><th>Permanencia</th><th>Deuda Actual</th><th>Acción</th></tr>
-                </thead>
-                <tbody id="occ-list">
-                    <tr><td colspan="5" class="text-center py-20">No hay vehículos en el predio.</td></tr>
-                </tbody>
-            </table>
+
+        <!-- LISTADO DE OCUPACIÓN -->
+        <div class="card">
+            <div class="card-header-premium">
+                <div class="header-info-group">
+                    <div class="header-icon"><i class="fas fa-car-side"></i></div>
+                    <div class="header-text">
+                        <h3>VEHÍCULOS ACTUALMENTE EN EL PREDIO</h3>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="search-box-premium">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="occ-search" placeholder="Buscar patente..." onkeyup="filterTable('occ-list', this.value)">
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vehículo</th>
+                            <th>Ingreso</th>
+                            <th>Permanencia</th>
+                            <th>Estado / Deuda</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="occ-list">
+                        <tr><td colspan="5" class="text-center py-20">No hay vehículos en el predio.</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

@@ -1,6 +1,8 @@
 import os
 import json
 import datetime
+import threading
+import time
 from fastapi import FastAPI, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,7 +13,7 @@ from paho.mqtt.enums import CallbackAPIVersion
 from dotenv import load_dotenv
 
 import models, auth, database
-from database import engine
+from database import engine, SessionLocal
 
 # Importación de Routers Modularizados
 from routes import parking, reports, system, admin, user, auth as auth_router_mod
@@ -54,8 +56,24 @@ def startup_event():
         mqtt_client.loop_start()
         # Inicialización de esquemas de base de datos
         models.Base.metadata.create_all(bind=engine)
+        
+        # Iniciar hilo de limpieza de reservas
+        threading.Thread(target=reservation_cleanup_worker, daemon=True).start()
     except Exception as e: 
         print(f"Error en fase de inicio (MQTT/DB): {e}")
+
+def reservation_cleanup_worker():
+    """Hilo de fondo que limpia reservas impagas periódicamente."""
+    from services.reservation_service import ReservationService
+    print("[SYSTEM] Limpiador de reservas automáticas iniciado.")
+    while True:
+        try:
+            db = SessionLocal()
+            ReservationService.cleanup_overdue_reservations(db)
+            db.close()
+        except Exception as e:
+            print(f"[ERROR] En el limpiador de reservas: {e}")
+        time.sleep(300) # Ejecutar cada 5 minutos
 
 # --- REGISTRO DE RUTAS (API) ---
 app.include_router(auth_router_mod)

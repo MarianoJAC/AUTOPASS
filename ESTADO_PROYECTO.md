@@ -8,6 +8,8 @@
 - [x] **Monitoreo Pro**: Nuevo feed de cámaras con efectos de scan-line e indicadores de estado de salud de nodos en vivo.
 - [x] **Tipografía Premium Global**: Normalización total a **Montserrat** con escala tipográfica basada en variables CSS.
 - [x] **Gestión de Usuarios Avanzada**: Nuevas herramientas para ajuste de saldos, cambio de roles y monitoreo de nuevos registros.
+- [x] **Control de Acceso Híbrido (QR/ALPR)**: Implementación de validación de Pases Digitales (QR) en tótems de entrada y salida con integración MQTT.
+- [x] **Mantenimiento Inteligente**: Sistema de cancelación automática para reservas impagas con worker de fondo (1h antes del inicio).
 
 ### 🏗️ Arquitectura Professional (v5.0+)
 - [x] **Modularización del Backend**: Segmentación de `main.py` en 6 routers especializados (`routes/`).

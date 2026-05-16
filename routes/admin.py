@@ -26,6 +26,9 @@ def list_users(db: Session = Depends(get_db), admin: models.User = Depends(get_a
 @router.get("/admin/reservations", response_model=List[schemas.UserReservationResponse])
 def list_reservations(sucursal: Optional[str] = Query(None), db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
     """Lista todas las reservas del sistema con opción de filtrado por sucursal."""
+    from services.reservation_service import ReservationService
+    ReservationService.cleanup_overdue_reservations(db)
+    
     q = db.query(models.Reservation)
     if sucursal:
         q = q.filter(models.Reservation.sucursal_nombre == sucursal)
@@ -100,6 +103,17 @@ def create_admin_reservation(data: schemas.AdminReservationCreate, db: Session =
     db.add(new_res)
     db.commit()
     return {"status": "ok", "id": new_res.id, "monto": monto}
+
+@router.post("/admin/reservations/{res_id}/confirm-payment")
+def confirm_reservation_payment(res_id: int, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """Permite al administrador marcar una reserva como pagada manualmente."""
+    reserva = db.query(models.Reservation).filter(models.Reservation.id == res_id).first()
+    if not reserva:
+        raise HTTPException(status_code=404, detail="Reserva no encontrada")
+    
+    reserva.estado_pago = "Pagado"
+    db.commit()
+    return {"status": "ok"}
 
 # --- CONFIGURACIÓN DE TARIFAS ---
 

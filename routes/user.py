@@ -111,6 +111,7 @@ def get_user_payment_history(db: Session = Depends(get_db), current_user: models
 @router.get("/reservations", response_model=List[schemas.UserReservationResponse])
 def get_user_reservations(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     """Lista todas las reservas del usuario, actualizando estados automáticamente."""
+    ReservationService.cleanup_overdue_reservations(db)
     ReservationService.auto_finalize_reservations(db, current_user.id)
     return db.query(models.Reservation).filter(models.Reservation.user_id == current_user.id).order_by(models.Reservation.id.desc()).all()
 

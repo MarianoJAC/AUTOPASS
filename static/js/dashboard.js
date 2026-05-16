@@ -75,7 +75,7 @@ function switchTab(tabId, element) {
         const titles = {
             'live': 'Monitoreo',
             'occupancy': 'Ocupación Actual',
-            'admin-reservations': 'Reservas de Usuarios',
+            'admin-reservations': 'Reservas',
             'users': 'Gestión de Usuarios',
             'finance': 'Reporte Financiero',
             'settings': 'Configuración'
@@ -170,49 +170,102 @@ async function loadOccupancy() {
     const res = await apiClient.get('/parking/current-occupancy');
     if (!res.ok) return;
 
+    const data = res.data;
     const tbody = document.getElementById('occ-list');
     if (!tbody) return;
 
-    tbody.innerHTML = res.data.map(occ => {
+    // Calcular KPIs
+    const totalCount = data.length;
+    let totalDebt = 0;
+    let totalMs = 0;
+
+    tbody.innerHTML = data.map(occ => {
         const date = new Date(occ.ingreso);
         const time = date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
         
-        // Calcular permanencia (aprox)
         const diffMs = new Date() - date;
+        totalMs += diffMs;
+        totalDebt += occ.deuda;
+
         const diffHrs = Math.floor(diffMs / 3600000);
         const diffMins = Math.floor((diffMs % 3600000) / 60000);
         const duration = `${diffHrs}h ${diffMins}m`;
 
+        const statusBadge = occ.ya_pago ? 
+            `<span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">PAGO CONFIRMADO</span>` :
+            `<span class="badge" style="background: rgba(197, 160, 89, 0.1); color: var(--dorado); border: 1px solid rgba(197, 160, 89, 0.2);">$${occ.deuda.toLocaleString('es-AR')} PENDIENTE</span>`;
+
+        const typeIcon = occ.es_reserva ? 
+            `<i class="fas fa-calendar-check" title="Reserva Activa" style="color: var(--secondary); margin-right: 8px;"></i>` : 
+            `<i class="fas fa- car-side" title="Ingreso al paso" style="color: #666; margin-right: 8px;"></i>`;
+
         return `
             <tr>
-                <td><span class="plate-style" style="background: #1e293b; color: #fff; padding: 4px 8px; border-radius: 4px; font-family: var(--font-mono); font-weight: 700;">${occ.patente}</span></td>
+                <td>
+                    <div class="flex-row items-center">
+                        ${typeIcon}
+                        <span class="plate-style" style="background: #1e293b; color: #fff; padding: 4px 8px; border-radius: 4px; font-family: var(--font-mono); font-weight: 700;">${occ.patente}</span>
+                    </div>
+                </td>
                 <td>${time}</td>
-                <td>${duration}</td>
-                <td class="text-dorado text-bold">$${occ.deuda.toLocaleString('es-AR')}</td>
+                <td style="font-weight: 600; color: #eee;">${duration}</td>
+                <td>${statusBadge}</td>
                 <td>
                     <div class="flex-row gap-5">
-                        <button class="btn btn-sm btn-primary" onclick="payOccupancy('${occ.patente}')">PAGAR</button>
-                        <button class="btn btn-sm btn-outline btn-warning" onclick="manualExit('${occ.patente}')">SALIDA</button>
+                        ${!occ.ya_pago ? `<button class="btn-icon-premium sm" onclick="payOccupancy('${occ.patente}')" title="Procesar Pago"><i class="fas fa-cash-register"></i></button>` : ''}
+                        <button class="btn-icon-premium sm warning" onclick="manualExit('${occ.patente}')" title="Registrar Salida"><i class="fas fa-door-open"></i></button>
                     </div>
                 </td>
             </tr>
         `;
     }).join('') || '<tr><td colspan="5" class="text-center py-20">No hay vehículos en el predio.</td></tr>';
+
+    // Actualizar KPIs en la UI
+    document.getElementById('occ-stat-count').innerText = totalCount;
+    document.getElementById('occ-stat-debt').innerText = `$${totalDebt.toLocaleString('es-AR')}`;
+    
+    if (totalCount > 0) {
+        const avgMs = totalMs / totalCount;
+        const avgHrs = Math.floor(avgMs / 3600000);
+        const avgMins = Math.floor((avgMs % 3600000) / 60000);
+        document.getElementById('occ-stat-avg-time').innerText = `${avgHrs}h ${avgMins}m`;
+    } else {
+        document.getElementById('occ-stat-avg-time').innerText = '--';
+    }
 }
 
 async function loadAdminReservations() {
-    const res = await apiClient.get('/admin/reservations');
+    const sucursal = document.getElementById('admin-res-filter-sucursal')?.value || '';
+    const res = await apiClient.get(`/admin/reservations${sucursal ? '?sucursal=' + encodeURIComponent(sucursal) : ''}`);
     if (!res.ok) return;
 
+    const data = res.data;
     const tbody = document.getElementById('admin-res-list');
     if (!tbody) return;
 
-    tbody.innerHTML = res.data.map(r => {
+    // Calcular KPIs
+    const totalCount = data.length;
+    let pendingToday = 0;
+    let totalProjectedRevenue = 0;
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    tbody.innerHTML = data.map(r => {
+        totalProjectedRevenue += r.monto_total;
+        if (r.fecha_inicio.startsWith(todayStr) && r.estado_reserva === 'Pendiente') {
+            pendingToday++;
+        }
+
         const pagoBadge = r.estado_pago === 'Pagado' ? 
-            '<span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--secondary); padding: 4px 8px; border-radius: 6px;">PAGADO</span>' : 
-            '<span class="badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 4px 8px; border-radius: 6px;">PENDIENTE</span>';
+            '<span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">PAGADO</span>' : 
+            '<span class="badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);">PENDIENTE</span>';
         
-        const statusColor = r.estado_reserva === 'Activa' ? 'var(--secondary)' : (r.estado_reserva === 'Pendiente' ? 'var(--dorado)' : '#888');
+        const statusColors = {
+            'Pendiente': 'var(--dorado)',
+            'Activa': 'var(--secondary)',
+            'Completada': '#888',
+            'Cancelada': 'var(--danger)'
+        };
+        const statusColor = statusColors[r.estado_reserva] || '#ccc';
 
         return `
             <tr>
@@ -220,23 +273,64 @@ async function loadAdminReservations() {
                 <td>
                     <div class="flex-col" style="gap: 2px;">
                         <span class="text-bold">${r.user_name || 'Consumidor Final'}</span>
-                        <span class="text-small" style="font-size: 0.7rem; color: #666;">${r.user_email || 'S/D'}</span>
+                        <span class="text-small" style="font-size: 0.7rem; color: #666;">${r.user_email || 'Manual / Externo'}</span>
                     </div>
                 </td>
                 <td><span class="plate-style" style="background: #1e293b; color: #fff; padding: 4px 8px; border-radius: 4px; font-family: var(--font-mono); font-weight: 700;">${r.patente}</span></td>
                 <td>
                     <div class="text-small">
-                        <div>${formatDate(r.fecha_inicio)}</div>
+                        <div style="color: #eee;">${formatDate(r.fecha_inicio)}</div>
                         <div style="color: #666;">${formatDate(r.fecha_fin)}</div>
                     </div>
                 </td>
-                <td class="text-small">${r.sucursal_nombre}</td>
-                <td><span class="badge" style="background: rgba(255,255,255,0.05); color: #ccc; text-transform: capitalize; padding: 2px 8px; border-radius: 4px;">${r.tipo_estadia}</span></td>
-                <td class="text-bold">$${r.monto_total.toLocaleString('es-AR')}</td>
+                <td>
+                    <div class="flex-col">
+                        <span class="text-bold" style="font-size: 0.8rem;">${r.sucursal_nombre}</span>
+                        <span class="badge" style="background: rgba(255,255,255,0.05); color: #ccc; text-transform: capitalize; width: fit-content; margin-top: 4px;">${r.tipo_estadia}</span>
+                    </div>
+                </td>
+                <td class="text-dorado text-bold">$${r.monto_total.toLocaleString('es-AR')}</td>
                 <td>${pagoBadge}</td>
-                <td><span style="color: ${statusColor}; font-weight: 800; font-size: 0.75rem;">${r.estado_reserva.toUpperCase()}</span></td>
+                <td><span style="color: ${statusColor}; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;">${r.estado_reserva}</span></td>
+                <td>
+                    <div class="flex-row gap-5">
+                        ${(r.estado_pago !== 'Pagado' && r.estado_reserva !== 'Cancelada' && r.estado_reserva !== 'Completada') ? `<button class="btn-icon-premium sm" onclick="confirmPaymentAdmin(${r.id})" title="Confirmar Pago"><i class="fas fa-check-double"></i></button>` : ''}
+                        ${(r.estado_reserva !== 'Cancelada' && r.estado_reserva !== 'Completada') ? `<button class="btn-icon-premium sm danger" onclick="cancelReservationAdmin(${r.id})" title="Cancelar Reserva"><i class="fas fa-xmark"></i></button>` : ''}
+                    </div>
+                </td>
             </tr>`;
     }).join('') || '<tr><td colspan="9" class="text-center py-20">No hay reservas registradas.</td></tr>';
+
+    // Actualizar KPIs
+    document.getElementById('admin-res-stat-total').innerText = totalCount;
+    document.getElementById('admin-res-stat-pending').innerText = pendingToday;
+    document.getElementById('admin-res-stat-revenue').innerText = `$${totalProjectedRevenue.toLocaleString('es-AR')}`;
+}
+
+async function confirmPaymentAdmin(id) {
+    const confirm = await showConfirm('Confirmar Pago', `¿Confirmás el pago manual para la reserva <b>#${id}</b>?`);
+    if (!confirm) return;
+
+    const res = await apiClient.post(`/admin/reservations/${id}/confirm-payment`);
+    if (res.ok) {
+        showToast(`Reserva #${id} marcada como PAGADA.`);
+        loadAdminReservations();
+    } else {
+        showToast(res.error);
+    }
+}
+
+async function cancelReservationAdmin(id) {
+    const confirm = await showConfirm('Cancelar Reserva', `¿Estás seguro de cancelar la reserva <b>#${id}</b>? Esta acción es irreversible.`);
+    if (!confirm) return;
+
+    const res = await apiClient.post(`/admin/reservations/${id}/cancel`);
+    if (res.ok) {
+        showToast(`Reserva #${id} cancelada.`);
+        loadAdminReservations();
+    } else {
+        showToast(res.error);
+    }
 }
 
 async function loadUsers() {

@@ -9,6 +9,10 @@ class PlateValidation(BaseModel):
     gate_id: str
     image_base64: Optional[str] = None
 
+class QRValidation(BaseModel):
+    qr_data: str
+    gate_id: str
+
 class AccessResponse(BaseModel):
     status: str
     action: Optional[str] = None

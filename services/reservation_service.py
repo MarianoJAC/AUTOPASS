@@ -10,6 +10,31 @@ from fastapi import HTTPException
 
 class ReservationService:
     @staticmethod
+    def cleanup_overdue_reservations(db: Session):
+        """Cancela automáticamente reservas impagas 1 hora antes de su inicio."""
+        now = datetime.datetime.now()
+        # El límite es 1 hora en el futuro. 
+        # Si la reserva empieza antes de ese límite y no está paga, se cancela.
+        limit = now + datetime.timedelta(hours=1)
+        limit_str = limit.strftime("%Y-%m-%d %H:%M")
+        
+        overdue = db.query(models.Reservation).filter(
+            models.Reservation.estado_pago == "Pendiente",
+            models.Reservation.estado_reserva == "Pendiente",
+            models.Reservation.fecha_inicio <= limit_str
+        ).all()
+        
+        for r in overdue:
+            r.estado_reserva = "Cancelada"
+            r.estado_pago = "Cancelado"
+            
+        if overdue:
+            db.commit()
+            print(f"[SYSTEM] Se cancelaron {len(overdue)} reservas por falta de pago anticipado.")
+            return len(overdue)
+        return 0
+
+    @staticmethod
     def auto_finalize_reservations(db: Session, user_id: int):
         """Marca como completadas las reservas cuyo tiempo de estadía ya expiró."""
         now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")

@@ -1,16 +1,52 @@
 <!-- PESTAÑA: RESERVAS DE USUARIOS -->
 <div id="tab-admin-reservations" class="tab-view" style="display: none;">
+    <!-- KPIS DE RESERVAS -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="kpi-data">
+                <span class="label">Total Reservas</span>
+                <span class="value" id="admin-res-stat-total">0</span>
+            </div>
+        </div>
+        <div class="kpi-card highlight">
+            <div class="kpi-icon"><i class="fas fa-clock"></i></div>
+            <div class="kpi-data">
+                <span class="label">Pendientes Hoy</span>
+                <span class="value" id="admin-res-stat-pending">0</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+            <div class="kpi-data">
+                <span class="label">Recaudación Proyectada</span>
+                <span class="value" id="admin-res-stat-revenue">$0</span>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header-premium">
-            <div class="header-icon"><i class="fas fa-calendar-check"></i></div>
-            <div class="header-text">
-                <h3>REGISTRO MAESTRO DE RESERVAS</h3>
-                <p>Monitoreá y gestioná todas las reservas activas y futuras de los clientes.</p>
+            <div class="header-info-group" style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                <div class="header-icon"><i class="fas fa-list-check"></i></div>
+                <div class="header-text">
+                    <h3>REGISTRO DE RESERVAS</h3>
+                </div>
             </div>
             <div class="header-actions">
+                <div class="filter-group-premium">
+                    <i class="fas fa-location-dot"></i>
+                    <select id="admin-res-filter-sucursal" class="select-premium-sm" onchange="loadAdminReservations()">
+                        <option value="">Todas las Sedes</option>
+                        <option value="AUTOPASS Central">Sede Central</option>
+                        <option value="AUTOPASS Ituzaingó">Ituzaingó</option>
+                        <option value="AUTOPASS Castelar">Castelar</option>
+                        <option value="AUTOPASS Morón">Morón</option>
+                    </select>
+                </div>
                 <div class="search-box-premium">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="admin-res-search" placeholder="Patente, Cliente o Sede..." onkeyup="filterTable('admin-res-list', this.value)">
+                    <input type="text" id="admin-res-search" placeholder="Buscar patente o cliente..." onkeyup="filterTable('admin-res-list', this.value)">
                 </div>
             </div>
         </div>
@@ -19,14 +55,14 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Cliente</th>
-                        <th>Patente</th>
-                        <th>Desde / Hasta</th>
-                        <th>Sucursal</th>
-                        <th>Tipo</th>
+                        <th>Cliente / Usuario</th>
+                        <th>Vehículo</th>
+                        <th>Período</th>
+                        <th>Sede / Tipo</th>
                         <th>Monto</th>
-                        <th>Pago</th>
-                        <th>Estado</th>
+                        <th>Estado Pago</th>
+                        <th>Estado Reserva</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="admin-res-list">
