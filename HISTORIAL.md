@@ -28,13 +28,33 @@
 - **LOGO UNIFICATION**: Unificación de marca en dorado para todos los headers públicos.
 - **SIDEBAR REFACTOR**: Reducción de ancho a 240px y corrección de responsive en colapsado.
 
-### VERSIÓN 5.0 (2026-05-14) — RESPONSIVE FULL 2.0
+### VERSIÓN 5.0 (2026-05-14) — RESPONSIVE FULL 2.0 & ARQUITECTURA
 - **UNIFICACIÓN LEGAL**: Aplicación del header premium a Términos, Privacidad y Nuestra Red.
 - **GRID ADAPTATIVO**: Rediseño de formularios de reserva y tablas de historial para 1, 2 y 3 columnas según breakpoint.
 - **FOOTER INTELIGENTE**: Apilado vertical automático de acciones de pago y botones en móviles.
-- **CLEANUP CSS**: Eliminación masiva de estilos inline y centralización en `perfil-base.css` y `style.css`.
+- **CLEANUP CSS**: Eliminación masiva de estilos inline y centralización en hojas de estilo modulares.
+- **ARQUITECTURA DE CAPAS (BACKEND)**: 
+    - Implementación de Capa de Servicios (`ReservationService`) y Capa de Repositorios (`UserRepository`, `ReservationRepository`).
+    - Modularización de base de datos en `database.py`.
+- **SISTEMA DE PUNTOS**: Lógica integral de acumulación (10 pts x $1000) y descuentos por cancelación.
+
+### 👤 MEJORAS EN PERFIL DE USUARIO
+- **REEMPLAZO DE INLINE STYLES**: ~40 atributos `style` eliminados. Toda la UI ahora usa clases CSS reutilizables.
+- **PANTALLA DE INICIO**: Banner de bienvenida, tarjetas de estadísticas y trigger de reserva renovado.
+- **PASE DIGITAL**: Implementación de modal premium con QR dinámico y Web Share API.
+
+### 🛠️ DASHBOARD ADMINISTRATIVO
+- **REFACTORIZACIÓN DE UI**: Eliminación de estilos inline en favor de clases dedicadas (`.cam-box`, `.health-dot`, etc.).
+- **MONITOREO EN VIVO**: Detección de patentes visual con fallback y pills de estado en logs.
+- **GESTIÓN ADMIN**: Nuevos endpoints para creación de reservas manuales desde la administración.
 
 ### VERSIÓN 4.5 (2026-05-12) — MODULARIZACIÓN
 - **REFACTORIZACIÓN JS**: Lógica de reservas extraída a `reservas.js`.
 - **FORMULARIO DE RESERVAS PRO**: Automatización de fin de estadía por periodos.
 - **SIDEBAR DINÁMICO**: Logo compacto (32px) y estados `collapsed` persistentes.
+- **RESPONSIVE DESIGN**: Overhaul del menú hamburguesa y adaptabilidad total en móviles.
+
+## 📌 PRÓXIMOS PASOS
+- **MERCADO PAGO**: INTEGRAR EL SDK PARA PROCESAR PAGOS REALES.
+- **CANJE DE PUNTOS**: IMPLEMENTAR LA LÓGICA DE CANJE EN EL BACKEND.
+- **NOTIFICACIONES**: SISTEMA DE ALERTAS POR EMAIL PARA INGRESOS Y EGRESOS.
